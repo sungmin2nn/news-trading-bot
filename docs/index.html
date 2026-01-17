@@ -5,7 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>뉴스 트레이딩 봇 - 대시보드</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --color-a: #2196F3;
+            --color-b: #FF9800;
+            --color-c: #4CAF50;
+            --bg-primary: #f5f7fa;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a2e;
+            --text-secondary: #666;
+            --border-color: #e8e8e8;
+            --positive: #4CAF50;
+            --negative: #f44336;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a2e;
+            --bg-card: #16213e;
+            --text-primary: #eee;
+            --text-secondary: #aaa;
+            --border-color: #2a2a4a;
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,123 +38,319 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5f5f5;
-            color: #333;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             line-height: 1.6;
+            transition: all 0.3s ease;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
+        /* 헤더 */
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px;
-            border-radius: 10px;
+            border-radius: 16px;
             margin-bottom: 30px;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
         }
 
-        header h1 {
+        .header-left h1 {
             font-size: 2rem;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
-        header p {
+        .header-left p {
             opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
         .update-time {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             opacity: 0.8;
-            margin-top: 10px;
         }
 
-        .grid {
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* 전략 설명 섹션 */
+        .strategy-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .strategy-info-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid;
+        }
+
+        .strategy-info-card.strategy-a { border-left-color: var(--color-a); }
+        .strategy-info-card.strategy-b { border-left-color: var(--color-b); }
+        .strategy-info-card.strategy-c { border-left-color: var(--color-c); }
+
+        .strategy-info-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .strategy-info-card h3 i {
+            font-size: 1.2rem;
+        }
+
+        .strategy-info-card.strategy-a h3 { color: var(--color-a); }
+        .strategy-info-card.strategy-b h3 { color: var(--color-b); }
+        .strategy-info-card.strategy-c h3 { color: var(--color-c); }
+
+        .strategy-info-card ul {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .strategy-info-card li {
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .strategy-info-card li::before {
+            content: "•";
+            font-weight: bold;
+        }
+
+        /* 성과 카드 그리드 */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
 
         .card {
-            background: white;
-            border-radius: 10px;
+            background: var(--bg-card);
+            border-radius: 16px;
             padding: 25px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
         .card h2 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 20px;
-            color: #555;
-            border-bottom: 2px solid #eee;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
+        .card h2 i {
+            font-size: 1rem;
+        }
+
+        /* 전략 카드 */
         .strategy-card {
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .strategy-card.winner {
-            border: 2px solid #4CAF50;
+            border: 2px solid var(--positive);
+        }
+
+        .strategy-card.winner::after {
+            content: "🏆 BEST";
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--positive);
+            color: white;
+            padding: 5px 40px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transform: rotate(45deg);
         }
 
         .strategy-name {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
 
-        .strategy-a .strategy-name {
-            color: #2196F3;
+        .strategy-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
         }
 
-        .strategy-b .strategy-name {
-            color: #FF9800;
-        }
+        .strategy-a .strategy-name { color: var(--color-a); }
+        .strategy-b .strategy-name { color: var(--color-b); }
+        .strategy-c .strategy-name { color: var(--color-c); }
 
         .stat-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
+            gap: 12px;
         }
 
         .stat-item {
             text-align: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            padding: 15px 10px;
+            background: var(--bg-primary);
+            border-radius: 10px;
         }
 
         .stat-value {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: bold;
-            color: #333;
+            color: var(--text-primary);
         }
 
-        .stat-value.positive {
-            color: #4CAF50;
-        }
-
-        .stat-value.negative {
-            color: #f44336;
-        }
+        .stat-value.positive { color: var(--positive); }
+        .stat-value.negative { color: var(--negative); }
 
         .stat-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 5px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* 전략 비교 매트릭스 */
+        .comparison-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 14px 12px;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: var(--bg-primary);
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .comparison-table td {
+            font-size: 0.95rem;
+        }
+
+        .comparison-table tr:hover td {
+            background: var(--bg-primary);
+        }
+
+        .metric-name {
+            text-align: left !important;
+            font-weight: 500;
+        }
+
+        /* 승률 게이지 */
+        .win-rate-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .win-rate-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .win-rate-label {
+            width: 80px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .win-rate-bar {
+            flex: 1;
+            height: 24px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .win-rate-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            min-width: 45px;
+        }
+
+        .win-rate-fill.strategy-a { background: var(--color-a); }
+        .win-rate-fill.strategy-b { background: var(--color-b); }
+        .win-rate-fill.strategy-c { background: var(--color-c); }
+
+        /* 차트 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 320px;
         }
 
+        /* 종목 상세 테이블 */
         .signals-table {
             width: 100%;
             border-collapse: collapse;
@@ -138,91 +358,643 @@
 
         .signals-table th,
         .signals-table td {
-            padding: 12px;
+            padding: 14px 12px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .signals-table th {
-            background: #f8f9fa;
+            background: var(--bg-primary);
             font-weight: 600;
-            color: #555;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            position: sticky;
+            top: 0;
         }
 
-        .signals-table tr:hover {
-            background: #f8f9fa;
+        .signals-table tr:hover td {
+            background: var(--bg-primary);
         }
 
         .badge {
             display: inline-block;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-a { background: rgba(33, 150, 243, 0.15); color: var(--color-a); }
+        .badge-b { background: rgba(255, 152, 0, 0.15); color: var(--color-b); }
+        .badge-c { background: rgba(76, 175, 80, 0.15); color: var(--color-c); }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 500;
         }
 
-        .badge-a {
-            background: #e3f2fd;
-            color: #2196F3;
+        .status-tracked {
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--positive);
         }
 
-        .badge-b {
-            background: #fff3e0;
-            color: #FF9800;
+        .status-pending {
+            background: rgba(255, 152, 0, 0.15);
+            color: var(--color-b);
         }
 
-        .winner-badge {
-            display: inline-block;
-            background: #4CAF50;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            margin-top: 10px;
+        /* 기술적 지표 배지 */
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin: 2px;
         }
 
+        .tech-badge.rsi-good { background: rgba(76, 175, 80, 0.15); color: var(--positive); }
+        .tech-badge.rsi-bad { background: rgba(244, 67, 54, 0.15); color: var(--negative); }
+        .tech-badge.golden { background: rgba(255, 193, 7, 0.15); color: #FFC107; }
+
+        /* 통계 요약 카드 */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-stat-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .summary-stat-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .summary-stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .summary-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        /* 면책 조항 */
         .disclaimer {
-            background: #fff3cd;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            border-radius: 12px;
             padding: 20px;
             margin-top: 30px;
             font-size: 0.9rem;
             color: #856404;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        [data-theme="dark"] .disclaimer {
+            background: linear-gradient(135deg, #3d3d00 0%, #4a4a00 100%);
+            color: #ffc107;
+        }
+
+        .disclaimer i {
+            font-size: 1.5rem;
+            margin-top: 3px;
         }
 
         .disclaimer h3 {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-size: 1rem;
         }
 
+        /* 로딩 */
         .loading {
             text-align: center;
-            padding: 50px;
-            color: #666;
+            padding: 60px;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 탭 */
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: var(--border-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 반응형 */
+        @media (max-width: 1200px) {
+            .strategy-info,
+            .performance-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .comparison-section {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
-            .stat-grid {
+            .strategy-info,
+            .performance-grid,
+            .charts-section,
+            .summary-stats {
                 grid-template-columns: 1fr;
             }
 
-            header h1 {
+            header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .header-right {
+                flex-direction: column;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .header-left h1 {
                 font-size: 1.5rem;
+            }
+        }
+
+        /* 스크롤바 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* 시스템 정보 섹션 */
+        .system-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .sys-tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .sys-tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sys-tab-btn:hover:not(.active) {
+            background: var(--border-color);
+        }
+
+        .sys-tab-content {
+            display: none;
+        }
+
+        .sys-tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 개요 탭 - 정보 그리드 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .info-card .info-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: #667eea;
+        }
+
+        .info-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .info-card p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .info-card ul {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .info-card li {
+            padding: 5px 0;
+        }
+
+        /* 설정값 탭 */
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-section h4 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-section h4 i {
+            color: #667eea;
+        }
+
+        .settings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .settings-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .settings-table td:first-child {
+            font-weight: 500;
+            color: var(--text-primary);
+            width: 30%;
+        }
+
+        .settings-table td:nth-child(2) {
+            width: 25%;
+        }
+
+        .settings-table td:last-child {
+            color: var(--text-secondary);
+        }
+
+        .settings-table code {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+        }
+
+        [data-theme="dark"] .settings-table code {
+            background: rgba(102, 126, 234, 0.25);
+            color: #a8b5ff;
+        }
+
+        /* 실행 스케줄 탭 */
+        .schedule-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .schedule-timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            border-radius: 2px;
+        }
+
+        .schedule-item {
+            position: relative;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .schedule-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px;
+        }
+
+        .schedule-item.morning::before { color: #FF9800; background: #FF9800; }
+        .schedule-item.evening::before { color: #667eea; background: #667eea; }
+        .schedule-item.market::before { color: #4CAF50; background: #4CAF50; }
+
+        .schedule-time {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            min-width: 60px;
+        }
+
+        .schedule-content {
+            flex: 1;
+            background: var(--bg-primary);
+            padding: 15px 20px;
+            border-radius: 10px;
+        }
+
+        .schedule-content h4 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .schedule-content h4 i {
+            margin-right: 8px;
+        }
+
+        .schedule-item.morning .schedule-content h4 i { color: #FF9800; }
+        .schedule-item.evening .schedule-content h4 i { color: #667eea; }
+        .schedule-item.market .schedule-content h4 i { color: #4CAF50; }
+
+        .schedule-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .schedule-content ul {
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .schedule-content li {
+            padding: 3px 0;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .schedule-content li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+        }
+
+        .schedule-note {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .schedule-note i {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        /* 시스템 구조 탭 */
+        .structure-diagram {
+            margin-bottom: 25px;
+        }
+
+        .file-tree {
+            background: var(--bg-primary);
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            overflow-x: auto;
+            color: var(--text-primary);
+        }
+
+        .module-description h4 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .module-card {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .module-card h5 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .module-card h5 i {
+            margin-right: 8px;
+            color: #667eea;
+        }
+
+        .module-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1200px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .module-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+            .schedule-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .schedule-time {
+                min-width: auto;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- 헤더 -->
         <header>
-            <h1>뉴스 트레이딩 봇</h1>
-            <p>뉴스 기반 시초가 매매 전략 A/B 테스트</p>
-            <div class="update-time" id="updateTime">데이터 로딩 중...</div>
+            <div class="header-left">
+                <h1><i class="fas fa-chart-line"></i> 뉴스 트레이딩 봇</h1>
+                <p>뉴스/공시 기반 시초가 매매 전략 A/B/C 테스트</p>
+            </div>
+            <div class="header-right">
+                <div class="update-time" id="updateTime">
+                    <i class="fas fa-sync-alt"></i> 데이터 로딩 중...
+                </div>
+                <button class="theme-toggle" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
         </header>
 
-        <div class="grid">
-            <!-- 전략 A 카드 -->
+        <!-- 요약 통계 -->
+        <div class="summary-stats">
+            <div class="summary-stat-card">
+                <div class="summary-stat-icon">📈</div>
+                <div class="summary-stat-value" id="totalTradingDays">-</div>
+                <div class="summary-stat-label">총 거래일</div>
+            </div>
+            <div class="summary-stat-card">
+                <div class="summary-stat-icon">🎯</div>
+                <div class="summary-stat-value" id="bestStrategy">-</div>
+                <div class="summary-stat-label">최고 성과 전략</div>
+            </div>
+            <div class="summary-stat-card">
+                <div class="summary-stat-icon">💰</div>
+                <div class="summary-stat-value" id="bestReturn">-</div>
+                <div class="summary-stat-label">최고 누적 수익률</div>
+            </div>
+            <div class="summary-stat-card">
+                <div class="summary-stat-icon">📊</div>
+                <div class="summary-stat-value" id="avgWinRate">-</div>
+                <div class="summary-stat-label">평균 승률</div>
+            </div>
+        </div>
+
+        <!-- 전략 설명 -->
+        <div class="strategy-info">
+            <div class="strategy-info-card strategy-a">
+                <h3><i class="fas fa-filter"></i> 전략 A - 단순 필터</h3>
+                <ul>
+                    <li>시가총액 500억~10조</li>
+                    <li>평균 거래량 10만주 이상</li>
+                    <li>키워드 점수 1점 이상</li>
+                    <li>악재 키워드 제외</li>
+                </ul>
+            </div>
+            <div class="strategy-info-card strategy-b">
+                <h3><i class="fas fa-chart-bar"></i> 전략 B - 고급 필터</h3>
+                <ul>
+                    <li>A 전략 조건 포함</li>
+                    <li>5일 급등주 제외 (15% 이상)</li>
+                    <li>52주 신고가 근접 제외</li>
+                    <li>외국인 보유비율 1% 이상</li>
+                </ul>
+            </div>
+            <div class="strategy-info-card strategy-c">
+                <h3><i class="fas fa-cogs"></i> 전략 C - 기술적 분석</h3>
+                <ul>
+                    <li>B 전략 조건 포함</li>
+                    <li>RSI 20~70 (과매수/과매도 제외)</li>
+                    <li>골든크로스 (5일 > 20일)</li>
+                    <li>외국인 3일 연속 순매수</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 전략별 성과 카드 -->
+        <div class="performance-grid">
             <div class="card strategy-card strategy-a" id="strategyACard">
-                <div class="strategy-name">전략 A (단순)</div>
+                <div class="strategy-name">전략 A</div>
+                <div class="strategy-subtitle">단순 필터링</div>
                 <div class="stat-grid">
                     <div class="stat-item">
                         <div class="stat-value" id="aAvgReturn">-</div>
@@ -240,12 +1012,20 @@
                         <div class="stat-value" id="aTotalDays">-</div>
                         <div class="stat-label">거래일</div>
                     </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="aBestReturn">-</div>
+                        <div class="stat-label">최고 수익</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="aWorstReturn">-</div>
+                        <div class="stat-label">최저 수익</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 전략 B 카드 -->
             <div class="card strategy-card strategy-b" id="strategyBCard">
-                <div class="strategy-name">전략 B (고급)</div>
+                <div class="strategy-name">전략 B</div>
+                <div class="strategy-subtitle">고급 필터링</div>
                 <div class="stat-grid">
                     <div class="stat-item">
                         <div class="stat-value" id="bAvgReturn">-</div>
@@ -263,46 +1043,454 @@
                         <div class="stat-value" id="bTotalDays">-</div>
                         <div class="stat-label">거래일</div>
                     </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="bBestReturn">-</div>
+                        <div class="stat-label">최고 수익</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="bWorstReturn">-</div>
+                        <div class="stat-label">최저 수익</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card strategy-card strategy-c" id="strategyCCard">
+                <div class="strategy-name">전략 C</div>
+                <div class="strategy-subtitle">기술적 분석</div>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="cAvgReturn">-</div>
+                        <div class="stat-label">평균 수익률</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="cWinRate">-</div>
+                        <div class="stat-label">승률</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="cTotalReturn">-</div>
+                        <div class="stat-label">누적 수익률</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="cTotalDays">-</div>
+                        <div class="stat-label">거래일</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="cBestReturn">-</div>
+                        <div class="stat-label">최고 수익</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="cWorstReturn">-</div>
+                        <div class="stat-label">최저 수익</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 누적 수익률 차트 -->
-        <div class="card">
-            <h2>누적 수익률 추이</h2>
-            <div class="chart-container">
-                <canvas id="cumulativeChart"></canvas>
+        <!-- 전략 비교 섹션 -->
+        <div class="comparison-section">
+            <div class="card">
+                <h2><i class="fas fa-balance-scale"></i> 전략 비교 매트릭스</h2>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>지표</th>
+                            <th style="color: var(--color-a)">전략 A</th>
+                            <th style="color: var(--color-b)">전략 B</th>
+                            <th style="color: var(--color-c)">전략 C</th>
+                            <th>최고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonBody">
+                        <tr>
+                            <td class="metric-name">평균 수익률</td>
+                            <td id="cmpAAvg">-</td>
+                            <td id="cmpBAvg">-</td>
+                            <td id="cmpCAvg">-</td>
+                            <td id="cmpBestAvg">-</td>
+                        </tr>
+                        <tr>
+                            <td class="metric-name">승률</td>
+                            <td id="cmpAWin">-</td>
+                            <td id="cmpBWin">-</td>
+                            <td id="cmpCWin">-</td>
+                            <td id="cmpBestWin">-</td>
+                        </tr>
+                        <tr>
+                            <td class="metric-name">누적 수익률</td>
+                            <td id="cmpATotal">-</td>
+                            <td id="cmpBTotal">-</td>
+                            <td id="cmpCTotal">-</td>
+                            <td id="cmpBestTotal">-</td>
+                        </tr>
+                        <tr>
+                            <td class="metric-name">총 거래수</td>
+                            <td id="cmpATrades">-</td>
+                            <td id="cmpBTrades">-</td>
+                            <td id="cmpCTrades">-</td>
+                            <td id="cmpBestTrades">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-trophy"></i> 승률 비교</h2>
+                <div class="win-rate-section">
+                    <div class="win-rate-item">
+                        <div class="win-rate-label" style="color: var(--color-a)">전략 A</div>
+                        <div class="win-rate-bar">
+                            <div class="win-rate-fill strategy-a" id="winRateBarA" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    <div class="win-rate-item">
+                        <div class="win-rate-label" style="color: var(--color-b)">전략 B</div>
+                        <div class="win-rate-bar">
+                            <div class="win-rate-fill strategy-b" id="winRateBarB" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    <div class="win-rate-item">
+                        <div class="win-rate-label" style="color: var(--color-c)">전략 C</div>
+                        <div class="win-rate-bar">
+                            <div class="win-rate-fill strategy-c" id="winRateBarC" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- 일별 수익률 차트 -->
-        <div class="card" style="margin-top: 20px;">
-            <h2>일별 수익률</h2>
-            <div class="chart-container">
-                <canvas id="dailyChart"></canvas>
+        <!-- 차트 섹션 -->
+        <div class="charts-section">
+            <div class="card">
+                <h2><i class="fas fa-chart-line"></i> 누적 수익률 추이</h2>
+                <div class="chart-container">
+                    <canvas id="cumulativeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-chart-bar"></i> 일별 수익률</h2>
+                <div class="chart-container">
+                    <canvas id="dailyChart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- 최근 시그널 -->
-        <div class="card" style="margin-top: 20px;">
-            <h2>최근 시그널</h2>
+        <!-- 추가 차트 -->
+        <div class="charts-section">
+            <div class="card">
+                <h2><i class="fas fa-pie-chart"></i> 전략별 수익 분포</h2>
+                <div class="chart-container">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-chart-area"></i> 승률 추이</h2>
+                <div class="chart-container">
+                    <canvas id="winRateChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 시그널 테이블 -->
+        <div class="card" style="margin-bottom: 30px;">
+            <h2><i class="fas fa-list"></i> 최근 시그널</h2>
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="switchTab('all')">전체</button>
+                <button class="tab-btn" onclick="switchTab('a')">전략 A</button>
+                <button class="tab-btn" onclick="switchTab('b')">전략 B</button>
+                <button class="tab-btn" onclick="switchTab('c')">전략 C</button>
+            </div>
             <div id="signalsContainer">
-                <div class="loading">데이터 로딩 중...</div>
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>데이터 로딩 중...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 시스템 정보 섹션 -->
+        <div class="card system-info-section" style="margin-bottom: 30px;">
+            <h2><i class="fas fa-info-circle"></i> 시스템 정보</h2>
+            <div class="system-tabs">
+                <button class="sys-tab-btn active" onclick="switchSystemTab('overview')">개요</button>
+                <button class="sys-tab-btn" onclick="switchSystemTab('settings')">설정값</button>
+                <button class="sys-tab-btn" onclick="switchSystemTab('schedule')">실행 스케줄</button>
+                <button class="sys-tab-btn" onclick="switchSystemTab('structure')">시스템 구조</button>
+            </div>
+
+            <!-- 개요 탭 -->
+            <div id="sysOverview" class="sys-tab-content active">
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-robot"></i></div>
+                        <h4>시스템 목적</h4>
+                        <p>뉴스/공시 기반 시초가 매매 전략을 백테스트하고 A/B/C 전략의 성과를 비교 분석합니다.</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-database"></i></div>
+                        <h4>데이터 소스</h4>
+                        <ul>
+                            <li><strong>DART:</strong> 금융감독원 전자공시 시스템</li>
+                            <li><strong>네이버:</strong> 네이버 금융 뉴스</li>
+                            <li><strong>주가:</strong> pykrx / FinanceDataReader</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-chart-pie"></i></div>
+                        <h4>전략 구성</h4>
+                        <ul>
+                            <li><strong>전략 A:</strong> 기본 필터링 (시총, 거래량, 키워드)</li>
+                            <li><strong>전략 B:</strong> 고급 필터링 (급등주/고가 제외)</li>
+                            <li><strong>전략 C:</strong> 기술적 분석 (RSI, MA, 수급)</li>
+                        </ul>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-icon"><i class="fas fa-exchange-alt"></i></div>
+                        <h4>매매 방식</h4>
+                        <ul>
+                            <li><strong>매수:</strong> 장 시작 시초가 매수</li>
+                            <li><strong>매도:</strong> 당일 종가 매도 (데이트레이딩)</li>
+                            <li><strong>목표:</strong> 일일 수익률 극대화</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 설정값 탭 -->
+            <div id="sysSettings" class="sys-tab-content">
+                <div class="settings-section">
+                    <h4><i class="fas fa-sliders-h"></i> 공통 필터 (A, B, C 모두 적용)</h4>
+                    <table class="settings-table">
+                        <tr><td>최소 시가총액</td><td><code>500억 원</code></td><td>소형주 제외</td></tr>
+                        <tr><td>최대 시가총액</td><td><code>10조 원</code></td><td>대형주 제외</td></tr>
+                        <tr><td>최소 평균 거래량</td><td><code>10만 주</code></td><td>유동성 확보</td></tr>
+                        <tr><td>최소 키워드 점수</td><td><code>1점</code></td><td>호재 뉴스 필터</td></tr>
+                    </table>
+                </div>
+
+                <div class="settings-section">
+                    <h4><i class="fas fa-filter"></i> 전략 B 추가 필터</h4>
+                    <table class="settings-table">
+                        <tr><td>5일 수익률 상한</td><td><code>15%</code></td><td>급등주 제외</td></tr>
+                        <tr><td>52주 고가 비율 상한</td><td><code>90%</code></td><td>신고가 근접 제외</td></tr>
+                        <tr><td>최소 외국인 보유비율</td><td><code>1%</code></td><td>수급 필터</td></tr>
+                    </table>
+                </div>
+
+                <div class="settings-section">
+                    <h4><i class="fas fa-cogs"></i> 전략 C 추가 필터 (기술적 분석)</h4>
+                    <table class="settings-table">
+                        <tr><td>RSI 범위</td><td><code>20 ~ 70</code></td><td>과매수/과매도 제외</td></tr>
+                        <tr><td>골든크로스</td><td><code>5일선 > 20일선</code></td><td>상승 추세 확인</td></tr>
+                        <tr><td>외국인 연속 순매수</td><td><code>3일 이상</code></td><td>수급 모멘텀 확인</td></tr>
+                    </table>
+                </div>
+
+                <div class="settings-section">
+                    <h4><i class="fas fa-star"></i> 키워드 점수 체계</h4>
+                    <table class="settings-table">
+                        <tr><td>강한 호재</td><td><code>+3점</code></td><td>대규모 계약, 수주, 흑자전환, 인수합병 등</td></tr>
+                        <tr><td>중간 호재</td><td><code>+1점</code></td><td>신제품, 사업확장, 실적개선 등</td></tr>
+                        <tr><td>악재 (제외)</td><td><code>-10점</code></td><td>상장폐지, 횡령, 적자, 감자 등</td></tr>
+                    </table>
+                </div>
+
+                <div class="settings-section">
+                    <h4><i class="fas fa-cog"></i> 기타 설정</h4>
+                    <table class="settings-table">
+                        <tr><td>최대 선정 종목 수</td><td><code>10개</code></td><td>전략당 최대 종목</td></tr>
+                        <tr><td>뉴스 수집 페이지</td><td><code>10페이지</code></td><td>네이버 뉴스 최대</td></tr>
+                        <tr><td>주가 조회 기간</td><td><code>30일</code></td><td>기술적 분석용</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 실행 스케줄 탭 -->
+            <div id="sysSchedule" class="sys-tab-content">
+                <div class="schedule-timeline">
+                    <div class="schedule-item morning">
+                        <div class="schedule-time">08:30</div>
+                        <div class="schedule-content">
+                            <h4><i class="fas fa-sun"></i> 아침 스캔 (Morning Scan)</h4>
+                            <p>장 시작 전 뉴스/공시를 분석하여 매수 종목을 선정합니다.</p>
+                            <ul>
+                                <li>DART 전일/당일 공시 수집</li>
+                                <li>네이버 금융 뉴스 수집</li>
+                                <li>키워드 점수 계산</li>
+                                <li>A/B/C 전략별 종목 필터링</li>
+                                <li>시그널 파일 생성 (signals_YYYYMMDD.json)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="schedule-item market">
+                        <div class="schedule-time">09:00</div>
+                        <div class="schedule-content">
+                            <h4><i class="fas fa-bell"></i> 장 시작</h4>
+                            <p>선정된 종목을 시초가에 매수 (가상 매매)</p>
+                        </div>
+                    </div>
+
+                    <div class="schedule-item market">
+                        <div class="schedule-time">15:30</div>
+                        <div class="schedule-content">
+                            <h4><i class="fas fa-bell-slash"></i> 장 마감</h4>
+                            <p>보유 종목 종가에 매도 (가상 매매)</p>
+                        </div>
+                    </div>
+
+                    <div class="schedule-item evening">
+                        <div class="schedule-time">15:40</div>
+                        <div class="schedule-content">
+                            <h4><i class="fas fa-moon"></i> 저녁 추적 (Evening Track)</h4>
+                            <p>당일 시그널의 수익률을 추적하고 대시보드를 업데이트합니다.</p>
+                            <ul>
+                                <li>시초가 매수 → 종가 매도 수익률 계산</li>
+                                <li>전략별 성과 비교 분석</li>
+                                <li>누적 수익률 업데이트</li>
+                                <li>대시보드 데이터 갱신</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="schedule-note">
+                    <i class="fas fa-info-circle"></i>
+                    <span>GitHub Actions를 통해 KST 기준으로 자동 실행됩니다. 주말/공휴일에는 증시 휴장으로 데이터가 수집되지 않습니다.</span>
+                </div>
+            </div>
+
+            <!-- 시스템 구조 탭 -->
+            <div id="sysStructure" class="sys-tab-content">
+                <div class="structure-diagram">
+                    <pre class="file-tree">
+news-trading-bot/
+├── 📁 src/
+│   ├── 📁 collectors/           # 데이터 수집 모듈
+│   │   ├── dart_collector.py    # DART 공시 수집
+│   │   ├── naver_collector.py   # 네이버 뉴스 수집
+│   │   └── price_collector.py   # 주가/기술적 지표 수집
+│   │
+│   ├── 📁 analyzers/            # 분석 모듈
+│   │   ├── keyword_scorer.py    # 키워드 점수 계산
+│   │   ├── stock_filter.py      # A/B/C 전략 필터링
+│   │   └── simulator.py         # 수익률 시뮬레이션
+│   │
+│   ├── morning_scan.py          # 아침 스캔 메인 스크립트
+│   └── evening_track.py         # 저녁 추적 메인 스크립트
+│
+├── 📁 config/
+│   └── settings.yaml            # 전략 설정 파일
+│
+├── 📁 data/
+│   ├── signals.json             # 시그널 히스토리
+│   ├── results.json             # 성과 결과
+│   └── signals_YYYYMMDD.json    # 일별 시그널
+│
+├── 📁 docs/
+│   ├── index.html               # 대시보드 (현재 페이지)
+│   └── dashboard_data.json      # 대시보드 데이터
+│
+└── 📁 .github/workflows/
+    ├── morning-scan.yml         # 아침 스캔 자동화
+    └── evening-track.yml        # 저녁 추적 자동화
+                    </pre>
+                </div>
+
+                <div class="module-description">
+                    <h4>주요 모듈 설명</h4>
+                    <div class="module-grid">
+                        <div class="module-card">
+                            <h5><i class="fas fa-download"></i> Collectors</h5>
+                            <p>외부 데이터 소스에서 공시, 뉴스, 주가 데이터를 수집합니다.</p>
+                        </div>
+                        <div class="module-card">
+                            <h5><i class="fas fa-brain"></i> Analyzers</h5>
+                            <p>수집된 데이터를 분석하여 매수 시그널을 생성합니다.</p>
+                        </div>
+                        <div class="module-card">
+                            <h5><i class="fas fa-play"></i> Scripts</h5>
+                            <p>전체 파이프라인을 실행하는 메인 스크립트입니다.</p>
+                        </div>
+                        <div class="module-card">
+                            <h5><i class="fas fa-clock"></i> Workflows</h5>
+                            <p>GitHub Actions로 정해진 시간에 자동 실행됩니다.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- 면책 조항 -->
         <div class="disclaimer">
-            <h3>면책 조항</h3>
-            <p>이 시스템은 모의투자 목적으로 제작되었으며, 실제 투자 조언이 아닙니다.
-            모든 투자 결정과 그에 따른 책임은 사용자 본인에게 있습니다.
-            과거 수익률이 미래 수익을 보장하지 않습니다.</p>
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <h3>면책 조항</h3>
+                <p>이 시스템은 모의투자 및 학습 목적으로 제작되었으며, 실제 투자 조언이 아닙니다.
+                모든 투자 결정과 그에 따른 책임은 사용자 본인에게 있습니다.
+                과거 수익률이 미래 수익을 보장하지 않습니다.</p>
+            </div>
         </div>
     </div>
 
     <script>
         let cumulativeChart = null;
         let dailyChart = null;
+        let distributionChart = null;
+        let winRateChart = null;
+        let allSignals = [];
+        let currentTab = 'all';
+
+        // 테마 토글
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                icon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+
+            // 차트 색상 업데이트
+            updateChartsTheme();
+        }
+
+        // 저장된 테마 로드
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+            }
+        }
+
+        // 탭 전환
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateSignalsTable(allSignals);
+        }
+
+        // 시스템 정보 탭 전환
+        function switchSystemTab(tabId) {
+            // 버튼 활성화
+            document.querySelectorAll('.sys-tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 콘텐츠 표시
+            document.querySelectorAll('.sys-tab-content').forEach(content => content.classList.remove('active'));
+            const targetTab = document.getElementById('sys' + tabId.charAt(0).toUpperCase() + tabId.slice(1));
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+        }
 
         async function loadData() {
             try {
@@ -314,7 +1502,8 @@
                 updateDashboard(data);
             } catch (error) {
                 console.error('데이터 로드 오류:', error);
-                document.getElementById('updateTime').textContent = '데이터를 불러올 수 없습니다.';
+                document.getElementById('updateTime').innerHTML =
+                    '<i class="fas fa-exclamation-circle"></i> 데이터를 불러올 수 없습니다.';
             }
         }
 
@@ -322,38 +1511,79 @@
             // 업데이트 시간
             if (data.updated_at) {
                 const date = new Date(data.updated_at);
-                document.getElementById('updateTime').textContent =
-                    `마지막 업데이트: ${date.toLocaleString('ko-KR')}`;
+                document.getElementById('updateTime').innerHTML =
+                    `<i class="fas fa-check-circle"></i> ${date.toLocaleString('ko-KR')}`;
             }
 
-            // 전략 A 성과
             const strategyA = data.performance?.strategy_a || {};
+            const strategyB = data.performance?.strategy_b || {};
+            const strategyC = data.performance?.strategy_c || {};
+
+            // 요약 통계
+            const totalDays = Math.max(strategyA.total_days || 0, strategyB.total_days || 0, strategyC.total_days || 0);
+            document.getElementById('totalTradingDays').textContent = totalDays + '일';
+
+            const returns = {A: strategyA.total_return || 0, B: strategyB.total_return || 0, C: strategyC.total_return || 0};
+            const bestStrategy = Object.keys(returns).reduce((a, b) => returns[a] > returns[b] ? a : b);
+            document.getElementById('bestStrategy').textContent = '전략 ' + bestStrategy;
+
+            const bestReturn = Math.max(returns.A, returns.B, returns.C);
+            document.getElementById('bestReturn').textContent = bestReturn.toFixed(2) + '%';
+            document.getElementById('bestReturn').className = 'summary-stat-value ' + (bestReturn >= 0 ? 'positive' : 'negative');
+
+            const avgWinRate = ((strategyA.win_rate || 0) + (strategyB.win_rate || 0) + (strategyC.win_rate || 0)) / 3;
+            document.getElementById('avgWinRate').textContent = avgWinRate.toFixed(1) + '%';
+
+            // 전략 A 성과
             updateStatValue('aAvgReturn', strategyA.avg_return, '%');
             updateStatValue('aWinRate', strategyA.win_rate, '%');
             updateStatValue('aTotalReturn', strategyA.total_return, '%');
             document.getElementById('aTotalDays').textContent = strategyA.total_days || 0;
+            updateStatValue('aBestReturn', strategyA.best_return, '%');
+            updateStatValue('aWorstReturn', strategyA.worst_return, '%');
 
             // 전략 B 성과
-            const strategyB = data.performance?.strategy_b || {};
             updateStatValue('bAvgReturn', strategyB.avg_return, '%');
             updateStatValue('bWinRate', strategyB.win_rate, '%');
             updateStatValue('bTotalReturn', strategyB.total_return, '%');
             document.getElementById('bTotalDays').textContent = strategyB.total_days || 0;
+            updateStatValue('bBestReturn', strategyB.best_return, '%');
+            updateStatValue('bWorstReturn', strategyB.worst_return, '%');
+
+            // 전략 C 성과
+            updateStatValue('cAvgReturn', strategyC.avg_return, '%');
+            updateStatValue('cWinRate', strategyC.win_rate, '%');
+            updateStatValue('cTotalReturn', strategyC.total_return, '%');
+            document.getElementById('cTotalDays').textContent = strategyC.total_days || 0;
+            updateStatValue('cBestReturn', strategyC.best_return, '%');
+            updateStatValue('cWorstReturn', strategyC.worst_return, '%');
 
             // 승자 표시
             const winner = data.performance?.winner;
+            document.querySelectorAll('.strategy-card').forEach(card => card.classList.remove('winner'));
             if (winner === 'A') {
                 document.getElementById('strategyACard').classList.add('winner');
             } else if (winner === 'B') {
                 document.getElementById('strategyBCard').classList.add('winner');
+            } else if (winner === 'C') {
+                document.getElementById('strategyCCard').classList.add('winner');
             }
+
+            // 비교 매트릭스
+            updateComparisonTable(strategyA, strategyB, strategyC);
+
+            // 승률 바
+            updateWinRateBars(strategyA.win_rate || 0, strategyB.win_rate || 0, strategyC.win_rate || 0);
 
             // 차트 업데이트
             updateCumulativeChart(data.cumulative_returns);
             updateDailyChart(data.daily_returns);
+            updateDistributionChart(strategyA, strategyB, strategyC);
+            updateWinRateProgressChart(data.daily_returns);
 
-            // 최근 시그널
-            updateSignalsTable(data.recent_signals);
+            // 시그널 테이블
+            allSignals = data.recent_signals || [];
+            updateSignalsTable(allSignals);
         }
 
         function updateStatValue(elementId, value, suffix = '') {
@@ -371,17 +1601,72 @@
             }
         }
 
+        function updateComparisonTable(a, b, c) {
+            // 평균 수익률
+            document.getElementById('cmpAAvg').textContent = (a.avg_return || 0).toFixed(2) + '%';
+            document.getElementById('cmpBAvg').textContent = (b.avg_return || 0).toFixed(2) + '%';
+            document.getElementById('cmpCAvg').textContent = (c.avg_return || 0).toFixed(2) + '%';
+            const bestAvg = Math.max(a.avg_return || 0, b.avg_return || 0, c.avg_return || 0);
+            document.getElementById('cmpBestAvg').innerHTML = `<span class="badge badge-${bestAvg === a.avg_return ? 'a' : bestAvg === b.avg_return ? 'b' : 'c'}">${bestAvg.toFixed(2)}%</span>`;
+
+            // 승률
+            document.getElementById('cmpAWin').textContent = (a.win_rate || 0).toFixed(1) + '%';
+            document.getElementById('cmpBWin').textContent = (b.win_rate || 0).toFixed(1) + '%';
+            document.getElementById('cmpCWin').textContent = (c.win_rate || 0).toFixed(1) + '%';
+            const bestWin = Math.max(a.win_rate || 0, b.win_rate || 0, c.win_rate || 0);
+            document.getElementById('cmpBestWin').innerHTML = `<span class="badge badge-${bestWin === a.win_rate ? 'a' : bestWin === b.win_rate ? 'b' : 'c'}">${bestWin.toFixed(1)}%</span>`;
+
+            // 누적 수익률
+            document.getElementById('cmpATotal').textContent = (a.total_return || 0).toFixed(2) + '%';
+            document.getElementById('cmpBTotal').textContent = (b.total_return || 0).toFixed(2) + '%';
+            document.getElementById('cmpCTotal').textContent = (c.total_return || 0).toFixed(2) + '%';
+            const bestTotal = Math.max(a.total_return || 0, b.total_return || 0, c.total_return || 0);
+            document.getElementById('cmpBestTotal').innerHTML = `<span class="badge badge-${bestTotal === a.total_return ? 'a' : bestTotal === b.total_return ? 'b' : 'c'}">${bestTotal.toFixed(2)}%</span>`;
+
+            // 거래수
+            document.getElementById('cmpATrades').textContent = a.total_trades || 0;
+            document.getElementById('cmpBTrades').textContent = b.total_trades || 0;
+            document.getElementById('cmpCTrades').textContent = c.total_trades || 0;
+            const bestTrades = Math.max(a.total_trades || 0, b.total_trades || 0, c.total_trades || 0);
+            document.getElementById('cmpBestTrades').innerHTML = `<span class="badge badge-${bestTrades === a.total_trades ? 'a' : bestTrades === b.total_trades ? 'b' : 'c'}">${bestTrades}</span>`;
+        }
+
+        function updateWinRateBars(aRate, bRate, cRate) {
+            const barA = document.getElementById('winRateBarA');
+            const barB = document.getElementById('winRateBarB');
+            const barC = document.getElementById('winRateBarC');
+
+            setTimeout(() => {
+                barA.style.width = Math.min(aRate, 100) + '%';
+                barA.textContent = aRate.toFixed(1) + '%';
+
+                barB.style.width = Math.min(bRate, 100) + '%';
+                barB.textContent = bRate.toFixed(1) + '%';
+
+                barC.style.width = Math.min(cRate, 100) + '%';
+                barC.textContent = cRate.toFixed(1) + '%';
+            }, 300);
+        }
+
+        function getChartColors() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            return {
+                grid: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                text: isDark ? '#aaa' : '#666'
+            };
+        }
+
         function updateCumulativeChart(cumulativeData) {
             const ctx = document.getElementById('cumulativeChart').getContext('2d');
+            const colors = getChartColors();
 
             const aHistory = cumulativeData?.strategy_a?.history || [100];
             const bHistory = cumulativeData?.strategy_b?.history || [100];
-            const maxLen = Math.max(aHistory.length, bHistory.length);
+            const cHistory = cumulativeData?.strategy_c?.history || [100];
+            const maxLen = Math.max(aHistory.length, bHistory.length, cHistory.length);
             const labels = Array.from({length: maxLen}, (_, i) => `Day ${i}`);
 
-            if (cumulativeChart) {
-                cumulativeChart.destroy();
-            }
+            if (cumulativeChart) cumulativeChart.destroy();
 
             cumulativeChart = new Chart(ctx, {
                 type: 'line',
@@ -394,7 +1679,8 @@
                             borderColor: '#2196F3',
                             backgroundColor: 'rgba(33, 150, 243, 0.1)',
                             fill: true,
-                            tension: 0.3
+                            tension: 0.4,
+                            borderWidth: 2
                         },
                         {
                             label: '전략 B',
@@ -402,7 +1688,17 @@
                             borderColor: '#FF9800',
                             backgroundColor: 'rgba(255, 152, 0, 0.1)',
                             fill: true,
-                            tension: 0.3
+                            tension: 0.4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: '전략 C',
+                            data: cHistory,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2
                         }
                     ]
                 },
@@ -410,17 +1706,17 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'top'
-                        }
+                        legend: { position: 'top', labels: { color: colors.text } }
                     },
                     scales: {
                         y: {
                             beginAtZero: false,
-                            title: {
-                                display: true,
-                                text: '누적 수익률 (%)'
-                            }
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
+                        },
+                        x: {
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
                         }
                     }
                 }
@@ -429,19 +1725,16 @@
 
         function updateDailyChart(dailyData) {
             const ctx = document.getElementById('dailyChart').getContext('2d');
+            const colors = getChartColors();
 
-            if (!dailyData || dailyData.length === 0) {
-                return;
-            }
+            if (!dailyData || dailyData.length === 0) return;
 
             const aData = dailyData.filter(d => d.strategy === 'A');
             const bData = dailyData.filter(d => d.strategy === 'B');
-
+            const cData = dailyData.filter(d => d.strategy === 'C');
             const labels = [...new Set(dailyData.map(d => d.date))].sort();
 
-            if (dailyChart) {
-                dailyChart.destroy();
-            }
+            if (dailyChart) dailyChart.destroy();
 
             dailyChart = new Chart(ctx, {
                 type: 'bar',
@@ -467,6 +1760,16 @@
                             backgroundColor: 'rgba(255, 152, 0, 0.7)',
                             borderColor: '#FF9800',
                             borderWidth: 1
+                        },
+                        {
+                            label: '전략 C',
+                            data: labels.map(date => {
+                                const item = cData.find(d => d.date === date);
+                                return item ? item.avg_return : null;
+                            }),
+                            backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                            borderColor: '#4CAF50',
+                            borderWidth: 1
                         }
                     ]
                 },
@@ -474,31 +1777,154 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'top'
-                        }
+                        legend: { position: 'top', labels: { color: colors.text } }
                     },
                     scales: {
                         y: {
-                            title: {
-                                display: true,
-                                text: '수익률 (%)'
-                            }
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
+                        },
+                        x: {
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
                         }
                     }
                 }
             });
         }
 
+        function updateDistributionChart(a, b, c) {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            const colors = getChartColors();
+
+            if (distributionChart) distributionChart.destroy();
+
+            distributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['전략 A', '전략 B', '전략 C'],
+                    datasets: [{
+                        data: [
+                            Math.max(a.total_return || 0, 0.1),
+                            Math.max(b.total_return || 0, 0.1),
+                            Math.max(c.total_return || 0, 0.1)
+                        ],
+                        backgroundColor: [
+                            'rgba(33, 150, 243, 0.8)',
+                            'rgba(255, 152, 0, 0.8)',
+                            'rgba(76, 175, 80, 0.8)'
+                        ],
+                        borderColor: ['#2196F3', '#FF9800', '#4CAF50'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: colors.text } }
+                    }
+                }
+            });
+        }
+
+        function updateWinRateProgressChart(dailyData) {
+            const ctx = document.getElementById('winRateChart').getContext('2d');
+            const colors = getChartColors();
+
+            if (!dailyData || dailyData.length === 0) return;
+
+            if (winRateChart) winRateChart.destroy();
+
+            // 날짜별 누적 승률 계산
+            const dates = [...new Set(dailyData.map(d => d.date))].sort();
+
+            const calcCumulativeWinRate = (strategy) => {
+                let wins = 0;
+                let total = 0;
+                return dates.map(date => {
+                    const item = dailyData.find(d => d.date === date && d.strategy === strategy);
+                    if (item) {
+                        total++;
+                        if (item.avg_return > 0) wins++;
+                    }
+                    return total > 0 ? (wins / total) * 100 : 0;
+                });
+            };
+
+            winRateChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [
+                        {
+                            label: '전략 A 승률',
+                            data: calcCumulativeWinRate('A'),
+                            borderColor: '#2196F3',
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: '전략 B 승률',
+                            data: calcCumulativeWinRate('B'),
+                            borderColor: '#FF9800',
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: '전략 C 승률',
+                            data: calcCumulativeWinRate('C'),
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'transparent',
+                            tension: 0.4,
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { color: colors.text } }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text, callback: v => v + '%' }
+                        },
+                        x: {
+                            grid: { color: colors.grid },
+                            ticks: { color: colors.text }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartsTheme() {
+            // 차트가 있으면 다시 그리기
+            loadData();
+        }
+
         function updateSignalsTable(signals) {
             const container = document.getElementById('signalsContainer');
 
-            if (!signals || signals.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666;">최근 시그널이 없습니다.</p>';
+            let filtered = signals;
+            if (currentTab !== 'all') {
+                filtered = signals.filter(s => s.strategy.toLowerCase() === currentTab);
+            }
+
+            if (!filtered || filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">최근 시그널이 없습니다.</p>';
                 return;
             }
 
             let html = `
+                <div style="overflow-x: auto;">
                 <table class="signals-table">
                     <thead>
                         <tr>
@@ -512,28 +1938,39 @@
                     <tbody>
             `;
 
-            signals.forEach(signal => {
+            filtered.forEach(signal => {
                 const avgReturn = signal.avg_return !== undefined
                     ? `<span class="${signal.avg_return >= 0 ? 'positive' : 'negative'}">${signal.avg_return.toFixed(2)}%</span>`
                     : '-';
 
+                const statusClass = signal.status === 'tracked' ? 'status-tracked' : 'status-pending';
+                const statusText = signal.status === 'tracked' ? '추적완료' : '대기중';
+
                 html += `
                     <tr>
-                        <td>${signal.date}</td>
+                        <td>${formatDate(signal.date)}</td>
                         <td><span class="badge badge-${signal.strategy.toLowerCase()}">${signal.strategy}</span></td>
                         <td>${signal.signals?.length || 0}개</td>
                         <td>${avgReturn}</td>
-                        <td>${signal.status === 'tracked' ? '추적완료' : '대기중'}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     </tr>
                 `;
             });
 
-            html += '</tbody></table>';
+            html += '</tbody></table></div>';
             container.innerHTML = html;
         }
 
-        // 페이지 로드 시 데이터 불러오기
-        document.addEventListener('DOMContentLoaded', loadData);
+        function formatDate(dateStr) {
+            if (!dateStr || dateStr.length !== 8) return dateStr;
+            return `${dateStr.slice(0,4)}-${dateStr.slice(4,6)}-${dateStr.slice(6,8)}`;
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            loadData();
+        });
 
         // 5분마다 자동 새로고침
         setInterval(loadData, 5 * 60 * 1000);

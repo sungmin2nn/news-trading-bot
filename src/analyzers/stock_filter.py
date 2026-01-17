@@ -13,11 +13,11 @@ from ..collectors.price_collector import PriceCollector
 
 
 class StockFilter:
-    """종목 필터링 클래스 (A/B 전략 지원)"""
+    """종목 필터링 클래스 (A/B/C 전략 지원)"""
 
     # 기본 필터 설정
     DEFAULT_SETTINGS = {
-        # 공통 필터 (A, B 모두 적용)
+        # 공통 필터 (A, B, C 모두 적용)
         'min_market_cap': 50_000_000_000,       # 최소 시가총액: 500억
         'max_market_cap': 10_000_000_000_000,   # 최대 시가총액: 10조
         'min_avg_volume': 100_000,              # 최소 평균 거래량: 10만주
@@ -28,6 +28,12 @@ class StockFilter:
         'max_52week_high_ratio': 90.0,          # 52주 고가 대비 비율 상한: 90%
         'min_foreign_ratio': 1.0,               # 최소 외국인 보유 비율: 1%
         'min_contract_market_cap_ratio': 0.5,   # 계약금액/시총 비율: 0.5%
+
+        # C 전략 전용 필터 (기술적 분석)
+        'max_rsi': 70,                          # RSI 상한 (과매수 제외)
+        'min_rsi': 20,                          # RSI 하한 (극단적 과매도 제외)
+        'require_golden_cross': True,           # 골든크로스 필수 (5일선 > 20일선)
+        'min_foreign_consecutive_days': 3,      # 최소 외국인 연속 순매수일
 
         # 결과 제한
         'max_stocks': 10,                       # 최대 선정 종목 수
@@ -207,9 +213,103 @@ class StockFilter:
 
         return result
 
+    def apply_strategy_c(self, signals: list) -> list:
+        """
+        전략 C (기술적 분석 결합) 적용.
+
+        B 전략의 모든 필터 + 기술적 지표 필터:
+        - RSI 70 미만 (과매수 제외)
+        - 5일선 > 20일선 (상승 추세)
+        - 외국인 3일 연속 순매수
+
+        Args:
+            signals: 시그널 리스트
+
+        Returns:
+            전략 C로 필터링된 시그널 리스트
+        """
+        # B 전략 필터 먼저 적용
+        b_filtered = self.apply_strategy_b(signals)
+
+        filtered = []
+
+        for signal in b_filtered:
+            stock_code = signal.get('stock_code')
+
+            if stock_code:
+                # 기술적 지표 가져오기
+                tech = self.price_collector.get_technical_indicators(stock_code)
+
+                # 1. RSI 필터 (과매수 제외)
+                rsi = tech.get('rsi')
+                if rsi is not None:
+                    if rsi > self.settings.get('max_rsi', 70):
+                        continue
+                    if rsi < self.settings.get('min_rsi', 20):
+                        continue
+                    signal['rsi'] = round(rsi, 2)
+
+                # 2. 골든크로스 필터 (상승 추세)
+                if self.settings.get('require_golden_cross', True):
+                    golden_cross = tech.get('golden_cross')
+                    if golden_cross is False:  # None이면 통과
+                        continue
+                    signal['golden_cross'] = golden_cross
+                    signal['ma_trend'] = tech.get('ma_trend')
+
+                # 3. 외국인 연속 순매수 필터
+                min_consecutive = self.settings.get('min_foreign_consecutive_days', 3)
+                foreign_consecutive = tech.get('foreign_consecutive_days', 0)
+                if foreign_consecutive < min_consecutive:
+                    continue
+                signal['foreign_consecutive_days'] = foreign_consecutive
+
+                # 추가 정보 저장
+                signal['ma5'] = tech.get('ma5')
+                signal['ma20'] = tech.get('ma20')
+                signal['bb_position'] = tech.get('bb_position')
+
+            filtered.append(signal)
+
+        # 점수 + RSI 가중치로 정렬 (RSI 낮을수록 좋음)
+        def sort_key(x):
+            score = x.get('score', 0)
+            rsi = x.get('rsi', 50)
+            # 점수는 높을수록, RSI는 낮을수록 좋음
+            return (score * 2) - (rsi * 0.1)
+
+        sorted_signals = sorted(filtered, key=sort_key, reverse=True)
+
+        # 최대 종목 수 제한
+        max_stocks = self.settings.get('max_stocks', 10)
+        result = sorted_signals[:max_stocks]
+
+        # 전략 표시
+        for signal in result:
+            signal['strategy'] = 'C'
+
+        return result
+
+    def apply_all_strategies(self, signals: list) -> dict:
+        """
+        A/B/C 전략 모두 적용하여 결과를 반환합니다.
+
+        Args:
+            signals: 시그널 리스트
+
+        Returns:
+            {'strategy_a': [...], 'strategy_b': [...], 'strategy_c': [...]} 형태의 딕셔너리
+        """
+        return {
+            'strategy_a': self.apply_strategy_a(signals),
+            'strategy_b': self.apply_strategy_b(signals),
+            'strategy_c': self.apply_strategy_c(signals)
+        }
+
     def apply_both_strategies(self, signals: list) -> dict:
         """
         A/B 전략 모두 적용하여 결과를 반환합니다.
+        (하위 호환성을 위해 유지)
 
         Args:
             signals: 시그널 리스트

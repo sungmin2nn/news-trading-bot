@@ -348,6 +348,227 @@ class PriceCollector:
 
         return None
 
+    def get_rsi(self, stock_code: str, period: int = 14) -> Optional[float]:
+        """
+        RSI (상대강도지수)를 계산합니다.
+
+        Args:
+            stock_code: 종목 코드
+            period: RSI 계산 기간 (기본 14일)
+
+        Returns:
+            RSI 값 (0~100)
+        """
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=period * 3)  # 충분한 데이터 확보
+
+        try:
+            df = self.get_price(
+                stock_code,
+                start_date.strftime('%Y%m%d'),
+                end_date.strftime('%Y%m%d')
+            )
+
+            if df.empty or 'Close' not in df.columns or len(df) < period + 1:
+                return None
+
+            # 가격 변화 계산
+            delta = df['Close'].diff()
+
+            # 상승/하락 분리
+            gain = delta.where(delta > 0, 0)
+            loss = (-delta).where(delta < 0, 0)
+
+            # 평균 상승/하락 계산 (EMA 방식)
+            avg_gain = gain.rolling(window=period).mean()
+            avg_loss = loss.rolling(window=period).mean()
+
+            # RS 및 RSI 계산
+            rs = avg_gain / avg_loss
+            rsi = 100 - (100 / (1 + rs))
+
+            return float(rsi.iloc[-1]) if not pd.isna(rsi.iloc[-1]) else None
+
+        except Exception as e:
+            print(f"RSI 계산 오류 ({stock_code}): {e}")
+            return None
+
+    def get_moving_averages(self, stock_code: str) -> dict:
+        """
+        이동평균선을 계산합니다.
+
+        Args:
+            stock_code: 종목 코드
+
+        Returns:
+            이동평균 정보 딕셔너리
+        """
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=60)  # 충분한 데이터 확보
+
+        try:
+            df = self.get_price(
+                stock_code,
+                start_date.strftime('%Y%m%d'),
+                end_date.strftime('%Y%m%d')
+            )
+
+            if df.empty or 'Close' not in df.columns:
+                return {'ma5': None, 'ma20': None, 'ma_trend': None, 'golden_cross': None}
+
+            close = df['Close']
+            current_price = float(close.iloc[-1])
+
+            # 이동평균 계산
+            ma5 = float(close.rolling(window=5).mean().iloc[-1]) if len(close) >= 5 else None
+            ma20 = float(close.rolling(window=20).mean().iloc[-1]) if len(close) >= 20 else None
+
+            # 추세 판단
+            ma_trend = None
+            golden_cross = None
+
+            if ma5 and ma20:
+                if ma5 > ma20:
+                    ma_trend = 'uptrend'  # 상승 추세
+                    golden_cross = True
+                else:
+                    ma_trend = 'downtrend'  # 하락 추세
+                    golden_cross = False
+
+            return {
+                'current_price': current_price,
+                'ma5': ma5,
+                'ma20': ma20,
+                'ma_trend': ma_trend,
+                'golden_cross': golden_cross  # 5일선 > 20일선
+            }
+
+        except Exception as e:
+            print(f"이동평균 계산 오류 ({stock_code}): {e}")
+            return {'ma5': None, 'ma20': None, 'ma_trend': None, 'golden_cross': None}
+
+    def get_foreign_consecutive_buy_days(self, stock_code: str, days: int = 10) -> int:
+        """
+        외국인 연속 순매수 일수를 계산합니다.
+
+        Args:
+            stock_code: 종목 코드
+            days: 조회 기간
+
+        Returns:
+            연속 순매수 일수 (음수면 연속 순매도)
+        """
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days * 2)
+
+        try:
+            df = self.get_investor_trading(
+                stock_code,
+                start_date.strftime('%Y%m%d'),
+                end_date.strftime('%Y%m%d')
+            )
+
+            if df.empty:
+                return 0
+
+            # 외국인 순매수 컬럼 확인
+            foreign_col = None
+            for col in df.columns:
+                if '외국인' in str(col):
+                    foreign_col = col
+                    break
+
+            if foreign_col is None:
+                return 0
+
+            # 최근 데이터부터 연속 순매수/순매도 일수 계산
+            foreign_data = df[foreign_col].tail(days)
+            consecutive = 0
+
+            if len(foreign_data) == 0:
+                return 0
+
+            # 가장 최근 날의 방향 확인
+            last_value = foreign_data.iloc[-1]
+            if last_value > 0:
+                direction = 1  # 순매수
+            elif last_value < 0:
+                direction = -1  # 순매도
+            else:
+                return 0
+
+            # 연속 일수 계산
+            for value in reversed(foreign_data.values):
+                if direction == 1 and value > 0:
+                    consecutive += 1
+                elif direction == -1 and value < 0:
+                    consecutive -= 1
+                else:
+                    break
+
+            return consecutive
+
+        except Exception as e:
+            print(f"외국인 연속 매수일 계산 오류 ({stock_code}): {e}")
+            return 0
+
+    def get_bollinger_bands(self, stock_code: str, period: int = 20, std_dev: float = 2.0) -> dict:
+        """
+        볼린저 밴드를 계산합니다.
+
+        Args:
+            stock_code: 종목 코드
+            period: 이동평균 기간
+            std_dev: 표준편차 배수
+
+        Returns:
+            볼린저 밴드 정보 딕셔너리
+        """
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=period * 3)
+
+        try:
+            df = self.get_price(
+                stock_code,
+                start_date.strftime('%Y%m%d'),
+                end_date.strftime('%Y%m%d')
+            )
+
+            if df.empty or 'Close' not in df.columns or len(df) < period:
+                return {'upper': None, 'middle': None, 'lower': None, 'position': None}
+
+            close = df['Close']
+            current_price = float(close.iloc[-1])
+
+            # 볼린저 밴드 계산
+            middle = close.rolling(window=period).mean()
+            std = close.rolling(window=period).std()
+
+            upper = middle + (std * std_dev)
+            lower = middle - (std * std_dev)
+
+            upper_val = float(upper.iloc[-1])
+            middle_val = float(middle.iloc[-1])
+            lower_val = float(lower.iloc[-1])
+
+            # 현재 위치 (0~100, 0=하단, 100=상단)
+            if upper_val != lower_val:
+                position = ((current_price - lower_val) / (upper_val - lower_val)) * 100
+            else:
+                position = 50
+
+            return {
+                'upper': upper_val,
+                'middle': middle_val,
+                'lower': lower_val,
+                'current_price': current_price,
+                'position': position  # 0에 가까우면 하단, 100에 가까우면 상단
+            }
+
+        except Exception as e:
+            print(f"볼린저 밴드 계산 오류 ({stock_code}): {e}")
+            return {'upper': None, 'middle': None, 'lower': None, 'position': None}
+
     def get_stock_info(self, stock_code: str) -> dict:
         """
         종목의 종합 정보를 수집합니다.
@@ -376,3 +597,39 @@ class PriceCollector:
             info['high_52week_ratio'] = None
 
         return info
+
+    def get_technical_indicators(self, stock_code: str) -> dict:
+        """
+        종목의 기술적 지표를 종합 수집합니다.
+
+        Args:
+            stock_code: 종목 코드
+
+        Returns:
+            기술적 지표 딕셔너리
+        """
+        # RSI
+        rsi = self.get_rsi(stock_code)
+
+        # 이동평균선
+        ma_info = self.get_moving_averages(stock_code)
+
+        # 외국인 연속 매수일
+        foreign_consecutive = self.get_foreign_consecutive_buy_days(stock_code)
+
+        # 볼린저 밴드
+        bb_info = self.get_bollinger_bands(stock_code)
+
+        return {
+            'rsi': rsi,
+            'rsi_oversold': rsi < 30 if rsi else None,      # 과매도
+            'rsi_overbought': rsi > 70 if rsi else None,    # 과매수
+            'ma5': ma_info.get('ma5'),
+            'ma20': ma_info.get('ma20'),
+            'ma_trend': ma_info.get('ma_trend'),
+            'golden_cross': ma_info.get('golden_cross'),
+            'foreign_consecutive_days': foreign_consecutive,
+            'bb_upper': bb_info.get('upper'),
+            'bb_lower': bb_info.get('lower'),
+            'bb_position': bb_info.get('position'),
+        }

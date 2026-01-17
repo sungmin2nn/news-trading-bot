@@ -57,6 +57,16 @@ def run_evening_track():
         print(f"  - 최고 수익률: {b_summary['best_return']:.2f}%")
         print(f"  - 최저 수익률: {b_summary['worst_return']:.2f}%")
 
+        print(f"\n  [전략 C - 기술적 분석]")
+        c_summary = comparison['strategy_c']
+        print(f"  - 총 거래일: {c_summary['total_days']}일")
+        print(f"  - 총 거래수: {c_summary.get('total_trades', 0)}건")
+        print(f"  - 평균 수익률: {c_summary['avg_return']:.2f}%")
+        print(f"  - 승률: {c_summary['win_rate']:.1f}%")
+        print(f"  - 누적 수익률: {c_summary['total_return']:.2f}%")
+        print(f"  - 최고 수익률: {c_summary['best_return']:.2f}%")
+        print(f"  - 최저 수익률: {c_summary['worst_return']:.2f}%")
+
         print(f"\n  [전략 비교]")
         diff = comparison['difference']
         winner = comparison['winner']
@@ -106,6 +116,7 @@ def update_dashboard(simulator: Simulator):
         'performance': {
             'strategy_a': comparison['strategy_a'],
             'strategy_b': comparison['strategy_b'],
+            'strategy_c': comparison['strategy_c'],
             'winner': comparison['winner']
         },
         'cumulative_returns': cumulative,

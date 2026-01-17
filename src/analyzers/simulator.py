@@ -55,7 +55,7 @@ class Simulator:
 
         Args:
             signals: 선정된 시그널 리스트
-            strategy: 전략 ('A' 또는 'B')
+            strategy: 전략 ('A', 'B', 또는 'C')
             date: 기록 날짜 (YYYYMMDD)
         """
         if date is None:
@@ -229,23 +229,29 @@ class Simulator:
 
     def compare_strategies(self) -> dict:
         """
-        A/B 전략 성과를 비교합니다.
+        A/B/C 전략 성과를 비교합니다.
 
         Returns:
             비교 결과 딕셔너리
         """
         a_summary = self.get_performance_summary('A')
         b_summary = self.get_performance_summary('B')
+        c_summary = self.get_performance_summary('C')
+
+        # 우승 전략 결정 (평균 수익률 기준)
+        strategies = {'A': a_summary['avg_return'], 'B': b_summary['avg_return'], 'C': c_summary['avg_return']}
+        winner = max(strategies, key=strategies.get)
 
         return {
             'strategy_a': a_summary,
             'strategy_b': b_summary,
+            'strategy_c': c_summary,
             'difference': {
                 'avg_return': round(b_summary['avg_return'] - a_summary['avg_return'], 2),
                 'win_rate': round(b_summary['win_rate'] - a_summary['win_rate'], 1),
                 'total_return': round(b_summary['total_return'] - a_summary['total_return'], 2)
             },
-            'winner': 'B' if b_summary['avg_return'] > a_summary['avg_return'] else 'A'
+            'winner': winner
         }
 
     def get_daily_returns(self, days: int = 30) -> pd.DataFrame:
@@ -287,6 +293,7 @@ class Simulator:
         """
         a_returns = []
         b_returns = []
+        c_returns = []
 
         for record in sorted(self.signals_history, key=lambda x: x.get('date', '')):
             if record.get('status') != 'tracked':
@@ -296,8 +303,10 @@ class Simulator:
 
             if record.get('strategy') == 'A':
                 a_returns.append(avg_return)
-            else:
+            elif record.get('strategy') == 'B':
                 b_returns.append(avg_return)
+            elif record.get('strategy') == 'C':
+                c_returns.append(avg_return)
 
         # 누적 수익률 계산 (복리)
         def calculate_cumulative(returns_list):
@@ -313,7 +322,8 @@ class Simulator:
 
         return {
             'strategy_a': calculate_cumulative(a_returns),
-            'strategy_b': calculate_cumulative(b_returns)
+            'strategy_b': calculate_cumulative(b_returns),
+            'strategy_c': calculate_cumulative(c_returns)
         }
 
     def export_results(self, output_path: Optional[str] = None) -> str:
@@ -335,6 +345,7 @@ class Simulator:
             'performance': {
                 'strategy_a': self.get_performance_summary('A'),
                 'strategy_b': self.get_performance_summary('B'),
+                'strategy_c': self.get_performance_summary('C'),
                 'comparison': self.compare_strategies()
             },
             'cumulative_returns': self.get_cumulative_returns(),
