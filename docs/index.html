@@ -101,62 +101,223 @@
             background: rgba(255,255,255,0.3);
         }
 
-        /* 전략 설명 섹션 */
-        .strategy-info {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 15px;
-            margin-bottom: 30px;
+        /* 정보 버튼 (클릭 방식) */
+        .info-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            z-index: 10;
         }
 
-        .strategy-info-card {
-            background: var(--bg-card);
-            border-radius: 12px;
+        .info-btn:hover, .info-btn:active {
+            background: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        /* 모달 오버레이 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
-            box-shadow: var(--shadow);
-            border-left: 4px solid;
         }
 
-        .strategy-info-card.strategy-a { border-left-color: var(--color-a); }
-        .strategy-info-card.strategy-b { border-left-color: var(--color-b); }
-        .strategy-info-card.strategy-c { border-left-color: var(--color-c); }
-        .strategy-info-card.strategy-c-plus { border-left-color: var(--color-c-plus); }
-        .strategy-info-card.strategy-d { border-left-color: var(--color-d); }
+        .modal-overlay.active {
+            display: flex;
+        }
 
-        .strategy-info-card h3 {
+        .strategy-modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 320px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .strategy-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .strategy-modal-header h3 {
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
         }
 
-        .strategy-info-card h3 i {
+        .strategy-modal-header h3 i {
+            font-size: 1rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
             font-size: 1.2rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 5px;
         }
 
-        .strategy-info-card.strategy-a h3 { color: var(--color-a); }
-        .strategy-info-card.strategy-b h3 { color: var(--color-b); }
-        .strategy-info-card.strategy-c h3 { color: var(--color-c); }
-        .strategy-info-card.strategy-c-plus h3 { color: var(--color-c-plus); }
-        .strategy-info-card.strategy-d h3 { color: var(--color-d); }
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
 
-        .strategy-info-card ul {
+        .strategy-modal.strategy-a .strategy-modal-header h3 { color: var(--color-a); }
+        .strategy-modal.strategy-b .strategy-modal-header h3 { color: var(--color-b); }
+        .strategy-modal.strategy-c .strategy-modal-header h3 { color: var(--color-c); }
+        .strategy-modal.strategy-c-plus .strategy-modal-header h3 { color: var(--color-c-plus); }
+        .strategy-modal.strategy-d .strategy-modal-header h3 { color: var(--color-d); }
+
+        .strategy-modal ul {
             list-style: none;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: var(--text-secondary);
         }
 
-        .strategy-info-card li {
-            padding: 4px 0;
+        .strategy-modal li {
+            padding: 8px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .strategy-modal li:last-child {
+            border-bottom: none;
+        }
+
+        .strategy-modal li::before {
+            content: "✓";
+            font-weight: bold;
+            flex-shrink: 0;
+            color: var(--positive);
+        }
+
+        /* 거래비용 표시 배너 */
+        .cost-banner {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .cost-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cost-item {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 0.9rem;
         }
 
-        .strategy-info-card li::before {
-            content: "•";
-            font-weight: bold;
+        .cost-item i {
+            color: #667eea;
+        }
+
+        .cost-item .cost-label {
+            color: var(--text-secondary);
+        }
+
+        .cost-item .cost-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .cost-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cost-toggle label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(20px);
         }
 
         /* 성과 카드 그리드 */
@@ -978,58 +1139,38 @@
             </div>
         </div>
 
-        <!-- 전략 설명 -->
-        <div class="strategy-info">
-            <div class="strategy-info-card strategy-a">
-                <h3><i class="fas fa-filter"></i> 전략 A - 단순 필터</h3>
-                <ul>
-                    <li>시가총액 500억~10조</li>
-                    <li>평균 거래량 10만주 이상</li>
-                    <li>키워드 점수 1점 이상</li>
-                    <li>악재 키워드 제외</li>
-                </ul>
+        <!-- 거래비용 배너 -->
+        <div class="cost-banner">
+            <div class="cost-info">
+                <div class="cost-item">
+                    <i class="fas fa-calculator"></i>
+                    <span class="cost-label">거래비용:</span>
+                    <span class="cost-value" id="totalCost">0.46%</span>
+                </div>
+                <div class="cost-item">
+                    <i class="fas fa-arrow-down"></i>
+                    <span class="cost-label">매수</span>
+                    <span class="cost-value" id="buyCost">0.115%</span>
+                </div>
+                <div class="cost-item">
+                    <i class="fas fa-arrow-up"></i>
+                    <span class="cost-label">매도</span>
+                    <span class="cost-value" id="sellCost">0.345%</span>
+                </div>
             </div>
-            <div class="strategy-info-card strategy-b">
-                <h3><i class="fas fa-chart-bar"></i> 전략 B - 고급 필터</h3>
-                <ul>
-                    <li>A 전략 조건 포함</li>
-                    <li>5일 급등주 제외 (15% 이상)</li>
-                    <li>52주 신고가 근접 제외</li>
-                    <li>외국인 보유비율 1% 이상</li>
-                </ul>
-            </div>
-            <div class="strategy-info-card strategy-c">
-                <h3><i class="fas fa-cogs"></i> 전략 C - 기술적 분석</h3>
-                <ul>
-                    <li>B 전략 조건 포함</li>
-                    <li>RSI 20~70 (과매수/과매도 제외)</li>
-                    <li>골든크로스 (5일 > 20일)</li>
-                    <li>외국인 3일 연속 순매수</li>
-                </ul>
-            </div>
-            <div class="strategy-info-card strategy-c-plus">
-                <h3><i class="fas fa-rocket"></i> 전략 C+ - 거래량/볼린저</h3>
-                <ul>
-                    <li>C 전략 조건 포함</li>
-                    <li>거래량 모멘텀 150% 이상 (cis식)</li>
-                    <li>볼린저밴드 위치 20~80%</li>
-                    <li>거래량 급증 종목 선별</li>
-                </ul>
-            </div>
-            <div class="strategy-info-card strategy-d">
-                <h3><i class="fas fa-bolt"></i> 전략 D - BNF/cis 하이브리드</h3>
-                <ul>
-                    <li>B 전략 조건 포함</li>
-                    <li>25일 이평선 괴리율 -5%~+15% (BNF식)</li>
-                    <li>전일 양봉 필수 (cis식)</li>
-                    <li>거래량 120% 이상 (모멘텀)</li>
-                </ul>
+            <div class="cost-toggle">
+                <label>비용 반영</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="costToggle" checked>
+                    <span class="toggle-slider"></span>
+                </div>
             </div>
         </div>
 
         <!-- 전략별 성과 카드 -->
         <div class="performance-grid">
             <div class="card strategy-card strategy-a" id="strategyACard">
+                <button class="info-btn" onclick="showStrategyInfo('A')"><i class="fas fa-info"></i></button>
                 <div class="strategy-name">전략 A</div>
                 <div class="strategy-subtitle">단순 필터링</div>
                 <div class="stat-grid">
@@ -1061,6 +1202,7 @@
             </div>
 
             <div class="card strategy-card strategy-b" id="strategyBCard">
+                <button class="info-btn" onclick="showStrategyInfo('B')"><i class="fas fa-info"></i></button>
                 <div class="strategy-name">전략 B</div>
                 <div class="strategy-subtitle">고급 필터링</div>
                 <div class="stat-grid">
@@ -1092,6 +1234,7 @@
             </div>
 
             <div class="card strategy-card strategy-c" id="strategyCCard">
+                <button class="info-btn" onclick="showStrategyInfo('C')"><i class="fas fa-info"></i></button>
                 <div class="strategy-name">전략 C</div>
                 <div class="strategy-subtitle">기술적 분석</div>
                 <div class="stat-grid">
@@ -1123,6 +1266,7 @@
             </div>
 
             <div class="card strategy-card strategy-c-plus" id="strategyCPlusCard">
+                <button class="info-btn" onclick="showStrategyInfo('C+')"><i class="fas fa-info"></i></button>
                 <div class="strategy-name">전략 C+</div>
                 <div class="strategy-subtitle">거래량/볼린저</div>
                 <div class="stat-grid">
@@ -1154,6 +1298,7 @@
             </div>
 
             <div class="card strategy-card strategy-d" id="strategyDCard">
+                <button class="info-btn" onclick="showStrategyInfo('D')"><i class="fas fa-info"></i></button>
                 <div class="strategy-name">전략 D</div>
                 <div class="strategy-subtitle">BNF/cis 하이브리드</div>
                 <div class="stat-grid">
@@ -2289,6 +2434,99 @@ news-trading-bot/
             return `${dateStr.slice(0,4)}-${dateStr.slice(4,6)}-${dateStr.slice(6,8)}`;
         }
 
+        // 전략 정보 데이터
+        const strategyInfoData = {
+            'A': {
+                title: '전략 A - 단순 필터',
+                icon: 'fa-filter',
+                cssClass: 'strategy-a',
+                items: [
+                    '시가총액 500억~10조',
+                    '평균 거래량 10만주 이상',
+                    '키워드 점수 1점 이상',
+                    '악재 키워드 제외'
+                ]
+            },
+            'B': {
+                title: '전략 B - 고급 필터',
+                icon: 'fa-chart-bar',
+                cssClass: 'strategy-b',
+                items: [
+                    'A 전략 조건 포함',
+                    '5일 급등주 제외 (15%+)',
+                    '52주 신고가 근접 제외',
+                    '외국인 보유비율 1%+'
+                ]
+            },
+            'C': {
+                title: '전략 C - 기술적 분석',
+                icon: 'fa-cogs',
+                cssClass: 'strategy-c',
+                items: [
+                    'B 전략 조건 포함',
+                    'RSI 20~70 범위',
+                    '골든크로스 (5일>20일)',
+                    '외국인 3일 연속 순매수'
+                ]
+            },
+            'C+': {
+                title: '전략 C+ - 거래량/볼린저',
+                icon: 'fa-rocket',
+                cssClass: 'strategy-c-plus',
+                items: [
+                    'C 전략 조건 포함',
+                    '거래량 150%+ (cis식)',
+                    '볼린저밴드 20~80%',
+                    '거래량 급증 종목 선별'
+                ]
+            },
+            'D': {
+                title: '전략 D - BNF/cis',
+                icon: 'fa-bolt',
+                cssClass: 'strategy-d',
+                items: [
+                    'B 전략 조건 포함',
+                    '25일선 괴리율 -5%~+15%',
+                    '전일 양봉 필수 (cis식)',
+                    '거래량 120%+ (모멘텀)'
+                ]
+            }
+        };
+
+        // 전략 정보 모달 표시
+        function showStrategyInfo(strategy) {
+            const info = strategyInfoData[strategy];
+            if (!info) return;
+
+            const modal = document.getElementById('strategyModal');
+            const content = document.getElementById('strategyModalContent');
+
+            content.className = 'strategy-modal ' + info.cssClass;
+            content.innerHTML = `
+                <div class="strategy-modal-header">
+                    <h3><i class="fas ${info.icon}"></i> ${info.title}</h3>
+                    <button class="modal-close" onclick="closeStrategyModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <ul>
+                    ${info.items.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // 모달 닫기
+        function closeStrategyModal() {
+            document.getElementById('strategyModal').classList.remove('active');
+        }
+
+        // 오버레이 클릭 시 닫기
+        document.getElementById('strategyModal')?.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+                closeStrategyModal();
+            }
+        });
+
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
             loadTheme();
@@ -2298,5 +2536,11 @@ news-trading-bot/
         // 5분마다 자동 새로고침
         setInterval(loadData, 5 * 60 * 1000);
     </script>
+
+    <!-- 전략 정보 모달 -->
+    <div class="modal-overlay" id="strategyModal">
+        <div class="strategy-modal" id="strategyModalContent">
+        </div>
+    </div>
 </body>
 </html>
