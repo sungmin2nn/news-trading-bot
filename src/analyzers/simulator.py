@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 import pandas as pd
+import yaml
 
 from ..collectors.price_collector import PriceCollector
 
@@ -16,18 +17,35 @@ from ..collectors.price_collector import PriceCollector
 class Simulator:
     """모의 투자 시뮬레이터 클래스"""
 
-    def __init__(self, data_path: Optional[str] = None):
+    # 기본 거래 비용 설정
+    DEFAULT_COST_SETTINGS = {
+        'apply_trading_costs': True,   # 거래 비용 반영 여부
+        'buy_commission': 0.015,       # 매수 수수료 (%)
+        'buy_slippage': 0.1,           # 매수 슬리피지 (%)
+        'sell_commission': 0.015,      # 매도 수수료 (%)
+        'sell_slippage': 0.1,          # 매도 슬리피지 (%)
+        'sell_tax': 0.23,              # 증권거래세 (%)
+    }
+
+    def __init__(self, data_path: Optional[str] = None, settings_path: Optional[str] = None):
         """
         Args:
             data_path: signals.json 파일 경로
+            settings_path: settings.yaml 파일 경로
         """
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
         if data_path is None:
-            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
             data_path = os.path.join(base_dir, 'data', 'signals.json')
 
+        if settings_path is None:
+            settings_path = os.path.join(base_dir, 'config', 'settings.yaml')
+
         self.data_path = data_path
+        self.settings_path = settings_path
         self.price_collector = PriceCollector()
         self.signals_history = self._load_signals()
+        self.cost_settings = self._load_cost_settings()
 
     def _load_signals(self) -> list:
         """저장된 시그널 히스토리를 로드합니다."""
@@ -39,6 +57,55 @@ class Simulator:
         except Exception as e:
             print(f"시그널 히스토리 로드 오류: {e}")
             return []
+
+    def _load_cost_settings(self) -> dict:
+        """거래 비용 설정을 로드합니다."""
+        settings = self.DEFAULT_COST_SETTINGS.copy()
+
+        try:
+            with open(self.settings_path, 'r', encoding='utf-8') as f:
+                yaml_settings = yaml.safe_load(f) or {}
+
+            # 설정값 업데이트
+            for key in settings.keys():
+                if key in yaml_settings:
+                    settings[key] = yaml_settings[key]
+
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            print(f"거래 비용 설정 로드 오류: {e}")
+
+        return settings
+
+    def get_trading_costs(self) -> dict:
+        """
+        현재 거래 비용 설정을 반환합니다.
+
+        Returns:
+            거래 비용 설정 딕셔너리
+        """
+        costs = self.cost_settings.copy()
+
+        # 총 비용 계산
+        buy_cost = costs['buy_commission'] + costs['buy_slippage']
+        sell_cost = costs['sell_commission'] + costs['sell_slippage'] + costs['sell_tax']
+        total_cost = buy_cost + sell_cost
+
+        costs['buy_total'] = round(buy_cost, 3)
+        costs['sell_total'] = round(sell_cost, 3)
+        costs['round_trip_total'] = round(total_cost, 3)
+
+        return costs
+
+    def set_apply_trading_costs(self, apply: bool):
+        """
+        거래 비용 반영 여부를 설정합니다.
+
+        Args:
+            apply: True면 비용 반영, False면 미반영 (기존 방식)
+        """
+        self.cost_settings['apply_trading_costs'] = apply
 
     def _save_signals(self):
         """시그널 히스토리를 저장합니다."""
@@ -55,7 +122,7 @@ class Simulator:
 
         Args:
             signals: 선정된 시그널 리스트
-            strategy: 전략 ('A', 'B', 또는 'C')
+            strategy: 전략 ('A', 'B', 'C', 'C+', 또는 'D')
             date: 기록 날짜 (YYYYMMDD)
         """
         if date is None:
@@ -77,7 +144,8 @@ class Simulator:
         stock_code: str,
         buy_date: str,
         sell_date: Optional[str] = None,
-        buy_price: Optional[float] = None
+        buy_price: Optional[float] = None,
+        apply_costs: Optional[bool] = None
     ) -> dict:
         """
         종목의 수익률을 계산합니다.
@@ -87,12 +155,20 @@ class Simulator:
             buy_date: 매수일 (YYYYMMDD)
             sell_date: 매도일 (기본: 당일)
             buy_price: 매수가 (기본: 시가)
+            apply_costs: 거래 비용 반영 여부 (None이면 설정값 사용)
 
         Returns:
             수익률 정보 딕셔너리
+            - gross_returns: 총수익률 (비용 미반영)
+            - returns: 순수익률 (비용 반영 시) 또는 총수익률 (미반영 시)
+            - trading_costs: 차감된 거래 비용 (%)
         """
         if sell_date is None:
             sell_date = datetime.now().strftime('%Y%m%d')
+
+        # 거래 비용 반영 여부 결정
+        if apply_costs is None:
+            apply_costs = self.cost_settings.get('apply_trading_costs', True)
 
         try:
             # 매수일 주가
@@ -112,8 +188,38 @@ class Simulator:
             # 종가 매도 가정
             sell_price = float(sell_df.iloc[0]['Close'])
 
-            # 수익률 계산
-            returns = ((sell_price - buy_price) / buy_price) * 100
+            # 총수익률 (비용 미반영)
+            gross_returns = ((sell_price - buy_price) / buy_price) * 100
+
+            # 거래 비용 계산
+            if apply_costs:
+                # 매수 비용 (%)
+                buy_cost_pct = (
+                    self.cost_settings['buy_commission'] +
+                    self.cost_settings['buy_slippage']
+                )
+                # 매도 비용 (%)
+                sell_cost_pct = (
+                    self.cost_settings['sell_commission'] +
+                    self.cost_settings['sell_slippage'] +
+                    self.cost_settings['sell_tax']
+                )
+                # 총 거래 비용 (%)
+                total_cost_pct = buy_cost_pct + sell_cost_pct
+
+                # 순수익률 = 총수익률 - 거래비용
+                net_returns = gross_returns - total_cost_pct
+
+                # 실제 매수가/매도가 (비용 반영)
+                effective_buy_price = buy_price * (1 + buy_cost_pct / 100)
+                effective_sell_price = sell_price * (1 - sell_cost_pct / 100)
+                net_profit = effective_sell_price - effective_buy_price
+            else:
+                total_cost_pct = 0
+                net_returns = gross_returns
+                effective_buy_price = buy_price
+                effective_sell_price = sell_price
+                net_profit = sell_price - buy_price
 
             return {
                 'stock_code': stock_code,
@@ -121,8 +227,11 @@ class Simulator:
                 'sell_date': sell_date,
                 'buy_price': buy_price,
                 'sell_price': sell_price,
-                'returns': round(returns, 2),
-                'profit': sell_price - buy_price
+                'gross_returns': round(gross_returns, 2),       # 총수익률 (비용 미반영)
+                'returns': round(net_returns, 2),               # 순수익률 (기본 반환값)
+                'trading_costs': round(total_cost_pct, 3),      # 차감된 거래 비용
+                'profit': round(net_profit, 2),                 # 순이익
+                'costs_applied': apply_costs                    # 비용 반영 여부
             }
 
         except Exception as e:
@@ -229,7 +338,7 @@ class Simulator:
 
     def compare_strategies(self) -> dict:
         """
-        A/B/C 전략 성과를 비교합니다.
+        A/B/C/C+/D 전략 성과를 비교합니다.
 
         Returns:
             비교 결과 딕셔너리
@@ -237,15 +346,25 @@ class Simulator:
         a_summary = self.get_performance_summary('A')
         b_summary = self.get_performance_summary('B')
         c_summary = self.get_performance_summary('C')
+        c_plus_summary = self.get_performance_summary('C+')
+        d_summary = self.get_performance_summary('D')
 
         # 우승 전략 결정 (평균 수익률 기준)
-        strategies = {'A': a_summary['avg_return'], 'B': b_summary['avg_return'], 'C': c_summary['avg_return']}
+        strategies = {
+            'A': a_summary['avg_return'],
+            'B': b_summary['avg_return'],
+            'C': c_summary['avg_return'],
+            'C+': c_plus_summary['avg_return'],
+            'D': d_summary['avg_return']
+        }
         winner = max(strategies, key=strategies.get)
 
         return {
             'strategy_a': a_summary,
             'strategy_b': b_summary,
             'strategy_c': c_summary,
+            'strategy_c_plus': c_plus_summary,
+            'strategy_d': d_summary,
             'difference': {
                 'avg_return': round(b_summary['avg_return'] - a_summary['avg_return'], 2),
                 'win_rate': round(b_summary['win_rate'] - a_summary['win_rate'], 1),
@@ -294,19 +413,26 @@ class Simulator:
         a_returns = []
         b_returns = []
         c_returns = []
+        c_plus_returns = []
+        d_returns = []
 
         for record in sorted(self.signals_history, key=lambda x: x.get('date', '')):
             if record.get('status') != 'tracked':
                 continue
 
             avg_return = record.get('avg_return', 0)
+            strategy = record.get('strategy')
 
-            if record.get('strategy') == 'A':
+            if strategy == 'A':
                 a_returns.append(avg_return)
-            elif record.get('strategy') == 'B':
+            elif strategy == 'B':
                 b_returns.append(avg_return)
-            elif record.get('strategy') == 'C':
+            elif strategy == 'C':
                 c_returns.append(avg_return)
+            elif strategy == 'C+':
+                c_plus_returns.append(avg_return)
+            elif strategy == 'D':
+                d_returns.append(avg_return)
 
         # 누적 수익률 계산 (복리)
         def calculate_cumulative(returns_list):
@@ -323,7 +449,9 @@ class Simulator:
         return {
             'strategy_a': calculate_cumulative(a_returns),
             'strategy_b': calculate_cumulative(b_returns),
-            'strategy_c': calculate_cumulative(c_returns)
+            'strategy_c': calculate_cumulative(c_returns),
+            'strategy_c_plus': calculate_cumulative(c_plus_returns),
+            'strategy_d': calculate_cumulative(d_returns)
         }
 
     def export_results(self, output_path: Optional[str] = None) -> str:
@@ -346,6 +474,8 @@ class Simulator:
                 'strategy_a': self.get_performance_summary('A'),
                 'strategy_b': self.get_performance_summary('B'),
                 'strategy_c': self.get_performance_summary('C'),
+                'strategy_c_plus': self.get_performance_summary('C+'),
+                'strategy_d': self.get_performance_summary('D'),
                 'comparison': self.compare_strategies()
             },
             'cumulative_returns': self.get_cumulative_returns(),

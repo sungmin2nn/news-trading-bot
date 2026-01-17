@@ -598,6 +598,145 @@ class PriceCollector:
 
         return info
 
+    def get_volume_momentum(self, stock_code: str, days: int = 5) -> dict:
+        """
+        거래량 모멘텀을 계산합니다. (cis식 분석)
+
+        Args:
+            stock_code: 종목 코드
+            days: 평균 거래량 계산 기간
+
+        Returns:
+            거래량 모멘텀 정보 딕셔너리
+        """
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days * 3)
+
+        try:
+            df = self.get_price(
+                stock_code,
+                start_date.strftime('%Y%m%d'),
+                end_date.strftime('%Y%m%d')
+            )
+
+            if df.empty or 'Volume' not in df.columns or len(df) < days + 1:
+                return {'volume_ratio': None, 'volume_surge': False}
+
+            # 최근 거래량
+            today_volume = float(df['Volume'].iloc[-1])
+
+            # N일 평균 거래량 (오늘 제외)
+            avg_volume = float(df['Volume'].iloc[-(days+1):-1].mean())
+
+            if avg_volume > 0:
+                volume_ratio = (today_volume / avg_volume) * 100
+            else:
+                volume_ratio = None
+
+            return {
+                'today_volume': today_volume,
+                'avg_volume': avg_volume,
+                'volume_ratio': round(volume_ratio, 2) if volume_ratio else None,
+                'volume_surge': volume_ratio >= 150 if volume_ratio else False  # 150% 이상이면 급증
+            }
+
+        except Exception as e:
+            print(f"거래량 모멘텀 계산 오류 ({stock_code}): {e}")
+            return {'volume_ratio': None, 'volume_surge': False}
+
+    def get_ma25_divergence(self, stock_code: str) -> dict:
+        """
+        25일 이동평균선 괴리율을 계산합니다. (BNF식 분석)
+
+        Args:
+            stock_code: 종목 코드
+
+        Returns:
+            괴리율 정보 딕셔너리
+        """
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=60)
+
+        try:
+            df = self.get_price(
+                stock_code,
+                start_date.strftime('%Y%m%d'),
+                end_date.strftime('%Y%m%d')
+            )
+
+            if df.empty or 'Close' not in df.columns or len(df) < 25:
+                return {'ma25': None, 'divergence': None}
+
+            close = df['Close']
+            current_price = float(close.iloc[-1])
+            ma25 = float(close.rolling(window=25).mean().iloc[-1])
+
+            # 괴리율 계산: (현재가 - 25일선) / 25일선 * 100
+            divergence = ((current_price - ma25) / ma25) * 100
+
+            return {
+                'current_price': current_price,
+                'ma25': round(ma25, 2),
+                'divergence': round(divergence, 2),
+                'above_ma25': divergence > 0,
+                'oversold': divergence < -10,     # 10% 이상 하락 (BNF 매수 신호)
+                'overbought': divergence > 15     # 15% 이상 상승 (과열)
+            }
+
+        except Exception as e:
+            print(f"25일선 괴리율 계산 오류 ({stock_code}): {e}")
+            return {'ma25': None, 'divergence': None}
+
+    def is_bullish_candle(self, stock_code: str) -> dict:
+        """
+        전일 양봉 여부를 확인합니다. (cis식 - 오르는 주식 매수)
+
+        Args:
+            stock_code: 종목 코드
+
+        Returns:
+            양봉 정보 딕셔너리
+        """
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=10)
+
+        try:
+            df = self.get_price(
+                stock_code,
+                start_date.strftime('%Y%m%d'),
+                end_date.strftime('%Y%m%d')
+            )
+
+            if df.empty or len(df) < 2:
+                return {'is_bullish': None, 'candle_body': None}
+
+            # 최근 봉 (전일 또는 당일)
+            latest = df.iloc[-1]
+            open_price = float(latest['Open'])
+            close_price = float(latest['Close'])
+
+            is_bullish = close_price > open_price
+            candle_body = ((close_price - open_price) / open_price) * 100 if open_price > 0 else 0
+
+            # 연속 양봉 확인
+            consecutive_bullish = 0
+            for i in range(len(df) - 1, -1, -1):
+                if df.iloc[i]['Close'] > df.iloc[i]['Open']:
+                    consecutive_bullish += 1
+                else:
+                    break
+
+            return {
+                'is_bullish': is_bullish,
+                'candle_body': round(candle_body, 2),
+                'consecutive_bullish': consecutive_bullish,
+                'strong_bullish': is_bullish and candle_body > 1.0  # 1% 이상 양봉
+            }
+
+        except Exception as e:
+            print(f"양봉 확인 오류 ({stock_code}): {e}")
+            return {'is_bullish': None, 'candle_body': None}
+
     def get_technical_indicators(self, stock_code: str) -> dict:
         """
         종목의 기술적 지표를 종합 수집합니다.
@@ -620,6 +759,15 @@ class PriceCollector:
         # 볼린저 밴드
         bb_info = self.get_bollinger_bands(stock_code)
 
+        # 거래량 모멘텀 (C+, D 전략용)
+        volume_info = self.get_volume_momentum(stock_code)
+
+        # 25일선 괴리율 (D 전략용 - BNF식)
+        ma25_info = self.get_ma25_divergence(stock_code)
+
+        # 양봉 확인 (D 전략용 - cis식)
+        candle_info = self.is_bullish_candle(stock_code)
+
         return {
             'rsi': rsi,
             'rsi_oversold': rsi < 30 if rsi else None,      # 과매도
@@ -632,4 +780,12 @@ class PriceCollector:
             'bb_upper': bb_info.get('upper'),
             'bb_lower': bb_info.get('lower'),
             'bb_position': bb_info.get('position'),
+            # C+, D 전략용 추가 지표
+            'volume_ratio': volume_info.get('volume_ratio'),
+            'volume_surge': volume_info.get('volume_surge'),
+            'ma25': ma25_info.get('ma25'),
+            'ma25_divergence': ma25_info.get('divergence'),
+            'is_bullish': candle_info.get('is_bullish'),
+            'consecutive_bullish': candle_info.get('consecutive_bullish'),
+            'strong_bullish': candle_info.get('strong_bullish'),
         }

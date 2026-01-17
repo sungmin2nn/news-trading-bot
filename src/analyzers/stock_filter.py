@@ -13,11 +13,11 @@ from ..collectors.price_collector import PriceCollector
 
 
 class StockFilter:
-    """종목 필터링 클래스 (A/B/C 전략 지원)"""
+    """종목 필터링 클래스 (A/B/C/C+/D 전략 지원)"""
 
     # 기본 필터 설정
     DEFAULT_SETTINGS = {
-        # 공통 필터 (A, B, C 모두 적용)
+        # 공통 필터 (A, B, C, C+, D 모두 적용)
         'min_market_cap': 50_000_000_000,       # 최소 시가총액: 500억
         'max_market_cap': 10_000_000_000_000,   # 최대 시가총액: 10조
         'min_avg_volume': 100_000,              # 최소 평균 거래량: 10만주
@@ -34,6 +34,17 @@ class StockFilter:
         'min_rsi': 20,                          # RSI 하한 (극단적 과매도 제외)
         'require_golden_cross': True,           # 골든크로스 필수 (5일선 > 20일선)
         'min_foreign_consecutive_days': 3,      # 최소 외국인 연속 순매수일
+
+        # C+ 전략 전용 필터 (C 강화 - 거래량/볼린저 추가)
+        'min_volume_ratio': 150,                # 최소 거래량 비율: 5일 평균 대비 150%
+        'min_bb_position': 20,                  # 볼린저밴드 최소 위치: 20%
+        'max_bb_position': 80,                  # 볼린저밴드 최대 위치: 80%
+
+        # D 전략 전용 필터 (BNF/cis 하이브리드)
+        'min_ma25_divergence': -5,              # 25일선 괴리율 하한: -5% (BNF식)
+        'max_ma25_divergence': 15,              # 25일선 괴리율 상한: +15% (BNF식)
+        'require_bullish_candle': True,         # 양봉 필수 (cis식)
+        'd_min_volume_ratio': 120,              # D전략 최소 거래량 비율: 120%
 
         # 결과 제한
         'max_stocks': 10,                       # 최대 선정 종목 수
@@ -290,20 +301,172 @@ class StockFilter:
 
         return result
 
-    def apply_all_strategies(self, signals: list) -> dict:
+    def apply_strategy_c_plus(self, signals: list) -> list:
         """
-        A/B/C 전략 모두 적용하여 결과를 반환합니다.
+        전략 C+ (C 강화 버전) 적용.
+
+        C 전략의 모든 필터 + 추가 필터:
+        - 거래량 5일 평균 대비 150% 이상 (cis식 - 매수세 확인)
+        - 볼린저밴드 위치 20~80% (극단 제외)
 
         Args:
             signals: 시그널 리스트
 
         Returns:
-            {'strategy_a': [...], 'strategy_b': [...], 'strategy_c': [...]} 형태의 딕셔너리
+            전략 C+로 필터링된 시그널 리스트
+        """
+        # C 전략 필터 먼저 적용
+        c_filtered = self.apply_strategy_c(signals)
+
+        filtered = []
+
+        for signal in c_filtered:
+            stock_code = signal.get('stock_code')
+
+            if stock_code:
+                # 기술적 지표 가져오기 (이미 C에서 가져왔지만 추가 지표 필요)
+                tech = self.price_collector.get_technical_indicators(stock_code)
+
+                # 1. 거래량 모멘텀 필터 (cis식)
+                volume_ratio = tech.get('volume_ratio')
+                min_volume_ratio = self.settings.get('min_volume_ratio', 150)
+                if volume_ratio is not None:
+                    if volume_ratio < min_volume_ratio:
+                        continue
+                    signal['volume_ratio'] = volume_ratio
+                    signal['volume_surge'] = tech.get('volume_surge', False)
+
+                # 2. 볼린저밴드 위치 필터
+                bb_position = signal.get('bb_position') or tech.get('bb_position')
+                if bb_position is not None:
+                    min_bb = self.settings.get('min_bb_position', 20)
+                    max_bb = self.settings.get('max_bb_position', 80)
+                    if bb_position < min_bb or bb_position > max_bb:
+                        continue
+                    signal['bb_position'] = round(bb_position, 2)
+
+            filtered.append(signal)
+
+        # 점수 + 거래량 가중치로 정렬
+        def sort_key(x):
+            score = x.get('score', 0)
+            volume_ratio = x.get('volume_ratio', 100)
+            rsi = x.get('rsi', 50)
+            # 점수, 거래량 높을수록, RSI 낮을수록 좋음
+            return (score * 2) + (volume_ratio * 0.01) - (rsi * 0.05)
+
+        sorted_signals = sorted(filtered, key=sort_key, reverse=True)
+
+        # 최대 종목 수 제한
+        max_stocks = self.settings.get('max_stocks', 10)
+        result = sorted_signals[:max_stocks]
+
+        # 전략 표시
+        for signal in result:
+            signal['strategy'] = 'C+'
+
+        return result
+
+    def apply_strategy_d(self, signals: list) -> list:
+        """
+        전략 D (BNF/cis 하이브리드) 적용.
+
+        B 전략 베이스 + BNF/cis 기법:
+        - 25일선 괴리율 -5% ~ +15% (BNF식 - 급락/급등 제외)
+        - 전일 양봉 (cis식 - 오르는 주식 매수)
+        - 거래량 5일 평균 대비 120% 이상 (cis식)
+
+        Args:
+            signals: 시그널 리스트
+
+        Returns:
+            전략 D로 필터링된 시그널 리스트
+        """
+        # B 전략 필터 먼저 적용
+        b_filtered = self.apply_strategy_b(signals)
+
+        filtered = []
+
+        for signal in b_filtered:
+            stock_code = signal.get('stock_code')
+
+            if stock_code:
+                # 기술적 지표 가져오기
+                tech = self.price_collector.get_technical_indicators(stock_code)
+
+                # 1. 25일선 괴리율 필터 (BNF식)
+                ma25_divergence = tech.get('ma25_divergence')
+                if ma25_divergence is not None:
+                    min_div = self.settings.get('min_ma25_divergence', -5)
+                    max_div = self.settings.get('max_ma25_divergence', 15)
+                    if ma25_divergence < min_div or ma25_divergence > max_div:
+                        continue
+                    signal['ma25'] = tech.get('ma25')
+                    signal['ma25_divergence'] = ma25_divergence
+
+                # 2. 양봉 필터 (cis식)
+                if self.settings.get('require_bullish_candle', True):
+                    is_bullish = tech.get('is_bullish')
+                    if is_bullish is False:  # None이면 통과
+                        continue
+                    signal['is_bullish'] = is_bullish
+                    signal['consecutive_bullish'] = tech.get('consecutive_bullish', 0)
+
+                # 3. 거래량 모멘텀 필터 (cis식)
+                volume_ratio = tech.get('volume_ratio')
+                min_volume = self.settings.get('d_min_volume_ratio', 120)
+                if volume_ratio is not None:
+                    if volume_ratio < min_volume:
+                        continue
+                    signal['volume_ratio'] = volume_ratio
+
+                # 추가 정보 저장
+                signal['bb_position'] = tech.get('bb_position')
+                signal['rsi'] = tech.get('rsi')
+                signal['golden_cross'] = tech.get('golden_cross')
+
+            filtered.append(signal)
+
+        # BNF/cis 복합 점수로 정렬
+        def sort_key(x):
+            score = x.get('score', 0)
+            # 괴리율: 0에 가까울수록 좋음 (너무 낮지도 높지도 않은 게 좋음)
+            divergence = abs(x.get('ma25_divergence', 0))
+            # 연속 양봉 많을수록 좋음 (cis식 모멘텀)
+            consecutive = x.get('consecutive_bullish', 0)
+            # 거래량 높을수록 좋음
+            volume = x.get('volume_ratio', 100)
+
+            return (score * 2) + (consecutive * 0.5) + (volume * 0.01) - (divergence * 0.1)
+
+        sorted_signals = sorted(filtered, key=sort_key, reverse=True)
+
+        # 최대 종목 수 제한
+        max_stocks = self.settings.get('max_stocks', 10)
+        result = sorted_signals[:max_stocks]
+
+        # 전략 표시
+        for signal in result:
+            signal['strategy'] = 'D'
+
+        return result
+
+    def apply_all_strategies(self, signals: list) -> dict:
+        """
+        A/B/C/C+/D 전략 모두 적용하여 결과를 반환합니다.
+
+        Args:
+            signals: 시그널 리스트
+
+        Returns:
+            5개 전략 결과 딕셔너리
         """
         return {
             'strategy_a': self.apply_strategy_a(signals),
             'strategy_b': self.apply_strategy_b(signals),
-            'strategy_c': self.apply_strategy_c(signals)
+            'strategy_c': self.apply_strategy_c(signals),
+            'strategy_c_plus': self.apply_strategy_c_plus(signals),
+            'strategy_d': self.apply_strategy_d(signals)
         }
 
     def apply_both_strategies(self, signals: list) -> dict:

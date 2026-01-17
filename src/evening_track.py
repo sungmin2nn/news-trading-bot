@@ -32,48 +32,40 @@ def run_evening_track():
     except Exception as e:
         print(f"  - 추적 오류: {e}")
 
-    # 2. 성과 요약
+    # 2. 성과 요약 (5가지 전략)
     print("\n[2/4] 성과 분석 중...")
     try:
         comparison = simulator.compare_strategies()
 
-        print(f"\n  [전략 A - 단순 로직]")
-        a_summary = comparison['strategy_a']
-        print(f"  - 총 거래일: {a_summary['total_days']}일")
-        print(f"  - 총 거래수: {a_summary.get('total_trades', 0)}건")
-        print(f"  - 평균 수익률: {a_summary['avg_return']:.2f}%")
-        print(f"  - 승률: {a_summary['win_rate']:.1f}%")
-        print(f"  - 누적 수익률: {a_summary['total_return']:.2f}%")
-        print(f"  - 최고 수익률: {a_summary['best_return']:.2f}%")
-        print(f"  - 최저 수익률: {a_summary['worst_return']:.2f}%")
+        # 전략별 요약 출력 함수
+        def print_strategy_summary(name, summary):
+            print(f"\n  [{name}]")
+            print(f"  - 총 거래일: {summary['total_days']}일 | 총 거래수: {summary.get('total_trades', 0)}건")
+            print(f"  - 평균 수익률: {summary['avg_return']:.2f}% | 승률: {summary['win_rate']:.1f}%")
+            print(f"  - 누적 수익률: {summary['total_return']:.2f}%")
+            print(f"  - 최고/최저: {summary['best_return']:.2f}% / {summary['worst_return']:.2f}%")
 
-        print(f"\n  [전략 B - 고급 로직]")
-        b_summary = comparison['strategy_b']
-        print(f"  - 총 거래일: {b_summary['total_days']}일")
-        print(f"  - 총 거래수: {b_summary.get('total_trades', 0)}건")
-        print(f"  - 평균 수익률: {b_summary['avg_return']:.2f}%")
-        print(f"  - 승률: {b_summary['win_rate']:.1f}%")
-        print(f"  - 누적 수익률: {b_summary['total_return']:.2f}%")
-        print(f"  - 최고 수익률: {b_summary['best_return']:.2f}%")
-        print(f"  - 최저 수익률: {b_summary['worst_return']:.2f}%")
+        print_strategy_summary("전략 A - 단순 로직", comparison['strategy_a'])
+        print_strategy_summary("전략 B - 고급 로직", comparison['strategy_b'])
+        print_strategy_summary("전략 C - 기술적 분석", comparison['strategy_c'])
+        print_strategy_summary("전략 C+ - C 강화", comparison['strategy_c_plus'])
+        print_strategy_summary("전략 D - BNF/cis", comparison['strategy_d'])
 
-        print(f"\n  [전략 C - 기술적 분석]")
-        c_summary = comparison['strategy_c']
-        print(f"  - 총 거래일: {c_summary['total_days']}일")
-        print(f"  - 총 거래수: {c_summary.get('total_trades', 0)}건")
-        print(f"  - 평균 수익률: {c_summary['avg_return']:.2f}%")
-        print(f"  - 승률: {c_summary['win_rate']:.1f}%")
-        print(f"  - 누적 수익률: {c_summary['total_return']:.2f}%")
-        print(f"  - 최고 수익률: {c_summary['best_return']:.2f}%")
-        print(f"  - 최저 수익률: {c_summary['worst_return']:.2f}%")
-
-        print(f"\n  [전략 비교]")
-        diff = comparison['difference']
+        print(f"\n  [전략 비교 요약]")
         winner = comparison['winner']
-        print(f"  - 평균 수익률 차이: {diff['avg_return']:+.2f}% (B - A)")
-        print(f"  - 승률 차이: {diff['win_rate']:+.1f}% (B - A)")
-        print(f"  - 누적 수익률 차이: {diff['total_return']:+.2f}% (B - A)")
-        print(f"  - 현재 우위 전략: {winner}")
+        print(f"  - 현재 최고 성과 전략: {winner}")
+
+        # 전략별 평균 수익률 비교
+        strategies = {
+            'A': comparison['strategy_a']['avg_return'],
+            'B': comparison['strategy_b']['avg_return'],
+            'C': comparison['strategy_c']['avg_return'],
+            'C+': comparison['strategy_c_plus']['avg_return'],
+            'D': comparison['strategy_d']['avg_return']
+        }
+        sorted_strategies = sorted(strategies.items(), key=lambda x: x[1], reverse=True)
+        print(f"  - 평균 수익률 순위: ", end="")
+        print(" > ".join([f"{k}({v:.2f}%)" for k, v in sorted_strategies]))
 
     except Exception as e:
         print(f"  - 성과 분석 오류: {e}")
@@ -105,7 +97,7 @@ def update_dashboard(simulator: Simulator):
     docs_dir = os.path.join(base_dir, 'docs')
     os.makedirs(docs_dir, exist_ok=True)
 
-    # 대시보드 데이터 생성
+    # 대시보드 데이터 생성 (5가지 전략)
     comparison = simulator.compare_strategies()
     cumulative = simulator.get_cumulative_returns()
     daily_returns = simulator.get_daily_returns(30)
@@ -117,6 +109,8 @@ def update_dashboard(simulator: Simulator):
             'strategy_a': comparison['strategy_a'],
             'strategy_b': comparison['strategy_b'],
             'strategy_c': comparison['strategy_c'],
+            'strategy_c_plus': comparison['strategy_c_plus'],
+            'strategy_d': comparison['strategy_d'],
             'winner': comparison['winner']
         },
         'cumulative_returns': cumulative,
