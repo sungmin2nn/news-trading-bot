@@ -1,0 +1,126 @@
+{
+  "generated_at": "2026-01-19T07:46:54.383069",
+  "performance": {
+    "strategy_a": {
+      "total_days": 0,
+      "avg_return": 0,
+      "win_rate": 0,
+      "total_return": 0,
+      "best_return": 0,
+      "worst_return": 0
+    },
+    "strategy_b": {
+      "total_days": 0,
+      "avg_return": 0,
+      "win_rate": 0,
+      "total_return": 0,
+      "best_return": 0,
+      "worst_return": 0
+    },
+    "strategy_c": {
+      "total_days": 0,
+      "avg_return": 0,
+      "win_rate": 0,
+      "total_return": 0,
+      "best_return": 0,
+      "worst_return": 0
+    },
+    "strategy_c_plus": {
+      "total_days": 0,
+      "avg_return": 0,
+      "win_rate": 0,
+      "total_return": 0,
+      "best_return": 0,
+      "worst_return": 0
+    },
+    "strategy_d": {
+      "total_days": 0,
+      "avg_return": 0,
+      "win_rate": 0,
+      "total_return": 0,
+      "best_return": 0,
+      "worst_return": 0
+    },
+    "comparison": {
+      "strategy_a": {
+        "total_days": 0,
+        "avg_return": 0,
+        "win_rate": 0,
+        "total_return": 0,
+        "best_return": 0,
+        "worst_return": 0
+      },
+      "strategy_b": {
+        "total_days": 0,
+        "avg_return": 0,
+        "win_rate": 0,
+        "total_return": 0,
+        "best_return": 0,
+        "worst_return": 0
+      },
+      "strategy_c": {
+        "total_days": 0,
+        "avg_return": 0,
+        "win_rate": 0,
+        "total_return": 0,
+        "best_return": 0,
+        "worst_return": 0
+      },
+      "strategy_c_plus": {
+        "total_days": 0,
+        "avg_return": 0,
+        "win_rate": 0,
+        "total_return": 0,
+        "best_return": 0,
+        "worst_return": 0
+      },
+      "strategy_d": {
+        "total_days": 0,
+        "avg_return": 0,
+        "win_rate": 0,
+        "total_return": 0,
+        "best_return": 0,
+        "worst_return": 0
+      },
+      "difference": {
+        "avg_return": 0,
+        "win_rate": 0,
+        "total_return": 0
+      },
+      "winner": "A"
+    }
+  },
+  "cumulative_returns": {
+    "strategy_a": {
+      "final": 0,
+      "history": [
+        100
+      ]
+    },
+    "strategy_b": {
+      "final": 0,
+      "history": [
+        100
+      ]
+    },
+    "strategy_c": {
+      "final": 0,
+      "history": [
+        100
+      ]
+    },
+    "strategy_c_plus": {
+      "final": 0,
+      "history": [
+        100
+      ]
+    },
+    "strategy_d": {
+      "final": 0,
+      "history": [
+        100
+      ]
+    }
+  },
+  "daily_returns": []
+}
