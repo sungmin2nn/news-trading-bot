@@ -25,6 +25,10 @@ class Simulator:
         'sell_commission': 0.015,      # 매도 수수료 (%)
         'sell_slippage': 0.1,          # 매도 슬리피지 (%)
         'sell_tax': 0.23,              # 증권거래세 (%)
+        'stop_loss': -3.0,             # 손절 비율 (%) - 시가 대비
+        'take_profit': 5.0,            # 익절 비율 (%) - 시가 대비
+        'apply_stop_loss': True,       # 손절 적용 여부
+        'apply_take_profit': True,     # 익절 적용 여부
     }
 
     def __init__(self, data_path: Optional[str] = None, settings_path: Optional[str] = None):
@@ -148,7 +152,7 @@ class Simulator:
         apply_costs: Optional[bool] = None
     ) -> dict:
         """
-        종목의 수익률을 계산합니다.
+        종목의 수익률을 계산합니다. (손절/익절 로직 포함)
 
         Args:
             stock_code: 종목 코드
@@ -162,6 +166,9 @@ class Simulator:
             - gross_returns: 총수익률 (비용 미반영)
             - returns: 순수익률 (비용 반영 시) 또는 총수익률 (미반영 시)
             - trading_costs: 차감된 거래 비용 (%)
+            - exit_type: 매도 유형 (stop_loss, take_profit, close)
+            - intraday_high: 장중 고가
+            - intraday_low: 장중 저가
         """
         if sell_date is None:
             sell_date = datetime.now().strftime('%Y%m%d')
@@ -185,8 +192,33 @@ class Simulator:
             if sell_df.empty:
                 return {'error': '매도일 주가 데이터 없음'}
 
-            # 종가 매도 가정
-            sell_price = float(sell_df.iloc[0]['Close'])
+            # 장중 고가/저가 추출
+            intraday_high = float(sell_df.iloc[0]['High'])
+            intraday_low = float(sell_df.iloc[0]['Low'])
+            close_price = float(sell_df.iloc[0]['Close'])
+
+            # 손절/익절 설정값
+            stop_loss_pct = self.cost_settings.get('stop_loss', -3.0)
+            take_profit_pct = self.cost_settings.get('take_profit', 5.0)
+            apply_stop_loss = self.cost_settings.get('apply_stop_loss', True)
+            apply_take_profit = self.cost_settings.get('apply_take_profit', True)
+
+            # 손절/익절 가격 계산
+            stop_loss_price = buy_price * (1 + stop_loss_pct / 100)
+            take_profit_price = buy_price * (1 + take_profit_pct / 100)
+
+            # 매도 유형 및 가격 결정
+            exit_type = 'close'  # 기본: 종가 매도
+            sell_price = close_price
+
+            # 손절 체크 (장중 저가가 손절선 이하)
+            if apply_stop_loss and intraday_low <= stop_loss_price:
+                exit_type = 'stop_loss'
+                sell_price = stop_loss_price
+            # 익절 체크 (장중 고가가 익절선 이상)
+            elif apply_take_profit and intraday_high >= take_profit_price:
+                exit_type = 'take_profit'
+                sell_price = take_profit_price
 
             # 총수익률 (비용 미반영)
             gross_returns = ((sell_price - buy_price) / buy_price) * 100
@@ -231,7 +263,13 @@ class Simulator:
                 'returns': round(net_returns, 2),               # 순수익률 (기본 반환값)
                 'trading_costs': round(total_cost_pct, 3),      # 차감된 거래 비용
                 'profit': round(net_profit, 2),                 # 순이익
-                'costs_applied': apply_costs                    # 비용 반영 여부
+                'costs_applied': apply_costs,                   # 비용 반영 여부
+                'exit_type': exit_type,                         # 매도 유형 (stop_loss, take_profit, close)
+                'intraday_high': round(intraday_high, 2),       # 장중 고가
+                'intraday_low': round(intraday_low, 2),         # 장중 저가
+                'close_price': round(close_price, 2),           # 종가
+                'stop_loss_price': round(stop_loss_price, 2),   # 손절 가격
+                'take_profit_price': round(take_profit_price, 2) # 익절 가격
             }
 
         except Exception as e:
