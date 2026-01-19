@@ -115,15 +115,22 @@ class DartCollector:
     def get_overnight_disclosures(self) -> pd.DataFrame:
         """
         장 마감 후(15:30) ~ 다음날 장 시작 전(09:00) 공시를 수집합니다.
+        월요일에는 금요일 공시부터 수집합니다 (주말 공시 포함).
         주로 아침 스캔에서 사용됩니다.
 
         Returns:
             야간 공시 목록 DataFrame
         """
         now = datetime.now()
+        weekday = now.weekday()  # 월=0, 화=1, ..., 일=6
 
+        # 월요일 아침: 금요일 ~ 오늘 공시 수집
+        if weekday == 0 and now.hour < 9:
+            # 금요일부터 오늘까지 (3일간)
+            start_date = (now - timedelta(days=3)).strftime('%Y%m%d')
+            end_date = now.strftime('%Y%m%d')
         # 오늘 09:00 이전이면 어제 장 마감 후 ~ 오늘 아침 공시
-        if now.hour < 9:
+        elif now.hour < 9:
             start_date = (now - timedelta(days=1)).strftime('%Y%m%d')
             end_date = now.strftime('%Y%m%d')
         else:

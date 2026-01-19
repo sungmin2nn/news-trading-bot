@@ -15,7 +15,7 @@ class KeywordScorer:
 
     # 기본 점수
     STRONG_POSITIVE_SCORE = 3
-    MEDIUM_POSITIVE_SCORE = 1
+    MEDIUM_POSITIVE_SCORE = 2  # 1 → 2로 상향 (차별화)
     NEGATIVE_SCORE = -10
 
     def __init__(self, config_path: Optional[str] = None):

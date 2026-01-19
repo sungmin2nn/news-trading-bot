@@ -288,24 +288,36 @@ class NaverCollector:
     def get_overnight_news(self) -> list:
         """
         장 마감 후(15:30) ~ 다음날 장 시작 전(09:00) 뉴스를 수집합니다.
+        월요일에는 금요일 장 마감 후부터 수집합니다 (주말 뉴스 포함).
 
         Returns:
             야간 뉴스 목록
         """
         now = datetime.now()
+        weekday = now.weekday()  # 월=0, 화=1, ..., 일=6
 
+        # 월요일 아침: 금요일 장 마감 후 ~ 현재 (약 65시간)
+        if weekday == 0 and now.hour < 9:
+            # 금요일 15:30부터 월요일 현재까지
+            # 금 15:30 ~ 토 00:00 = 8.5시간
+            # 토 00:00 ~ 일 00:00 = 24시간
+            # 일 00:00 ~ 월 현재 = 현재시간
+            hours_since_close = 8.5 + 24 + 24 + now.hour + (now.minute / 60)
+            max_pages = 20  # 월요일은 더 많은 페이지 수집
         # 오전 9시 이전: 어제 장 마감 후 ~ 현재
-        if now.hour < 9:
+        elif now.hour < 9:
             # 어제 15:30부터 현재까지
             hours_since_close = (24 - 15.5) + now.hour + (now.minute / 60)
+            max_pages = 10
         else:
             # 장중 또는 장 마감 후: 오늘 15:30부터 현재까지
             if now.hour >= 15 and now.minute >= 30:
                 hours_since_close = (now.hour - 15) + ((now.minute - 30) / 60)
             else:
                 hours_since_close = 24  # 장중에는 전일 뉴스 수집
+            max_pages = 10
 
-        return self.get_recent_news(hours=int(hours_since_close) + 1, max_pages=10)
+        return self.get_recent_news(hours=int(hours_since_close) + 1, max_pages=max_pages)
 
     def to_signal_format(self, news_list: list) -> list:
         """
