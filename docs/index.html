@@ -541,10 +541,118 @@
             font-size: 0.85rem;
             position: sticky;
             top: 0;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .signals-table th:hover {
+            background: var(--border-color);
+        }
+
+        .signals-table th .sort-icon {
+            margin-left: 5px;
+            opacity: 0.5;
+        }
+
+        .signals-table th.sort-asc .sort-icon,
+        .signals-table th.sort-desc .sort-icon {
+            opacity: 1;
         }
 
         .signals-table tr:hover td {
             background: var(--bg-primary);
+        }
+
+        /* 조건 분석 섹션 */
+        .condition-analysis {
+            margin-top: 30px;
+        }
+
+        .condition-analysis h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .analysis-card {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .analysis-card.winning {
+            border-left: 4px solid var(--positive);
+        }
+
+        .analysis-card.losing {
+            border-left: 4px solid var(--negative);
+        }
+
+        .analysis-card h4 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-card.winning h4 { color: var(--positive); }
+        .analysis-card.losing h4 { color: var(--negative); }
+
+        .condition-list {
+            list-style: none;
+            font-size: 0.9rem;
+        }
+
+        .condition-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .condition-list li:last-child {
+            border-bottom: none;
+        }
+
+        .condition-name {
+            color: var(--text-primary);
+        }
+
+        .condition-value {
+            color: var(--text-secondary);
+            font-family: monospace;
+        }
+
+        .win-rate-badge {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .win-rate-high {
+            background: rgba(76, 175, 80, 0.15);
+            color: var(--positive);
+        }
+
+        .win-rate-low {
+            background: rgba(244, 67, 54, 0.15);
+            color: var(--negative);
         }
 
         .badge {
@@ -2374,6 +2482,11 @@ news-trading-bot/
             loadData();
         }
 
+        // 정렬 상태 변수
+        let currentSortColumn = 'returns';
+        let currentSortDirection = 'desc';
+        let currentTradesData = [];
+
         function updateSignalsTable(signals) {
             const container = document.getElementById('signalsContainer');
 
@@ -2387,46 +2500,116 @@ news-trading-bot/
                 return;
             }
 
-            // 개별 종목 정보 추출
+            // 개별 종목 정보 추출 (상세 기술지표 포함)
             let allTrades = [];
             filtered.forEach(signal => {
                 if (signal.results && signal.results.length > 0) {
                     signal.results.forEach(result => {
+                        const sig = result.signal || {};
                         allTrades.push({
                             date: signal.date,
                             strategy: signal.strategy,
-                            corp_name: result.signal?.corp_name || '-',
+                            corp_name: sig.corp_name || '-',
                             stock_code: result.stock_code,
-                            title: result.signal?.title || '-',
-                            score: result.signal?.score || 0,
+                            title: sig.title || '-',
+                            score: sig.score || 0,
                             buy_price: result.buy_price,
                             sell_price: result.sell_price,
-                            returns: result.returns
+                            returns: result.returns,
+                            // 기술지표 (조건 분석용)
+                            rsi: sig.rsi,
+                            golden_cross: sig.golden_cross,
+                            volume_ratio: sig.volume_ratio,
+                            ma25_divergence: sig.ma25_divergence,
+                            is_bullish: sig.is_bullish,
+                            bb_position: sig.bb_position,
+                            price_change_5d: sig.price_change_5d,
+                            high_52week_ratio: sig.high_52week_ratio,
+                            matched_keywords: sig.matched_keywords || []
                         });
                     });
                 }
             });
 
+            currentTradesData = allTrades;
+
+            // 정렬 적용
+            sortTrades(currentSortColumn, currentSortDirection);
+
+            renderTradesTable();
+            renderConditionAnalysis();
+        }
+
+        function sortTrades(column, direction) {
+            currentSortColumn = column;
+            currentSortDirection = direction;
+
+            currentTradesData.sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                // null/undefined 처리
+                if (valA == null) valA = -Infinity;
+                if (valB == null) valB = -Infinity;
+
+                // 문자열 비교
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = (valB || '').toLowerCase();
+                    return direction === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+
+                // 숫자 비교
+                return direction === 'asc' ? valA - valB : valB - valA;
+            });
+        }
+
+        function handleSort(column) {
+            if (currentSortColumn === column) {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSortColumn = column;
+                currentSortDirection = 'desc';
+            }
+            sortTrades(currentSortColumn, currentSortDirection);
+            renderTradesTable();
+        }
+
+        function renderTradesTable() {
+            const container = document.getElementById('signalsContainer');
+
+            const columns = [
+                { key: 'date', label: '날짜' },
+                { key: 'strategy', label: '전략' },
+                { key: 'corp_name', label: '종목명' },
+                { key: 'stock_code', label: '종목코드' },
+                { key: 'score', label: '점수' },
+                { key: 'buy_price', label: '매수가' },
+                { key: 'sell_price', label: '매도가' },
+                { key: 'returns', label: '수익률' }
+            ];
+
             let html = `
                 <div style="overflow-x: auto;">
-                <table class="signals-table">
+                <table class="signals-table" id="tradesTable">
                     <thead>
                         <tr>
-                            <th>날짜</th>
-                            <th>전략</th>
-                            <th>종목명</th>
-                            <th>종목코드</th>
-                            <th>점수</th>
-                            <th>매수가</th>
-                            <th>매도가</th>
-                            <th>수익률</th>
+                            ${columns.map(col => {
+                                const sortClass = currentSortColumn === col.key
+                                    ? (currentSortDirection === 'asc' ? 'sort-asc' : 'sort-desc')
+                                    : '';
+                                const icon = currentSortColumn === col.key
+                                    ? (currentSortDirection === 'asc' ? '▲' : '▼')
+                                    : '⇅';
+                                return `<th class="${sortClass}" onclick="handleSort('${col.key}')">${col.label}<span class="sort-icon">${icon}</span></th>`;
+                            }).join('')}
                         </tr>
                     </thead>
                     <tbody>
             `;
 
-            if (allTrades.length > 0) {
-                allTrades.forEach(trade => {
+            if (currentTradesData.length > 0) {
+                currentTradesData.forEach(trade => {
                     let badgeClass = trade.strategy.toLowerCase();
                     if (trade.strategy === 'C+') badgeClass = 'c-plus';
 
@@ -2446,44 +2629,194 @@ news-trading-bot/
                     `;
                 });
             } else {
-                // 결과가 없으면 요약 테이블 표시
-                html = `
-                    <div style="overflow-x: auto;">
-                    <table class="signals-table">
-                        <thead>
-                            <tr>
-                                <th>날짜</th>
-                                <th>전략</th>
-                                <th>종목 수</th>
-                                <th>평균 수익률</th>
-                                <th>상태</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-                filtered.forEach(signal => {
-                    const avgReturn = signal.avg_return !== undefined
-                        ? `<span class="${signal.avg_return >= 0 ? 'positive' : 'negative'}">${signal.avg_return.toFixed(2)}%</span>`
-                        : '-';
-                    const statusClass = signal.status === 'tracked' ? 'status-tracked' : 'status-pending';
-                    const statusText = signal.status === 'tracked' ? '추적완료' : '대기중';
-                    let badgeClass = signal.strategy.toLowerCase();
-                    if (signal.strategy === 'C+') badgeClass = 'c-plus';
-
-                    html += `
-                        <tr>
-                            <td>${formatDate(signal.date)}</td>
-                            <td><span class="badge badge-${badgeClass}">${signal.strategy}</span></td>
-                            <td>${signal.signals?.length || 0}개</td>
-                            <td>${avgReturn}</td>
-                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        </tr>
-                    `;
-                });
+                html += '<tr><td colspan="8" style="text-align: center; padding: 40px;">거래 데이터가 없습니다.</td></tr>';
             }
 
             html += '</tbody></table></div>';
             container.innerHTML = html;
+        }
+
+        function renderConditionAnalysis() {
+            // 조건 분석 컨테이너 확인 또는 생성
+            let analysisContainer = document.getElementById('conditionAnalysis');
+            if (!analysisContainer) {
+                const signalsSection = document.getElementById('signalsContainer').parentElement;
+                analysisContainer = document.createElement('div');
+                analysisContainer.id = 'conditionAnalysis';
+                analysisContainer.className = 'condition-analysis';
+                signalsSection.appendChild(analysisContainer);
+            }
+
+            if (currentTradesData.length === 0) {
+                analysisContainer.innerHTML = '';
+                return;
+            }
+
+            // 익절/손절 분리
+            const winners = currentTradesData.filter(t => t.returns > 0);
+            const losers = currentTradesData.filter(t => t.returns <= 0);
+
+            // 조건별 통계 계산
+            function analyzeConditions(trades) {
+                if (trades.length === 0) return [];
+
+                const conditions = [];
+
+                // 전략별 분석
+                const strategies = {};
+                trades.forEach(t => {
+                    strategies[t.strategy] = (strategies[t.strategy] || 0) + 1;
+                });
+                Object.entries(strategies).forEach(([k, v]) => {
+                    conditions.push({ name: `전략 ${k}`, value: `${v}건`, count: v });
+                });
+
+                // RSI 범위 분석
+                const rsiRanges = { '30 미만': 0, '30-50': 0, '50-70': 0, '70 이상': 0 };
+                trades.forEach(t => {
+                    if (t.rsi != null) {
+                        if (t.rsi < 30) rsiRanges['30 미만']++;
+                        else if (t.rsi < 50) rsiRanges['30-50']++;
+                        else if (t.rsi < 70) rsiRanges['50-70']++;
+                        else rsiRanges['70 이상']++;
+                    }
+                });
+                const maxRsi = Object.entries(rsiRanges).sort((a, b) => b[1] - a[1])[0];
+                if (maxRsi[1] > 0) {
+                    conditions.push({ name: `RSI ${maxRsi[0]}`, value: `${maxRsi[1]}건`, count: maxRsi[1] });
+                }
+
+                // 골든크로스 분석
+                const gcTrue = trades.filter(t => t.golden_cross === true).length;
+                const gcFalse = trades.filter(t => t.golden_cross === false).length;
+                if (gcTrue > 0) conditions.push({ name: '골든크로스 O', value: `${gcTrue}건`, count: gcTrue });
+                if (gcFalse > 0) conditions.push({ name: '골든크로스 X', value: `${gcFalse}건`, count: gcFalse });
+
+                // 양봉 분석
+                const bullish = trades.filter(t => t.is_bullish === true).length;
+                if (bullish > 0) conditions.push({ name: '전일 양봉', value: `${bullish}건`, count: bullish });
+
+                // 거래량 비율 분석
+                const highVol = trades.filter(t => t.volume_ratio && t.volume_ratio >= 150).length;
+                const midVol = trades.filter(t => t.volume_ratio && t.volume_ratio >= 120 && t.volume_ratio < 150).length;
+                if (highVol > 0) conditions.push({ name: '거래량 150%+', value: `${highVol}건`, count: highVol });
+                if (midVol > 0) conditions.push({ name: '거래량 120-150%', value: `${midVol}건`, count: midVol });
+
+                // MA25 괴리율 분석
+                const maNeg = trades.filter(t => t.ma25_divergence != null && t.ma25_divergence < 0).length;
+                const maPos = trades.filter(t => t.ma25_divergence != null && t.ma25_divergence >= 0 && t.ma25_divergence < 10).length;
+                if (maNeg > 0) conditions.push({ name: 'MA25 괴리율 음수', value: `${maNeg}건`, count: maNeg });
+                if (maPos > 0) conditions.push({ name: 'MA25 괴리율 0-10%', value: `${maPos}건`, count: maPos });
+
+                // 키워드 분석
+                const keywords = {};
+                trades.forEach(t => {
+                    (t.matched_keywords || []).forEach(kw => {
+                        const cleanKw = kw.replace(/^\+\d+:\s*/, '').replace(/^-\d+:\s*/, '');
+                        keywords[cleanKw] = (keywords[cleanKw] || 0) + 1;
+                    });
+                });
+                const topKeywords = Object.entries(keywords).sort((a, b) => b[1] - a[1]).slice(0, 3);
+                topKeywords.forEach(([kw, cnt]) => {
+                    conditions.push({ name: `키워드: ${kw}`, value: `${cnt}건`, count: cnt });
+                });
+
+                return conditions.sort((a, b) => b.count - a.count).slice(0, 8);
+            }
+
+            const winConditions = analyzeConditions(winners);
+            const loseConditions = analyzeConditions(losers);
+
+            // 승률 높은 조건 계산
+            function calcWinRate(conditionName) {
+                // 모든 거래에서 해당 조건에 맞는 것 찾기
+                let total = 0, wins = 0;
+                currentTradesData.forEach(t => {
+                    let match = false;
+                    if (conditionName.startsWith('전략 ')) {
+                        match = t.strategy === conditionName.replace('전략 ', '');
+                    } else if (conditionName === '골든크로스 O') {
+                        match = t.golden_cross === true;
+                    } else if (conditionName === '골든크로스 X') {
+                        match = t.golden_cross === false;
+                    } else if (conditionName === '전일 양봉') {
+                        match = t.is_bullish === true;
+                    } else if (conditionName === '거래량 150%+') {
+                        match = t.volume_ratio && t.volume_ratio >= 150;
+                    } else if (conditionName === '거래량 120-150%') {
+                        match = t.volume_ratio && t.volume_ratio >= 120 && t.volume_ratio < 150;
+                    } else if (conditionName.startsWith('RSI ')) {
+                        const range = conditionName.replace('RSI ', '');
+                        if (range === '30 미만') match = t.rsi != null && t.rsi < 30;
+                        else if (range === '30-50') match = t.rsi != null && t.rsi >= 30 && t.rsi < 50;
+                        else if (range === '50-70') match = t.rsi != null && t.rsi >= 50 && t.rsi < 70;
+                        else if (range === '70 이상') match = t.rsi != null && t.rsi >= 70;
+                    } else if (conditionName === 'MA25 괴리율 음수') {
+                        match = t.ma25_divergence != null && t.ma25_divergence < 0;
+                    } else if (conditionName === 'MA25 괴리율 0-10%') {
+                        match = t.ma25_divergence != null && t.ma25_divergence >= 0 && t.ma25_divergence < 10;
+                    } else if (conditionName.startsWith('키워드: ')) {
+                        const kw = conditionName.replace('키워드: ', '');
+                        match = (t.matched_keywords || []).some(k => k.includes(kw));
+                    }
+
+                    if (match) {
+                        total++;
+                        if (t.returns > 0) wins++;
+                    }
+                });
+
+                return total > 0 ? Math.round((wins / total) * 100) : 0;
+            }
+
+            let html = `
+                <h3><i class="fas fa-chart-pie"></i> 조건별 분석 (익절 vs 손절)</h3>
+                <div class="analysis-grid">
+                    <div class="analysis-card winning">
+                        <h4><i class="fas fa-arrow-up"></i> 익절 종목 조건 (${winners.length}건)</h4>
+                        <ul class="condition-list">
+                            ${winConditions.length > 0 ? winConditions.map(c => {
+                                const winRate = calcWinRate(c.name);
+                                const rateClass = winRate >= 60 ? 'win-rate-high' : (winRate <= 40 ? 'win-rate-low' : '');
+                                return `<li>
+                                    <span class="condition-name">${c.name}</span>
+                                    <span>
+                                        <span class="condition-value">${c.value}</span>
+                                        ${rateClass ? `<span class="win-rate-badge ${rateClass}">${winRate}%</span>` : ''}
+                                    </span>
+                                </li>`;
+                            }).join('') : '<li><span class="condition-name">데이터 없음</span></li>'}
+                        </ul>
+                    </div>
+                    <div class="analysis-card losing">
+                        <h4><i class="fas fa-arrow-down"></i> 손절 종목 조건 (${losers.length}건)</h4>
+                        <ul class="condition-list">
+                            ${loseConditions.length > 0 ? loseConditions.map(c => {
+                                const winRate = calcWinRate(c.name);
+                                const rateClass = winRate >= 60 ? 'win-rate-high' : (winRate <= 40 ? 'win-rate-low' : '');
+                                return `<li>
+                                    <span class="condition-name">${c.name}</span>
+                                    <span>
+                                        <span class="condition-value">${c.value}</span>
+                                        ${rateClass ? `<span class="win-rate-badge ${rateClass}">${winRate}%</span>` : ''}
+                                    </span>
+                                </li>`;
+                            }).join('') : '<li><span class="condition-name">데이터 없음</span></li>'}
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: var(--bg-primary); border-radius: 8px; font-size: 0.85rem;">
+                    <strong>💡 점수 조정 권장:</strong>
+                    <ul style="margin-top: 8px; padding-left: 20px; color: var(--text-secondary);">
+                        ${winners.length > 0 && losers.length > 0 ? `
+                        <li>승률 높은 조건 (초록색 배지): 점수 +1~2 상향 고려</li>
+                        <li>승률 낮은 조건 (빨간색 배지): 점수 하향 또는 필터 강화 고려</li>
+                        ` : '<li>더 많은 거래 데이터가 필요합니다.</li>'}
+                    </ul>
+                </div>
+            `;
+
+            analysisContainer.innerHTML = html;
         }
 
         function formatDate(dateStr) {
