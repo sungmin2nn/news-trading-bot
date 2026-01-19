@@ -2387,6 +2387,26 @@ news-trading-bot/
                 return;
             }
 
+            // 개별 종목 정보 추출
+            let allTrades = [];
+            filtered.forEach(signal => {
+                if (signal.results && signal.results.length > 0) {
+                    signal.results.forEach(result => {
+                        allTrades.push({
+                            date: signal.date,
+                            strategy: signal.strategy,
+                            corp_name: result.signal?.corp_name || '-',
+                            stock_code: result.stock_code,
+                            title: result.signal?.title || '-',
+                            score: result.signal?.score || 0,
+                            buy_price: result.buy_price,
+                            sell_price: result.sell_price,
+                            returns: result.returns
+                        });
+                    });
+                }
+            });
+
             let html = `
                 <div style="overflow-x: auto;">
                 <table class="signals-table">
@@ -2394,38 +2414,73 @@ news-trading-bot/
                         <tr>
                             <th>날짜</th>
                             <th>전략</th>
-                            <th>종목 수</th>
-                            <th>평균 수익률</th>
-                            <th>상태</th>
+                            <th>종목명</th>
+                            <th>종목코드</th>
+                            <th>점수</th>
+                            <th>매수가</th>
+                            <th>매도가</th>
+                            <th>수익률</th>
                         </tr>
                     </thead>
                     <tbody>
             `;
 
-            filtered.forEach(signal => {
-                const avgReturn = signal.avg_return !== undefined
-                    ? `<span class="${signal.avg_return >= 0 ? 'positive' : 'negative'}">${signal.avg_return.toFixed(2)}%</span>`
-                    : '-';
+            if (allTrades.length > 0) {
+                allTrades.forEach(trade => {
+                    let badgeClass = trade.strategy.toLowerCase();
+                    if (trade.strategy === 'C+') badgeClass = 'c-plus';
 
-                const statusClass = signal.status === 'tracked' ? 'status-tracked' : 'status-pending';
-                const statusText = signal.status === 'tracked' ? '추적완료' : '대기중';
+                    const returnClass = trade.returns >= 0 ? 'positive' : 'negative';
 
-                // 전략명에 따른 배지 클래스 결정
-                let badgeClass = signal.strategy.toLowerCase();
-                if (signal.strategy === 'C+') {
-                    badgeClass = 'c-plus';
-                }
-
-                html += `
-                    <tr>
-                        <td>${formatDate(signal.date)}</td>
-                        <td><span class="badge badge-${badgeClass}">${signal.strategy}</span></td>
-                        <td>${signal.signals?.length || 0}개</td>
-                        <td>${avgReturn}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                    </tr>
+                    html += `
+                        <tr>
+                            <td>${formatDate(trade.date)}</td>
+                            <td><span class="badge badge-${badgeClass}">${trade.strategy}</span></td>
+                            <td><strong>${trade.corp_name}</strong></td>
+                            <td>${trade.stock_code}</td>
+                            <td>${trade.score}</td>
+                            <td>${trade.buy_price?.toLocaleString() || '-'}원</td>
+                            <td>${trade.sell_price?.toLocaleString() || '-'}원</td>
+                            <td><span class="${returnClass}">${trade.returns?.toFixed(2) || '-'}%</span></td>
+                        </tr>
+                    `;
+                });
+            } else {
+                // 결과가 없으면 요약 테이블 표시
+                html = `
+                    <div style="overflow-x: auto;">
+                    <table class="signals-table">
+                        <thead>
+                            <tr>
+                                <th>날짜</th>
+                                <th>전략</th>
+                                <th>종목 수</th>
+                                <th>평균 수익률</th>
+                                <th>상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
-            });
+                filtered.forEach(signal => {
+                    const avgReturn = signal.avg_return !== undefined
+                        ? `<span class="${signal.avg_return >= 0 ? 'positive' : 'negative'}">${signal.avg_return.toFixed(2)}%</span>`
+                        : '-';
+                    const statusClass = signal.status === 'tracked' ? 'status-tracked' : 'status-pending';
+                    const statusText = signal.status === 'tracked' ? '추적완료' : '대기중';
+                    let badgeClass = signal.strategy.toLowerCase();
+                    if (signal.strategy === 'C+') badgeClass = 'c-plus';
+
+                    html += `
+                        <tr>
+                            <td>${formatDate(signal.date)}</td>
+                            <td><span class="badge badge-${badgeClass}">${signal.strategy}</span></td>
+                            <td>${signal.signals?.length || 0}개</td>
+                            <td>${avgReturn}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        </tr>
+                    `;
+                });
+            }
 
             html += '</tbody></table></div>';
             container.innerHTML = html;

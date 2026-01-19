@@ -38,14 +38,14 @@ min_contract_market_cap_ratio: 0.5  # 계약금액/시총 비율: 0.5%
 # ===================
 
 # RSI 필터
-max_rsi: 70                        # RSI 상한 (과매수 제외)
-min_rsi: 20                        # RSI 하한 (극단적 과매도 제외)
+max_rsi: 75                        # RSI 상한 (과매수 제외) - 70→75 완화
+min_rsi: 15                        # RSI 하한 (극단적 과매도 제외) - 20→15 완화
 
 # 이동평균선 필터
-require_golden_cross: true         # 골든크로스 필수 (5일선 > 20일선)
+require_golden_cross: false        # 골든크로스 선택사항 (true→false 완화)
 
 # 외국인 수급 필터
-min_foreign_consecutive_days: 3    # 최소 외국인 연속 순매수일
+min_foreign_consecutive_days: 0    # 외국인 연속 순매수 조건 제거 (3→0)
 
 
 # ===================
@@ -53,11 +53,11 @@ min_foreign_consecutive_days: 3    # 최소 외국인 연속 순매수일
 # ===================
 
 # 거래량 모멘텀 필터 (cis식)
-min_volume_ratio: 150              # 5일 평균 거래량 대비 비율: 150%
+min_volume_ratio: 120              # 5일 평균 거래량 대비 비율: 120% (150→120 완화)
 
 # 볼린저밴드 위치 필터
-min_bb_position: 20                # 볼린저밴드 최소 위치: 20% (하단 근접 제외)
-max_bb_position: 80                # 볼린저밴드 최대 위치: 80% (상단 근접 제외)
+min_bb_position: 10                # 볼린저밴드 최소 위치: 10% (20→10 완화)
+max_bb_position: 90                # 볼린저밴드 최대 위치: 90% (80→90 완화)
 
 
 # ===================
