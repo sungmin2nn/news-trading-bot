@@ -96,11 +96,27 @@ class PriceCollector:
             if pykrx_stock:
                 df = pykrx_stock.get_market_ohlcv_by_date(start_date, end_date, stock_code)
                 if not df.empty:
-                    # pykrx 버전에 따라 컬럼 수가 다름 (5개 또는 6개)
-                    if len(df.columns) == 6:
-                        df.columns = ['Open', 'High', 'Low', 'Close', 'Volume', 'Change']
-                    elif len(df.columns) == 5:
-                        df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+                    # pykrx 버전/데이터에 따라 컬럼 수가 다름
+                    # 컬럼명 매핑 대신 기존 컬럼명 유지하고 필요한 컬럼만 rename
+                    col_mapping = {}
+                    cols = list(df.columns)
+
+                    # 한글 컬럼명을 영문으로 매핑
+                    korean_to_english = {
+                        '시가': 'Open',
+                        '고가': 'High',
+                        '저가': 'Low',
+                        '종가': 'Close',
+                        '거래량': 'Volume',
+                        '등락률': 'Change'
+                    }
+
+                    for korean, english in korean_to_english.items():
+                        if korean in cols:
+                            col_mapping[korean] = english
+
+                    if col_mapping:
+                        df = df.rename(columns=col_mapping)
                 return df
 
             elif fdr:
@@ -299,9 +315,15 @@ class PriceCollector:
 
         try:
             if pykrx_stock:
-                df = pykrx_stock.get_exhaustion_rates_by_ticker(date)
-                if stock_code in df.index:
-                    return float(df.loc[stock_code, '외국인보유비율'])
+                # pykrx 버전에 따라 다른 함수 사용
+                if hasattr(pykrx_stock, 'get_exhaustion_rates_by_ticker'):
+                    df = pykrx_stock.get_exhaustion_rates_by_ticker(date)
+                    if stock_code in df.index:
+                        return float(df.loc[stock_code, '외국인보유비율'])
+                elif hasattr(pykrx_stock, 'get_market_cap_by_ticker'):
+                    # 대체 방법: 시가총액 데이터에서 외국인 비율 추출 불가
+                    # 외국인 보유 비율은 None 반환 (필수 기능 아님)
+                    pass
 
         except Exception as e:
             print(f"외국인 보유비율 조회 오류 ({stock_code}): {e}")
