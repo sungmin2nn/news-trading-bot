@@ -31,9 +31,6 @@ jobs:
       - name: Run morning scan
         env:
           DART_API_KEY: ${{ secrets.DART_API_KEY }}
-          SMTP_EMAIL: ${{ secrets.SMTP_EMAIL }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
         run: |
           python src/morning_scan.py
 

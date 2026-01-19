@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.analyzers.simulator import Simulator
-from src.utils.notifier import EmailNotifier
 
 
 def run_evening_track():
@@ -80,37 +79,12 @@ def run_evening_track():
         print(f"  - 저장 오류: {e}")
 
     # 4. 대시보드 업데이트
-    print("\n[4/5] 대시보드 업데이트 중...")
+    print("\n[4/4] 대시보드 업데이트 중...")
     try:
         update_dashboard(simulator)
         print("  - 대시보드 업데이트 완료")
     except Exception as e:
         print(f"  - 대시보드 업데이트 오류: {e}")
-
-    # 5. 이메일 알림 전송
-    print("\n[5/5] 이메일 알림 전송 중...")
-    try:
-        notifier = EmailNotifier()
-        if notifier.is_configured():
-            comparison = simulator.compare_strategies()
-            results = {
-                'performance': {
-                    'strategy_a': comparison['strategy_a'],
-                    'strategy_b': comparison['strategy_b'],
-                    'strategy_c': comparison['strategy_c'],
-                    'strategy_c_plus': comparison['strategy_c_plus'],
-                    'strategy_d': comparison['strategy_d']
-                }
-            }
-            success = notifier.send_tracking_result(results, today)
-            if success:
-                print("  - 이메일 전송 완료")
-            else:
-                print("  - 이메일 전송 실패")
-        else:
-            print("  - 이메일 설정 미완료 (SMTP_EMAIL, SMTP_PASSWORD, RECIPIENT_EMAIL 환경변수 필요)")
-    except Exception as e:
-        print(f"  - 이메일 전송 오류: {e}")
 
     print(f"\n{'=' * 60}")
     print("저녁 추적 완료!")
