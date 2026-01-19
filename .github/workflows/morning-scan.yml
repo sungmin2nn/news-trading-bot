@@ -40,4 +40,5 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add data/
           git diff --staged --quiet || git commit -m "Update signals $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin main
           git push
