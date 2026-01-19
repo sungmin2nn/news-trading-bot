@@ -96,7 +96,11 @@ class PriceCollector:
             if pykrx_stock:
                 df = pykrx_stock.get_market_ohlcv_by_date(start_date, end_date, stock_code)
                 if not df.empty:
-                    df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+                    # pykrx 버전에 따라 컬럼 수가 다름 (5개 또는 6개)
+                    if len(df.columns) == 6:
+                        df.columns = ['Open', 'High', 'Low', 'Close', 'Volume', 'Change']
+                    elif len(df.columns) == 5:
+                        df.columns = ['Open', 'High', 'Low', 'Close', 'Volume']
                 return df
 
             elif fdr:
