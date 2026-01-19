@@ -16,6 +16,7 @@ from src.collectors.naver_collector import NaverCollector
 from src.analyzers.keyword_scorer import KeywordScorer
 from src.analyzers.stock_filter import StockFilter
 from src.analyzers.simulator import Simulator
+from src.utils.notifier import EmailNotifier
 
 
 def run_morning_scan():
@@ -197,6 +198,34 @@ def run_morning_scan():
 
     except Exception as e:
         print(f"  - 저장 오류: {e}")
+
+    # 6. 이메일 알림 전송
+    print("\n[6/6] 이메일 알림 전송 중...")
+    try:
+        notifier = EmailNotifier()
+        if notifier.is_configured():
+            signals_by_strategy = {
+                'A': strategy_a,
+                'B': strategy_b,
+                'C': strategy_c,
+                'C+': strategy_c_plus,
+                'D': strategy_d
+            }
+
+            # 시그널이 하나라도 있으면 이메일 전송
+            total_signals = sum(len(v) for v in signals_by_strategy.values())
+            if total_signals > 0:
+                success = notifier.send_signal_alert(signals_by_strategy, today)
+                if success:
+                    print(f"  - 이메일 전송 완료: {total_signals}개 시그널")
+                else:
+                    print("  - 이메일 전송 실패")
+            else:
+                print("  - 전송할 시그널 없음 (이메일 건너뜀)")
+        else:
+            print("  - 이메일 설정 미완료 (SMTP_EMAIL, SMTP_PASSWORD, RECIPIENT_EMAIL 환경변수 필요)")
+    except Exception as e:
+        print(f"  - 이메일 전송 오류: {e}")
 
     print(f"\n{'=' * 60}")
     print("아침 스캔 완료!")
