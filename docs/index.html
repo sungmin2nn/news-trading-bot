@@ -3029,7 +3029,42 @@ news-trading-bot/
                 }
             });
 
-            currentTradesData = allTrades;
+            // 같은 날짜+종목을 그룹화하여 전략 합치기
+            const groupedMap = new Map();
+            allTrades.forEach(trade => {
+                const key = `${trade.date}_${trade.stock_code}`;
+                if (groupedMap.has(key)) {
+                    const existing = groupedMap.get(key);
+                    // 전략 추가 (중복 제거 후 정렬)
+                    if (!existing.strategies.includes(trade.strategy)) {
+                        existing.strategies.push(trade.strategy);
+                        existing.strategies.sort((a, b) => {
+                            const order = ['A', 'B', 'C', 'C+', 'D', 'E'];
+                            return order.indexOf(a) - order.indexOf(b);
+                        });
+                    }
+                    // 수익률은 평균으로 (보통 같은 값이지만)
+                    existing.returnsSum += trade.returns || 0;
+                    existing.returnsCount++;
+                } else {
+                    groupedMap.set(key, {
+                        ...trade,
+                        strategies: [trade.strategy],
+                        returnsSum: trade.returns || 0,
+                        returnsCount: 1
+                    });
+                }
+            });
+
+            // 그룹화된 데이터로 변환
+            const groupedTrades = Array.from(groupedMap.values()).map(t => ({
+                ...t,
+                strategy: t.strategies.join(', '),  // "A, B, C" 형태
+                strategiesArray: t.strategies,      // 배열도 유지
+                returns: t.returnsSum / t.returnsCount  // 평균 수익률
+            }));
+
+            currentTradesData = groupedTrades;
 
             // 정렬 적용
             sortTrades(currentSortColumn, currentSortDirection);
@@ -3108,15 +3143,20 @@ news-trading-bot/
 
             if (currentTradesData.length > 0) {
                 currentTradesData.forEach(trade => {
-                    let badgeClass = trade.strategy.toLowerCase();
-                    if (trade.strategy === 'C+') badgeClass = 'c-plus';
+                    // 여러 전략을 각각 배지로 표시
+                    const strategiesArray = trade.strategiesArray || [trade.strategy];
+                    const badgesHtml = strategiesArray.map(s => {
+                        let badgeClass = s.toLowerCase();
+                        if (s === 'C+') badgeClass = 'c-plus';
+                        return `<span class="badge badge-${badgeClass}">${s}</span>`;
+                    }).join(' ');
 
                     const returnClass = trade.returns >= 0 ? 'positive' : 'negative';
 
                     html += `
                         <tr>
                             <td>${formatDate(trade.date)}</td>
-                            <td><span class="badge badge-${badgeClass}">${trade.strategy}</span></td>
+                            <td>${badgesHtml}</td>
                             <td><strong>${trade.corp_name}</strong></td>
                             <td>${trade.stock_code}</td>
                             <td>${trade.score}</td>
