@@ -90,8 +90,8 @@ def run_morning_scan():
         print(f"  - 점수 계산 오류: {e}")
         scored_signals = all_signals
 
-    # 4. 5가지 전략 필터링 (A/B/C/C+/D)
-    print("\n[4/5] 5가지 전략 필터링 중...")
+    # 4. 6가지 전략 필터링 (A/B/C/C+/D/E)
+    print("\n[4/5] 6가지 전략 필터링 중...")
     try:
         stock_filter = StockFilter()
         results = stock_filter.apply_all_strategies(scored_signals)
@@ -101,6 +101,7 @@ def run_morning_scan():
         strategy_c = results['strategy_c']
         strategy_c_plus = results['strategy_c_plus']
         strategy_d = results['strategy_d']
+        strategy_e = results['strategy_e']
 
         print(f"\n  [전략 A - 단순 로직]")
         print(f"  선정 종목: {len(strategy_a)}개")
@@ -134,10 +135,17 @@ def run_morning_scan():
             vol_ratio = signal.get('volume_ratio', 'N/A')
             print(f"    {i}. {signal.get('corp_name', signal.get('title', 'N/A'))} (점수: {signal.get('score', 0)}, 괴리율: {divergence}%, 연속양봉: {consecutive}일, 거래량: {vol_ratio}%)")
 
+        print(f"\n  [전략 E - Earnings Surprise]")
+        print(f"  선정 종목: {len(strategy_e)}개")
+        for i, signal in enumerate(strategy_e[:3], 1):
+            vol_ratio = signal.get('volume_ratio', 'N/A')
+            rsi = signal.get('rsi', 'N/A')
+            print(f"    {i}. {signal.get('corp_name', signal.get('title', 'N/A'))} (점수: {signal.get('score', 0)}, 거래량: {vol_ratio}%, RSI: {rsi})")
+
         # 전략 비교 요약
         print(f"\n  [전략 비교 요약]")
         print(f"  - A: {len(strategy_a)}개 | B: {len(strategy_b)}개 | C: {len(strategy_c)}개")
-        print(f"  - C+: {len(strategy_c_plus)}개 | D: {len(strategy_d)}개")
+        print(f"  - C+: {len(strategy_c_plus)}개 | D: {len(strategy_d)}개 | E: {len(strategy_e)}개")
 
     except Exception as e:
         print(f"  - 필터링 오류: {e}")
@@ -146,6 +154,7 @@ def run_morning_scan():
         strategy_c = []
         strategy_c_plus = []
         strategy_d = []
+        strategy_e = []
 
     # 5. 결과 저장
     print("\n[5/5] 결과 저장 중...")
@@ -153,7 +162,7 @@ def run_morning_scan():
         simulator = Simulator()
         today = datetime.now().strftime('%Y%m%d')
 
-        # 5가지 전략 결과 각각 저장
+        # 6가지 전략 결과 각각 저장
         if strategy_a:
             simulator.record_signals(strategy_a, 'A', today)
         if strategy_b:
@@ -164,6 +173,8 @@ def run_morning_scan():
             simulator.record_signals(strategy_c_plus, 'C+', today)
         if strategy_d:
             simulator.record_signals(strategy_d, 'D', today)
+        if strategy_e:
+            simulator.record_signals(strategy_e, 'E', today)
 
         # 결과 파일 생성
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -181,12 +192,14 @@ def run_morning_scan():
                 'strategy_c_count': len(strategy_c),
                 'strategy_c_plus_count': len(strategy_c_plus),
                 'strategy_d_count': len(strategy_d),
+                'strategy_e_count': len(strategy_e),
             },
             'strategy_a': strategy_a,
             'strategy_b': strategy_b,
             'strategy_c': strategy_c,
             'strategy_c_plus': strategy_c_plus,
-            'strategy_d': strategy_d
+            'strategy_d': strategy_d,
+            'strategy_e': strategy_e
         }
 
         output_path = os.path.join(output_dir, f'signals_{today}.json')

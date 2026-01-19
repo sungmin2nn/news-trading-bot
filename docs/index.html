@@ -13,6 +13,7 @@
             --color-c: #4CAF50;
             --color-c-plus: #9C27B0;
             --color-d: #E91E63;
+            --color-e: #00BCD4;
             --bg-primary: #f5f7fa;
             --bg-card: #ffffff;
             --text-primary: #1a1a2e;
@@ -391,6 +392,7 @@
         .strategy-c .strategy-name { color: var(--color-c); }
         .strategy-c-plus .strategy-name { color: var(--color-c-plus); }
         .strategy-d .strategy-name { color: var(--color-d); }
+        .strategy-e .strategy-name { color: var(--color-e); }
 
         .stat-grid {
             display: grid;
@@ -507,6 +509,7 @@
         .win-rate-fill.strategy-c { background: var(--color-c); }
         .win-rate-fill.strategy-c-plus { background: var(--color-c-plus); }
         .win-rate-fill.strategy-d { background: var(--color-d); }
+        .win-rate-fill.strategy-e { background: var(--color-e); }
 
         /* 차트 */
         .charts-section {
@@ -755,6 +758,7 @@
         .badge-c { background: rgba(76, 175, 80, 0.15); color: var(--color-c); }
         .badge-c-plus, .badge-c\+ { background: rgba(156, 39, 176, 0.15); color: var(--color-c-plus); }
         .badge-d { background: rgba(233, 30, 99, 0.15); color: var(--color-d); }
+        .badge-e { background: rgba(0, 188, 212, 0.15); color: var(--color-e); }
 
         .status-badge {
             padding: 4px 10px;
@@ -1523,6 +1527,38 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card strategy-card strategy-e" id="strategyECard">
+                <button class="info-btn" onclick="showStrategyInfo('E')"><i class="fas fa-info"></i></button>
+                <div class="strategy-name">전략 E</div>
+                <div class="strategy-subtitle">Earnings Surprise</div>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="eAvgReturn">-</div>
+                        <div class="stat-label">평균 수익률</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="eWinRate">-</div>
+                        <div class="stat-label">승률</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="eTotalReturn">-</div>
+                        <div class="stat-label">누적 수익률</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="eTotalDays">-</div>
+                        <div class="stat-label">거래일</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="eBestReturn">-</div>
+                        <div class="stat-label">최고 수익</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="eWorstReturn">-</div>
+                        <div class="stat-label">최저 수익</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 전략 비교 섹션 -->
@@ -1538,6 +1574,7 @@
                             <th style="color: var(--color-c)">C</th>
                             <th style="color: var(--color-c-plus)">C+</th>
                             <th style="color: var(--color-d)">D</th>
+                            <th style="color: var(--color-e)">E</th>
                             <th>최고</th>
                         </tr>
                     </thead>
@@ -1549,6 +1586,7 @@
                             <td id="cmpCAvg">-</td>
                             <td id="cmpCPAvg">-</td>
                             <td id="cmpDAvg">-</td>
+                            <td id="cmpEAvg">-</td>
                             <td id="cmpBestAvg">-</td>
                         </tr>
                         <tr>
@@ -1558,6 +1596,7 @@
                             <td id="cmpCWin">-</td>
                             <td id="cmpCPWin">-</td>
                             <td id="cmpDWin">-</td>
+                            <td id="cmpEWin">-</td>
                             <td id="cmpBestWin">-</td>
                         </tr>
                         <tr>
@@ -1567,6 +1606,7 @@
                             <td id="cmpCTotal">-</td>
                             <td id="cmpCPTotal">-</td>
                             <td id="cmpDTotal">-</td>
+                            <td id="cmpETotal">-</td>
                             <td id="cmpBestTotal">-</td>
                         </tr>
                         <tr>
@@ -1576,6 +1616,7 @@
                             <td id="cmpCTrades">-</td>
                             <td id="cmpCPTrades">-</td>
                             <td id="cmpDTrades">-</td>
+                            <td id="cmpETrades">-</td>
                             <td id="cmpBestTrades">-</td>
                         </tr>
                     </tbody>
@@ -1613,6 +1654,12 @@
                         <div class="win-rate-label" style="color: var(--color-d)">전략 D</div>
                         <div class="win-rate-bar">
                             <div class="win-rate-fill strategy-d" id="winRateBarD" style="width: 0%">0%</div>
+                        </div>
+                    </div>
+                    <div class="win-rate-item">
+                        <div class="win-rate-label" style="color: var(--color-e)">전략 E</div>
+                        <div class="win-rate-bar">
+                            <div class="win-rate-fill strategy-e" id="winRateBarE" style="width: 0%">0%</div>
                         </div>
                     </div>
                 </div>
@@ -2156,6 +2203,7 @@ news-trading-bot/
             const strategyC = data.performance?.strategy_c || {};
             const strategyCPlus = data.performance?.strategy_c_plus || {};
             const strategyD = data.performance?.strategy_d || {};
+            const strategyE = data.performance?.strategy_e || {};
 
             // 요약 통계
             const totalDays = Math.max(
@@ -2163,7 +2211,8 @@ news-trading-bot/
                 strategyB.total_days || 0,
                 strategyC.total_days || 0,
                 strategyCPlus.total_days || 0,
-                strategyD.total_days || 0
+                strategyD.total_days || 0,
+                strategyE.total_days || 0
             );
             document.getElementById('totalTradingDays').textContent = totalDays + '일';
 
@@ -2172,7 +2221,8 @@ news-trading-bot/
                 'B': strategyB.total_return || 0,
                 'C': strategyC.total_return || 0,
                 'C+': strategyCPlus.total_return || 0,
-                'D': strategyD.total_return || 0
+                'D': strategyD.total_return || 0,
+                'E': strategyE.total_return || 0
             };
             const bestStrategy = Object.keys(returns).reduce((a, b) => returns[a] > returns[b] ? a : b);
             document.getElementById('bestStrategy').textContent = '전략 ' + bestStrategy;
@@ -2186,9 +2236,10 @@ news-trading-bot/
                 strategyB.win_rate || 0,
                 strategyC.win_rate || 0,
                 strategyCPlus.win_rate || 0,
-                strategyD.win_rate || 0
+                strategyD.win_rate || 0,
+                strategyE.win_rate || 0
             ];
-            const avgWinRate = winRates.reduce((a, b) => a + b, 0) / 5;
+            const avgWinRate = winRates.reduce((a, b) => a + b, 0) / 6;
             document.getElementById('avgWinRate').textContent = avgWinRate.toFixed(1) + '%';
 
             // 전략 A 성과
@@ -2231,6 +2282,14 @@ news-trading-bot/
             updateStatValue('dBestReturn', strategyD.best_return, '%');
             updateStatValue('dWorstReturn', strategyD.worst_return, '%');
 
+            // 전략 E 성과
+            updateStatValue('eAvgReturn', strategyE.avg_return, '%');
+            updateStatValue('eWinRate', strategyE.win_rate, '%');
+            updateStatValue('eTotalReturn', strategyE.total_return, '%');
+            document.getElementById('eTotalDays').textContent = strategyE.total_days || 0;
+            updateStatValue('eBestReturn', strategyE.best_return, '%');
+            updateStatValue('eWorstReturn', strategyE.worst_return, '%');
+
             // 승자 표시
             const winner = data.performance?.winner;
             document.querySelectorAll('.strategy-card').forEach(card => card.classList.remove('winner'));
@@ -2244,10 +2303,12 @@ news-trading-bot/
                 document.getElementById('strategyCPlusCard').classList.add('winner');
             } else if (winner === 'D') {
                 document.getElementById('strategyDCard').classList.add('winner');
+            } else if (winner === 'E') {
+                document.getElementById('strategyECard').classList.add('winner');
             }
 
             // 비교 매트릭스
-            updateComparisonTable(strategyA, strategyB, strategyC, strategyCPlus, strategyD);
+            updateComparisonTable(strategyA, strategyB, strategyC, strategyCPlus, strategyD, strategyE);
 
             // 승률 바
             updateWinRateBars(
@@ -2255,13 +2316,14 @@ news-trading-bot/
                 strategyB.win_rate || 0,
                 strategyC.win_rate || 0,
                 strategyCPlus.win_rate || 0,
-                strategyD.win_rate || 0
+                strategyD.win_rate || 0,
+                strategyE.win_rate || 0
             );
 
             // 차트 업데이트
             updateCumulativeChart(data.cumulative_returns);
             updateDailyChart(data.daily_returns);
-            updateDistributionChart(strategyA, strategyB, strategyC, strategyCPlus, strategyD);
+            updateDistributionChart(strategyA, strategyB, strategyC, strategyCPlus, strategyD, strategyE);
             updateWinRateProgressChart(data.daily_returns);
 
             // 시그널 테이블
@@ -2497,7 +2559,7 @@ news-trading-bot/
             }
         }
 
-        function updateComparisonTable(a, b, c, cp, d) {
+        function updateComparisonTable(a, b, c, cp, d, e) {
             // 헬퍼 함수: 최고값의 전략 키 찾기
             function getBestKey(values) {
                 const max = Math.max(...Object.values(values));
@@ -2505,56 +2567,61 @@ news-trading-bot/
             }
 
             // 평균 수익률
-            const avgReturns = {a: a.avg_return || 0, b: b.avg_return || 0, c: c.avg_return || 0, 'c-plus': cp.avg_return || 0, d: d.avg_return || 0};
+            const avgReturns = {a: a.avg_return || 0, b: b.avg_return || 0, c: c.avg_return || 0, 'c-plus': cp.avg_return || 0, d: d.avg_return || 0, e: e.avg_return || 0};
             document.getElementById('cmpAAvg').textContent = avgReturns.a.toFixed(2) + '%';
             document.getElementById('cmpBAvg').textContent = avgReturns.b.toFixed(2) + '%';
             document.getElementById('cmpCAvg').textContent = avgReturns.c.toFixed(2) + '%';
             document.getElementById('cmpCPAvg').textContent = avgReturns['c-plus'].toFixed(2) + '%';
             document.getElementById('cmpDAvg').textContent = avgReturns.d.toFixed(2) + '%';
+            document.getElementById('cmpEAvg').textContent = avgReturns.e.toFixed(2) + '%';
             const bestAvgKey = getBestKey(avgReturns);
             const bestAvg = Math.max(...Object.values(avgReturns));
             document.getElementById('cmpBestAvg').innerHTML = `<span class="badge badge-${bestAvgKey}">${bestAvg.toFixed(2)}%</span>`;
 
             // 승률
-            const winRates = {a: a.win_rate || 0, b: b.win_rate || 0, c: c.win_rate || 0, 'c-plus': cp.win_rate || 0, d: d.win_rate || 0};
+            const winRates = {a: a.win_rate || 0, b: b.win_rate || 0, c: c.win_rate || 0, 'c-plus': cp.win_rate || 0, d: d.win_rate || 0, e: e.win_rate || 0};
             document.getElementById('cmpAWin').textContent = winRates.a.toFixed(1) + '%';
             document.getElementById('cmpBWin').textContent = winRates.b.toFixed(1) + '%';
             document.getElementById('cmpCWin').textContent = winRates.c.toFixed(1) + '%';
             document.getElementById('cmpCPWin').textContent = winRates['c-plus'].toFixed(1) + '%';
             document.getElementById('cmpDWin').textContent = winRates.d.toFixed(1) + '%';
+            document.getElementById('cmpEWin').textContent = winRates.e.toFixed(1) + '%';
             const bestWinKey = getBestKey(winRates);
             const bestWin = Math.max(...Object.values(winRates));
             document.getElementById('cmpBestWin').innerHTML = `<span class="badge badge-${bestWinKey}">${bestWin.toFixed(1)}%</span>`;
 
             // 누적 수익률
-            const totalReturns = {a: a.total_return || 0, b: b.total_return || 0, c: c.total_return || 0, 'c-plus': cp.total_return || 0, d: d.total_return || 0};
+            const totalReturns = {a: a.total_return || 0, b: b.total_return || 0, c: c.total_return || 0, 'c-plus': cp.total_return || 0, d: d.total_return || 0, e: e.total_return || 0};
             document.getElementById('cmpATotal').textContent = totalReturns.a.toFixed(2) + '%';
             document.getElementById('cmpBTotal').textContent = totalReturns.b.toFixed(2) + '%';
             document.getElementById('cmpCTotal').textContent = totalReturns.c.toFixed(2) + '%';
             document.getElementById('cmpCPTotal').textContent = totalReturns['c-plus'].toFixed(2) + '%';
             document.getElementById('cmpDTotal').textContent = totalReturns.d.toFixed(2) + '%';
+            document.getElementById('cmpETotal').textContent = totalReturns.e.toFixed(2) + '%';
             const bestTotalKey = getBestKey(totalReturns);
             const bestTotal = Math.max(...Object.values(totalReturns));
             document.getElementById('cmpBestTotal').innerHTML = `<span class="badge badge-${bestTotalKey}">${bestTotal.toFixed(2)}%</span>`;
 
             // 거래수
-            const trades = {a: a.total_trades || 0, b: b.total_trades || 0, c: c.total_trades || 0, 'c-plus': cp.total_trades || 0, d: d.total_trades || 0};
+            const trades = {a: a.total_trades || 0, b: b.total_trades || 0, c: c.total_trades || 0, 'c-plus': cp.total_trades || 0, d: d.total_trades || 0, e: e.total_trades || 0};
             document.getElementById('cmpATrades').textContent = trades.a;
             document.getElementById('cmpBTrades').textContent = trades.b;
             document.getElementById('cmpCTrades').textContent = trades.c;
             document.getElementById('cmpCPTrades').textContent = trades['c-plus'];
             document.getElementById('cmpDTrades').textContent = trades.d;
+            document.getElementById('cmpETrades').textContent = trades.e;
             const bestTradesKey = getBestKey(trades);
             const bestTrades = Math.max(...Object.values(trades));
             document.getElementById('cmpBestTrades').innerHTML = `<span class="badge badge-${bestTradesKey}">${bestTrades}</span>`;
         }
 
-        function updateWinRateBars(aRate, bRate, cRate, cpRate, dRate) {
+        function updateWinRateBars(aRate, bRate, cRate, cpRate, dRate, eRate) {
             const barA = document.getElementById('winRateBarA');
             const barB = document.getElementById('winRateBarB');
             const barC = document.getElementById('winRateBarC');
             const barCP = document.getElementById('winRateBarCP');
             const barD = document.getElementById('winRateBarD');
+            const barE = document.getElementById('winRateBarE');
 
             setTimeout(() => {
                 barA.style.width = Math.min(aRate, 100) + '%';
@@ -2571,6 +2638,9 @@ news-trading-bot/
 
                 barD.style.width = Math.min(dRate, 100) + '%';
                 barD.textContent = dRate.toFixed(1) + '%';
+
+                barE.style.width = Math.min(eRate, 100) + '%';
+                barE.textContent = eRate.toFixed(1) + '%';
             }, 300);
         }
 
@@ -2591,7 +2661,8 @@ news-trading-bot/
             const cHistory = cumulativeData?.strategy_c?.history || [100];
             const cpHistory = cumulativeData?.strategy_c_plus?.history || [100];
             const dHistory = cumulativeData?.strategy_d?.history || [100];
-            const maxLen = Math.max(aHistory.length, bHistory.length, cHistory.length, cpHistory.length, dHistory.length);
+            const eHistory = cumulativeData?.strategy_e?.history || [100];
+            const maxLen = Math.max(aHistory.length, bHistory.length, cHistory.length, cpHistory.length, dHistory.length, eHistory.length);
             const labels = Array.from({length: maxLen}, (_, i) => `Day ${i}`);
 
             if (cumulativeChart) cumulativeChart.destroy();
@@ -2642,6 +2713,15 @@ news-trading-bot/
                             data: dHistory,
                             borderColor: '#E91E63',
                             backgroundColor: 'rgba(233, 30, 99, 0.1)',
+                            fill: false,
+                            tension: 0.4,
+                            borderWidth: 2
+                        },
+                        {
+                            label: '전략 E',
+                            data: eHistory,
+                            borderColor: '#00BCD4',
+                            backgroundColor: 'rgba(0, 188, 212, 0.1)',
                             fill: false,
                             tension: 0.4,
                             borderWidth: 2
@@ -2761,7 +2841,7 @@ news-trading-bot/
             });
         }
 
-        function updateDistributionChart(a, b, c, cp, d) {
+        function updateDistributionChart(a, b, c, cp, d, e) {
             const ctx = document.getElementById('distributionChart').getContext('2d');
             const colors = getChartColors();
 
@@ -2770,23 +2850,25 @@ news-trading-bot/
             distributionChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['전략 A', '전략 B', '전략 C', '전략 C+', '전략 D'],
+                    labels: ['전략 A', '전략 B', '전략 C', '전략 C+', '전략 D', '전략 E'],
                     datasets: [{
                         data: [
                             Math.max(a.total_return || 0, 0.1),
                             Math.max(b.total_return || 0, 0.1),
                             Math.max(c.total_return || 0, 0.1),
                             Math.max(cp.total_return || 0, 0.1),
-                            Math.max(d.total_return || 0, 0.1)
+                            Math.max(d.total_return || 0, 0.1),
+                            Math.max(e.total_return || 0, 0.1)
                         ],
                         backgroundColor: [
                             'rgba(33, 150, 243, 0.8)',
                             'rgba(255, 152, 0, 0.8)',
                             'rgba(76, 175, 80, 0.8)',
                             'rgba(156, 39, 176, 0.8)',
-                            'rgba(233, 30, 99, 0.8)'
+                            'rgba(233, 30, 99, 0.8)',
+                            'rgba(0, 188, 212, 0.8)'
                         ],
-                        borderColor: ['#2196F3', '#FF9800', '#4CAF50', '#9C27B0', '#E91E63'],
+                        borderColor: ['#2196F3', '#FF9800', '#4CAF50', '#9C27B0', '#E91E63', '#00BCD4'],
                         borderWidth: 2
                     }]
                 },
@@ -3295,6 +3377,18 @@ news-trading-bot/
                     '25일선 괴리율 -5%~+15%',
                     '전일 양봉 필수 (cis식)',
                     '거래량 120%+ (모멘텀)'
+                ]
+            },
+            'E': {
+                title: '전략 E - Earnings Surprise',
+                icon: 'fa-chart-line',
+                cssClass: 'strategy-e',
+                items: [
+                    'PEAD 효과 활용',
+                    '실적 관련 키워드 필수',
+                    '키워드 점수 3점 이상',
+                    '거래량 150%+ (실적발표 모멘텀)',
+                    'RSI 75 미만 (과매수 제외)'
                 ]
             }
         };

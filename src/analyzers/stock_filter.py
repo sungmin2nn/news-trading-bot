@@ -46,6 +46,12 @@ class StockFilter:
         'require_bullish_candle': True,         # 양봉 필수 (cis식)
         'd_min_volume_ratio': 120,              # D전략 최소 거래량 비율: 120%
 
+        # E 전략 전용 필터 (Earnings Surprise - 실적 서프라이즈)
+        'e_min_score': 3,                       # E전략 최소 점수 (실적 관련 키워드)
+        'e_min_volume_ratio': 150,              # E전략 최소 거래량 비율: 150%
+        'e_max_rsi': 75,                        # E전략 RSI 상한: 75
+        'e_require_earnings_keyword': True,     # 실적 관련 키워드 필수
+
         # 결과 제한
         'max_stocks': 10,                       # 최대 선정 종목 수
     }
@@ -451,22 +457,114 @@ class StockFilter:
 
         return result
 
-    def apply_all_strategies(self, signals: list) -> dict:
+    def apply_strategy_e(self, signals: list) -> list:
         """
-        A/B/C/C+/D 전략 모두 적용하여 결과를 반환합니다.
+        전략 E (Earnings Surprise - 실적 서프라이즈) 적용.
+
+        PEAD(Post-Earnings Announcement Drift) 효과 활용:
+        - 실적 관련 호재 키워드 포함
+        - 높은 키워드 점수 (실적 서프라이즈 강도)
+        - 거래량 급증 (시장 반응)
+        - RSI 과매수 아닌 구간
 
         Args:
             signals: 시그널 리스트
 
         Returns:
-            5개 전략 결과 딕셔너리
+            전략 E로 필터링된 시그널 리스트
+        """
+        # 실적 관련 키워드
+        EARNINGS_KEYWORDS = [
+            '실적', '영업이익', '순이익', '매출', '흑자', '전환',
+            '어닝', '서프라이즈', '호실적', '최대', '신기록',
+            '분기', '반기', '연간', '잠정', '컨센서스', '상회',
+            '증가', '성장', '개선', '회복'
+        ]
+
+        # 공통 필터 적용
+        common_filtered = self.apply_common_filters(signals)
+
+        filtered = []
+
+        for signal in common_filtered:
+            stock_code = signal.get('stock_code')
+            title = signal.get('title', '').lower()
+
+            # 1. 실적 관련 키워드 체크
+            if self.settings.get('e_require_earnings_keyword', True):
+                has_earnings_keyword = any(kw in title for kw in EARNINGS_KEYWORDS)
+                if not has_earnings_keyword:
+                    continue
+                signal['has_earnings_keyword'] = True
+
+            # 2. 최소 점수 체크 (실적 공시는 높은 점수 필요)
+            min_score = self.settings.get('e_min_score', 3)
+            if signal.get('score', 0) < min_score:
+                continue
+
+            if stock_code:
+                # 기술적 지표 가져오기
+                tech = self.price_collector.get_technical_indicators(stock_code)
+
+                # 3. 거래량 급증 필터 (시장 반응 확인)
+                volume_ratio = tech.get('volume_ratio')
+                min_volume = self.settings.get('e_min_volume_ratio', 150)
+                if volume_ratio is not None:
+                    if volume_ratio < min_volume:
+                        continue
+                    signal['volume_ratio'] = volume_ratio
+
+                # 4. RSI 필터 (과매수 제외)
+                rsi = tech.get('rsi')
+                max_rsi = self.settings.get('e_max_rsi', 75)
+                if rsi is not None:
+                    if rsi > max_rsi:
+                        continue
+                    signal['rsi'] = round(rsi, 2)
+
+                # 추가 정보 저장
+                signal['bb_position'] = tech.get('bb_position')
+                signal['golden_cross'] = tech.get('golden_cross')
+                signal['ma25_divergence'] = tech.get('ma25_divergence')
+
+            filtered.append(signal)
+
+        # 점수 + 거래량으로 정렬 (PEAD 강도 반영)
+        def sort_key(x):
+            score = x.get('score', 0)
+            volume_ratio = x.get('volume_ratio', 100)
+            # 점수와 거래량 높을수록 PEAD 효과 클 것으로 예상
+            return (score * 3) + (volume_ratio * 0.02)
+
+        sorted_signals = sorted(filtered, key=sort_key, reverse=True)
+
+        # 최대 종목 수 제한
+        max_stocks = self.settings.get('max_stocks', 10)
+        result = sorted_signals[:max_stocks]
+
+        # 전략 표시
+        for signal in result:
+            signal['strategy'] = 'E'
+
+        return result
+
+    def apply_all_strategies(self, signals: list) -> dict:
+        """
+        A/B/C/C+/D/E 전략 모두 적용하여 결과를 반환합니다.
+
+        Args:
+            signals: 시그널 리스트
+
+        Returns:
+            6개 전략 결과 딕셔너리
         """
         return {
             'strategy_a': self.apply_strategy_a(signals),
             'strategy_b': self.apply_strategy_b(signals),
             'strategy_c': self.apply_strategy_c(signals),
             'strategy_c_plus': self.apply_strategy_c_plus(signals),
-            'strategy_d': self.apply_strategy_d(signals)
+            'strategy_d': self.apply_strategy_d(signals),
+            'strategy_e': self.apply_strategy_e(signals)
         }
 
     def apply_both_strategies(self, signals: list) -> dict:

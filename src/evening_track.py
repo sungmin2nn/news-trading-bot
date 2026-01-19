@@ -32,7 +32,7 @@ def run_evening_track():
     except Exception as e:
         print(f"  - 추적 오류: {e}")
 
-    # 2. 성과 요약 (5가지 전략)
+    # 2. 성과 요약 (6가지 전략)
     print("\n[2/4] 성과 분석 중...")
     try:
         comparison = simulator.compare_strategies()
@@ -50,6 +50,7 @@ def run_evening_track():
         print_strategy_summary("전략 C - 기술적 분석", comparison['strategy_c'])
         print_strategy_summary("전략 C+ - C 강화", comparison['strategy_c_plus'])
         print_strategy_summary("전략 D - BNF/cis", comparison['strategy_d'])
+        print_strategy_summary("전략 E - Earnings Surprise", comparison['strategy_e'])
 
         print(f"\n  [전략 비교 요약]")
         winner = comparison['winner']
@@ -61,7 +62,8 @@ def run_evening_track():
             'B': comparison['strategy_b']['avg_return'],
             'C': comparison['strategy_c']['avg_return'],
             'C+': comparison['strategy_c_plus']['avg_return'],
-            'D': comparison['strategy_d']['avg_return']
+            'D': comparison['strategy_d']['avg_return'],
+            'E': comparison['strategy_e']['avg_return']
         }
         sorted_strategies = sorted(strategies.items(), key=lambda x: x[1], reverse=True)
         print(f"  - 평균 수익률 순위: ", end="")
@@ -97,7 +99,7 @@ def update_dashboard(simulator: Simulator):
     docs_dir = os.path.join(base_dir, 'docs')
     os.makedirs(docs_dir, exist_ok=True)
 
-    # 대시보드 데이터 생성 (5가지 전략)
+    # 대시보드 데이터 생성 (6가지 전략)
     comparison = simulator.compare_strategies()
     cumulative = simulator.get_cumulative_returns()
     daily_returns = simulator.get_daily_returns(30)
@@ -111,6 +113,7 @@ def update_dashboard(simulator: Simulator):
             'strategy_c': comparison['strategy_c'],
             'strategy_c_plus': comparison['strategy_c_plus'],
             'strategy_d': comparison['strategy_d'],
+            'strategy_e': comparison['strategy_e'],
             'winner': comparison['winner']
         },
         'cumulative_returns': cumulative,
