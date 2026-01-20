@@ -14,6 +14,92 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.analyzers.simulator import Simulator
 
 
+def get_today_summary(today: str) -> dict:
+    """오늘의 수집 결과 요약을 가져옵니다."""
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    signals_path = os.path.join(base_dir, 'data', f'signals_{today}.json')
+
+    if os.path.exists(signals_path):
+        with open(signals_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return {
+                'date': today,
+                'total_collected': data.get('summary', {}).get('total_collected', 0),
+                'strategy_a': len(data.get('strategy_a', [])),
+                'strategy_b': len(data.get('strategy_b', [])),
+                'strategy_c': len(data.get('strategy_c', [])),
+                'strategy_c_plus': len(data.get('strategy_c_plus', [])),
+                'strategy_d': len(data.get('strategy_d', [])),
+                'strategy_e': len(data.get('strategy_e', [])),
+                'generated_at': data.get('generated_at', '')
+            }
+    return {
+        'date': today,
+        'total_collected': 0,
+        'strategy_a': 0,
+        'strategy_b': 0,
+        'strategy_c': 0,
+        'strategy_c_plus': 0,
+        'strategy_d': 0,
+        'strategy_e': 0,
+        'generated_at': ''
+    }
+
+
+def generate_action_logs(today: str, today_summary: dict, comparison: dict) -> list:
+    """액션 로그를 생성합니다."""
+    logs = []
+    now = datetime.now()
+
+    # Morning Scan 로그
+    if today_summary.get('generated_at'):
+        scan_time = today_summary['generated_at']
+        total = today_summary.get('total_collected', 0)
+        logs.append({
+            'type': 'scan',
+            'time': scan_time,
+            'title': 'Morning Scan 완료',
+            'message': f"총 {total}건 수집 → A:{today_summary['strategy_a']} B:{today_summary['strategy_b']} C:{today_summary['strategy_c']} C+:{today_summary['strategy_c_plus']} D:{today_summary['strategy_d']} E:{today_summary['strategy_e']}",
+            'status': 'success'
+        })
+
+    # Evening Track 로그
+    logs.append({
+        'type': 'track',
+        'time': now.isoformat(),
+        'title': 'Evening Track 완료',
+        'message': f"수익률 추적 완료 | 우승: {comparison.get('winner', '-')} | A:{comparison['strategy_a']['avg_return']:.2f}% B:{comparison['strategy_b']['avg_return']:.2f}%",
+        'status': 'success'
+    })
+
+    # 최근 7일 로그 히스토리 로드
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    log_path = os.path.join(base_dir, 'data', 'action_logs.json')
+
+    existing_logs = []
+    if os.path.exists(log_path):
+        try:
+            with open(log_path, 'r', encoding='utf-8') as f:
+                existing_logs = json.load(f)
+        except:
+            existing_logs = []
+
+    # 오늘 로그 추가 (중복 방지: 같은 날짜 로그 제거)
+    existing_logs = [log for log in existing_logs if not log.get('time', '').startswith(today[:4] + '-' + today[4:6] + '-' + today[6:8])]
+    existing_logs.extend(logs)
+
+    # 최근 7일만 유지
+    cutoff = (now - timedelta(days=7)).isoformat()
+    existing_logs = [log for log in existing_logs if log.get('time', '') >= cutoff]
+
+    # 저장
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, 'w', encoding='utf-8') as f:
+        json.dump(existing_logs, f, ensure_ascii=False, indent=2)
+
+    return sorted(existing_logs, key=lambda x: x.get('time', ''), reverse=True)[:10]
+
+
 def run_evening_track():
     """저녁 추적을 실행합니다."""
     print(f"=" * 60)
@@ -105,6 +191,13 @@ def update_dashboard(simulator: Simulator):
     daily_returns = simulator.get_daily_returns(30)
     recent_signals = simulator.get_recent_signals(7)
 
+    # 오늘의 수집 결과 요약 가져오기
+    today = datetime.now().strftime('%Y%m%d')
+    today_summary = get_today_summary(today)
+
+    # 액션 로그 생성
+    action_logs = generate_action_logs(today, today_summary, comparison)
+
     dashboard_data = {
         'updated_at': datetime.now().isoformat(),
         'performance': {
@@ -118,7 +211,9 @@ def update_dashboard(simulator: Simulator):
         },
         'cumulative_returns': cumulative,
         'daily_returns': daily_returns.to_dict(orient='records') if not daily_returns.empty else [],
-        'recent_signals': recent_signals
+        'recent_signals': recent_signals,
+        'today_summary': today_summary,
+        'action_logs': action_logs
     }
 
     # JSON 데이터 저장

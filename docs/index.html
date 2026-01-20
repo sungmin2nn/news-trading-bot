@@ -491,6 +491,122 @@
             color: var(--warning);
             margin-left: 4px;
         }
+
+        /* Action Logs */
+        .action-logs {
+            margin-bottom: 24px;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .log-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .log-icon.scan {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--color-a);
+        }
+
+        .log-icon.track {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .log-icon.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .log-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .log-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .log-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .log-message {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+
+        /* Today Summary Box */
+        .summary-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .summary-box h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-box h3 i {
+            color: var(--primary);
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 16px;
+        }
+
+        .summary-stat {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-card-hover);
+            border-radius: 8px;
+        }
+
+        .summary-stat .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .summary-stat .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body>
@@ -545,6 +661,49 @@
                     <div class="stat-label">Total Trades</div>
                     <div class="stat-value" id="totalTrades">-</div>
                     <div class="stat-change" id="tradingDays"></div>
+                </div>
+            </div>
+
+            <!-- Today Summary -->
+            <div class="summary-box" id="todaySummary">
+                <h3><i class="fas fa-calendar-day"></i> 오늘의 수집 결과</h3>
+                <div class="summary-stats">
+                    <div class="summary-stat">
+                        <div class="value" id="summaryTotal">-</div>
+                        <div class="label">총 수집</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" style="color: var(--color-a)" id="summaryA">-</div>
+                        <div class="label">전략 A</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" style="color: var(--color-b)" id="summaryB">-</div>
+                        <div class="label">전략 B</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" style="color: var(--color-c)" id="summaryC">-</div>
+                        <div class="label">전략 C</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" style="color: var(--color-cp)" id="summaryCp">-</div>
+                        <div class="label">전략 C+</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" style="color: var(--color-d)" id="summaryD">-</div>
+                        <div class="label">전략 D</div>
+                    </div>
+                    <div class="summary-stat">
+                        <div class="value" style="color: var(--color-e)" id="summaryE">-</div>
+                        <div class="label">전략 E</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Logs -->
+            <div class="action-logs" id="actionLogs">
+                <h3 style="margin-bottom: 16px; font-size: 1rem;"><i class="fas fa-history" style="color: var(--primary); margin-right: 8px;"></i>액션 로그</h3>
+                <div id="logContainer">
+                    <!-- Filled by JS -->
                 </div>
             </div>
 
@@ -728,10 +887,68 @@
             if (!dashboardData) return;
 
             updateLastUpdate();
+            renderTodaySummary();
+            renderActionLogs();
             renderOverview();
             renderStrategy();
             renderTradesTable();
             renderDaily();
+        }
+
+        // Today Summary
+        function renderTodaySummary() {
+            const summary = dashboardData.today_summary;
+            if (!summary) {
+                document.getElementById('todaySummary').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('summaryTotal').textContent = summary.total_collected || 0;
+            document.getElementById('summaryA').textContent = summary.strategy_a || 0;
+            document.getElementById('summaryB').textContent = summary.strategy_b || 0;
+            document.getElementById('summaryC').textContent = summary.strategy_c || 0;
+            document.getElementById('summaryCp').textContent = summary.strategy_c_plus || 0;
+            document.getElementById('summaryD').textContent = summary.strategy_d || 0;
+            document.getElementById('summaryE').textContent = summary.strategy_e || 0;
+        }
+
+        // Action Logs
+        function renderActionLogs() {
+            const logs = dashboardData.action_logs;
+            const container = document.getElementById('logContainer');
+
+            if (!logs || logs.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>아직 로그가 없습니다</p></div>';
+                return;
+            }
+
+            container.innerHTML = logs.map(log => {
+                const time = new Date(log.time);
+                const timeStr = time.toLocaleString('ko-KR', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const iconClass = log.type === 'scan' ? 'scan' : log.type === 'track' ? 'track' : 'error';
+                const icon = log.type === 'scan' ? 'fa-search' : log.type === 'track' ? 'fa-chart-line' : 'fa-exclamation-triangle';
+
+                return `
+                    <div class="log-item">
+                        <div class="log-icon ${iconClass}">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div class="log-content">
+                            <div class="log-header">
+                                <span class="log-title">${log.title}</span>
+                                <span class="log-time">${timeStr}</span>
+                            </div>
+                            <div class="log-message">${log.message}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function updateLastUpdate() {
