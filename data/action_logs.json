@@ -33,5 +33,19 @@
     "title": "Evening Track 완료",
     "message": "수익률 추적 완료 | 우승: A | A:0.97% B:0.25%",
     "status": "success"
+  },
+  {
+    "type": "scan",
+    "time": "2026-01-27T00:00:21.305046",
+    "title": "Morning Scan 완료",
+    "message": "총 242건 수집 → A:7 B:4 C:3 C+:1 D:1 E:0",
+    "status": "success"
+  },
+  {
+    "type": "track",
+    "time": "2026-01-27T07:46:48.793528",
+    "title": "Evening Track 완료",
+    "message": "수익률 추적 완료 | 우승: A | A:0.95% B:0.26%",
+    "status": "success"
   }
 ]
