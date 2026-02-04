@@ -1,13 +1,6 @@
 [
   {
     "type": "track",
-    "time": "2026-01-27T07:46:48.793528",
-    "title": "Evening Track 완료",
-    "message": "수익률 추적 완료 | 우승: A | A:0.95% B:0.26%",
-    "status": "success"
-  },
-  {
-    "type": "track",
     "time": "2026-01-28T07:44:06.154761",
     "title": "Evening Track 완료",
     "message": "수익률 추적 완료 | 우승: A | A:0.95% B:0.26%",
@@ -65,6 +58,13 @@
   {
     "type": "track",
     "time": "2026-02-03T07:31:21.129853",
+    "title": "Evening Track 완료",
+    "message": "수익률 추적 완료 | 우승: A | A:0.80% B:0.17%",
+    "status": "success"
+  },
+  {
+    "type": "track",
+    "time": "2026-02-04T07:32:13.563606",
     "title": "Evening Track 완료",
     "message": "수익률 추적 완료 | 우승: A | A:0.80% B:0.17%",
     "status": "success"
