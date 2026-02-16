@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-02-13T07:37:29.927856",
+  "updated_at": "2026-02-16T07:39:57.973619",
   "performance": {
     "strategy_a": {
       "total_days": 34,
@@ -7350,17 +7350,24 @@
     }
   ],
   "today_summary": {
-    "date": "20260213",
-    "total_collected": 415,
-    "strategy_a": 10,
-    "strategy_b": 7,
-    "strategy_c": 2,
-    "strategy_c_plus": 3,
-    "strategy_d": 1,
-    "strategy_e": 1,
-    "generated_at": "2026-02-13T00:02:33.046067"
+    "date": "20260216",
+    "total_collected": 0,
+    "strategy_a": 0,
+    "strategy_b": 0,
+    "strategy_c": 0,
+    "strategy_c_plus": 0,
+    "strategy_d": 0,
+    "strategy_e": 0,
+    "generated_at": ""
   },
   "action_logs": [
+    {
+      "type": "track",
+      "time": "2026-02-16T07:39:57.973335",
+      "title": "Evening Track 완료",
+      "message": "수익률 추적 완료 | 우승: A | A:0.60% B:-0.02%",
+      "status": "success"
+    },
     {
       "type": "track",
       "time": "2026-02-13T07:37:29.927571",

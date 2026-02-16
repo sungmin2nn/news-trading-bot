@@ -61,5 +61,12 @@
     "title": "Evening Track 완료",
     "message": "수익률 추적 완료 | 우승: A | A:0.60% B:-0.02%",
     "status": "success"
+  },
+  {
+    "type": "track",
+    "time": "2026-02-16T07:39:57.973335",
+    "title": "Evening Track 완료",
+    "message": "수익률 추적 완료 | 우승: A | A:0.60% B:-0.02%",
+    "status": "success"
   }
 ]
