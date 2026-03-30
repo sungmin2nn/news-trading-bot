@@ -1,12 +1,5 @@
 [
   {
-    "type": "track",
-    "time": "2026-03-23T07:47:12.793577",
-    "title": "Evening Track 완료",
-    "message": "수익률 추적 완료 | 우승: A | A:0.36% B:-0.08%",
-    "status": "success"
-  },
-  {
     "type": "scan",
     "time": "2026-03-24T00:00:22.674109",
     "title": "Morning Scan 완료",
@@ -51,6 +44,13 @@
   {
     "type": "track",
     "time": "2026-03-27T07:44:52.571846",
+    "title": "Evening Track 완료",
+    "message": "수익률 추적 완료 | 우승: A | A:0.21% B:-0.21%",
+    "status": "success"
+  },
+  {
+    "type": "track",
+    "time": "2026-03-30T08:10:59.021515",
     "title": "Evening Track 완료",
     "message": "수익률 추적 완료 | 우승: A | A:0.21% B:-0.21%",
     "status": "success"

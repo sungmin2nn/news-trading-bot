@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-27T07:44:52.572110",
+  "updated_at": "2026-03-30T08:10:59.021808",
   "performance": {
     "strategy_a": {
       "total_days": 44,
@@ -9359,17 +9359,24 @@
     }
   ],
   "today_summary": {
-    "date": "20260327",
-    "total_collected": 174,
-    "strategy_a": 10,
-    "strategy_b": 10,
-    "strategy_c": 10,
+    "date": "20260330",
+    "total_collected": 0,
+    "strategy_a": 0,
+    "strategy_b": 0,
+    "strategy_c": 0,
     "strategy_c_plus": 0,
     "strategy_d": 0,
     "strategy_e": 0,
-    "generated_at": "2026-03-27T00:03:56.298852"
+    "generated_at": ""
   },
   "action_logs": [
+    {
+      "type": "track",
+      "time": "2026-03-30T08:10:59.021515",
+      "title": "Evening Track 완료",
+      "message": "수익률 추적 완료 | 우승: A | A:0.21% B:-0.21%",
+      "status": "success"
+    },
     {
       "type": "track",
       "time": "2026-03-27T07:44:52.571846",
@@ -9417,13 +9424,6 @@
       "time": "2026-03-24T00:00:22.674109",
       "title": "Morning Scan 완료",
       "message": "총 127건 수집 → A:10 B:10 C:10 C+:4 D:0 E:4",
-      "status": "success"
-    },
-    {
-      "type": "track",
-      "time": "2026-03-23T07:47:12.793577",
-      "title": "Evening Track 완료",
-      "message": "수익률 추적 완료 | 우승: A | A:0.36% B:-0.08%",
       "status": "success"
     }
   ]
