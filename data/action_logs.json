@@ -1,19 +1,5 @@
 [
   {
-    "type": "scan",
-    "time": "2026-03-27T00:03:56.298852",
-    "title": "Morning Scan 완료",
-    "message": "총 174건 수집 → A:10 B:10 C:10 C+:0 D:0 E:0",
-    "status": "success"
-  },
-  {
-    "type": "track",
-    "time": "2026-03-27T07:44:52.571846",
-    "title": "Evening Track 완료",
-    "message": "수익률 추적 완료 | 우승: A | A:0.21% B:-0.21%",
-    "status": "success"
-  },
-  {
     "type": "track",
     "time": "2026-03-30T08:10:59.021515",
     "title": "Evening Track 완료",
@@ -60,6 +46,20 @@
     "time": "2026-04-02T07:50:03.270288",
     "title": "Evening Track 완료",
     "message": "수익률 추적 완료 | 우승: A | A:0.15% B:-0.25%",
+    "status": "success"
+  },
+  {
+    "type": "scan",
+    "time": "2026-04-03T00:04:30.045650",
+    "title": "Morning Scan 완료",
+    "message": "총 127건 수집 → A:6 B:6 C:6 C+:1 D:1 E:0",
+    "status": "success"
+  },
+  {
+    "type": "track",
+    "time": "2026-04-03T07:46:16.924715",
+    "title": "Evening Track 완료",
+    "message": "수익률 추적 완료 | 우승: A | A:0.13% B:-0.27%",
     "status": "success"
   }
 ]
