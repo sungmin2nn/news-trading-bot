@@ -1,32 +1,32 @@
 {
-  "generated_at": "2026-04-10T08:11:03.810129",
+  "generated_at": "2026-04-13T08:34:46.014707",
   "performance": {
     "strategy_a": {
-      "total_days": 53,
-      "total_trades": 496,
-      "avg_return": 0.03,
-      "win_rate": 38.3,
-      "total_return": 12.63,
+      "total_days": 54,
+      "total_trades": 506,
+      "avg_return": 0.04,
+      "win_rate": 38.5,
+      "total_return": 18.51,
       "best_return": 68.16,
       "worst_return": -14.58,
       "strategy": "A"
     },
     "strategy_b": {
-      "total_days": 53,
-      "total_trades": 465,
-      "avg_return": -0.33,
-      "win_rate": 35.5,
-      "total_return": -155.51,
+      "total_days": 54,
+      "total_trades": 475,
+      "avg_return": -0.31,
+      "win_rate": 35.8,
+      "total_return": -146.63,
       "best_return": 68.16,
       "worst_return": -22.28,
       "strategy": "B"
     },
     "strategy_c": {
-      "total_days": 52,
-      "total_trades": 384,
-      "avg_return": -0.36,
-      "win_rate": 35.7,
-      "total_return": -139.76,
+      "total_days": 53,
+      "total_trades": 393,
+      "avg_return": -0.32,
+      "win_rate": 36.1,
+      "total_return": -127.42,
       "best_return": 68.16,
       "worst_return": -22.28,
       "strategy": "C"
@@ -52,7 +52,7 @@
       "strategy": "D"
     },
     "strategy_e": {
-      "total_days": 9,
+      "total_days": 10,
       "total_trades": 9,
       "avg_return": -0.58,
       "win_rate": 33.3,
@@ -63,31 +63,31 @@
     },
     "comparison": {
       "strategy_a": {
-        "total_days": 53,
-        "total_trades": 496,
-        "avg_return": 0.03,
-        "win_rate": 38.3,
-        "total_return": 12.63,
+        "total_days": 54,
+        "total_trades": 506,
+        "avg_return": 0.04,
+        "win_rate": 38.5,
+        "total_return": 18.51,
         "best_return": 68.16,
         "worst_return": -14.58,
         "strategy": "A"
       },
       "strategy_b": {
-        "total_days": 53,
-        "total_trades": 465,
-        "avg_return": -0.33,
-        "win_rate": 35.5,
-        "total_return": -155.51,
+        "total_days": 54,
+        "total_trades": 475,
+        "avg_return": -0.31,
+        "win_rate": 35.8,
+        "total_return": -146.63,
         "best_return": 68.16,
         "worst_return": -22.28,
         "strategy": "B"
       },
       "strategy_c": {
-        "total_days": 52,
-        "total_trades": 384,
-        "avg_return": -0.36,
-        "win_rate": 35.7,
-        "total_return": -139.76,
+        "total_days": 53,
+        "total_trades": 393,
+        "avg_return": -0.32,
+        "win_rate": 36.1,
+        "total_return": -127.42,
         "best_return": 68.16,
         "worst_return": -22.28,
         "strategy": "C"
@@ -113,7 +113,7 @@
         "strategy": "D"
       },
       "strategy_e": {
-        "total_days": 9,
+        "total_days": 10,
         "total_trades": 9,
         "avg_return": -0.58,
         "win_rate": 33.3,
@@ -123,16 +123,16 @@
         "strategy": "E"
       },
       "difference": {
-        "avg_return": -0.36,
-        "win_rate": -2.8,
-        "total_return": -168.14
+        "avg_return": -0.35,
+        "win_rate": -2.7,
+        "total_return": -165.14
       },
       "winner": "A"
     }
   },
   "cumulative_returns": {
     "strategy_a": {
-      "final": -3.17,
+      "final": -2.6,
       "history": [
         100,
         99.43,
@@ -187,11 +187,12 @@
         99.1,
         100.05,
         98.49,
-        96.83
+        96.83,
+        97.4
       ]
     },
     "strategy_b": {
-      "final": -21.83,
+      "final": -21.13,
       "history": [
         100,
         99.04,
@@ -246,11 +247,12 @@
         79.84,
         80.6,
         79.35,
-        78.17
+        78.17,
+        78.87
       ]
     },
     "strategy_c": {
-      "final": -26.72,
+      "final": -25.72,
       "history": [
         100,
         99.51,
@@ -304,7 +306,8 @@
         73.85,
         75.37,
         74.2,
-        73.28
+        73.28,
+        74.28
       ]
     },
     "strategy_c_plus": {
@@ -394,35 +397,12 @@
         96.88,
         96.88,
         96.88,
+        93.52,
         93.52
       ]
     }
   },
   "daily_returns": [
-    {
-      "date": "20260402",
-      "strategy": "B",
-      "avg_return": -2.03,
-      "trade_count": 10
-    },
-    {
-      "date": "20260402",
-      "strategy": "C",
-      "avg_return": -2.03,
-      "trade_count": 10
-    },
-    {
-      "date": "20260402",
-      "strategy": "C+",
-      "avg_return": -3.46,
-      "trade_count": 1
-    },
-    {
-      "date": "20260403",
-      "strategy": "A",
-      "avg_return": -1.47,
-      "trade_count": 6
-    },
     {
       "date": "20260403",
       "strategy": "B",
@@ -577,6 +557,30 @@
       "date": "20260410",
       "strategy": "E",
       "avg_return": -3.46,
+      "trade_count": 1
+    },
+    {
+      "date": "20260413",
+      "strategy": "A",
+      "avg_return": 0.59,
+      "trade_count": 10
+    },
+    {
+      "date": "20260413",
+      "strategy": "B",
+      "avg_return": 0.89,
+      "trade_count": 10
+    },
+    {
+      "date": "20260413",
+      "strategy": "C",
+      "avg_return": 1.37,
+      "trade_count": 10
+    },
+    {
+      "date": "20260413",
+      "strategy": "E",
+      "avg_return": 0.0,
       "trade_count": 1
     }
   ]
