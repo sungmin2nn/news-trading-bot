@@ -159486,5 +159486,245 @@
       }
     ],
     "tracked_at": "2026-05-01T08:31:16.573474"
+  },
+  {
+    "date": "20260504",
+    "strategy": "A",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "제이스코홀딩스",
+        "corp_code": "00148531",
+        "stock_code": "023440",
+        "title": "[기재정정]최대주주변경을수반하는주식담보제공계약체결              ",
+        "date": "2026-05-04 00:00:00",
+        "rcept_no": "20260504900005",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260504900005",
+        "score": 3,
+        "strong_positive_count": 1,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결"
+        ],
+        "is_excluded": false,
+        "strategy": "E",
+        "price_change_5d": 0.0,
+        "high_52week_ratio": 23.155555555555555,
+        "foreign_consecutive_days": 0,
+        "ma5": 521.0,
+        "ma20": 521.0,
+        "bb_position": 50,
+        "ma25": 521.0,
+        "ma25_divergence": 0.0,
+        "is_bullish": true,
+        "consecutive_bullish": 6,
+        "rsi": null,
+        "golden_cross": false,
+        "has_earnings_keyword": true
+      }
+    ],
+    "recorded_at": "2026-05-04T00:16:26.427664",
+    "status": "pending"
+  },
+  {
+    "date": "20260504",
+    "strategy": "B",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "제이스코홀딩스",
+        "corp_code": "00148531",
+        "stock_code": "023440",
+        "title": "[기재정정]최대주주변경을수반하는주식담보제공계약체결              ",
+        "date": "2026-05-04 00:00:00",
+        "rcept_no": "20260504900005",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260504900005",
+        "score": 3,
+        "strong_positive_count": 1,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결"
+        ],
+        "is_excluded": false,
+        "strategy": "E",
+        "price_change_5d": 0.0,
+        "high_52week_ratio": 23.155555555555555,
+        "foreign_consecutive_days": 0,
+        "ma5": 521.0,
+        "ma20": 521.0,
+        "bb_position": 50,
+        "ma25": 521.0,
+        "ma25_divergence": 0.0,
+        "is_bullish": true,
+        "consecutive_bullish": 6,
+        "rsi": null,
+        "golden_cross": false,
+        "has_earnings_keyword": true
+      }
+    ],
+    "recorded_at": "2026-05-04T00:16:26.594341",
+    "status": "pending"
+  },
+  {
+    "date": "20260504",
+    "strategy": "C",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "제이스코홀딩스",
+        "corp_code": "00148531",
+        "stock_code": "023440",
+        "title": "[기재정정]최대주주변경을수반하는주식담보제공계약체결              ",
+        "date": "2026-05-04 00:00:00",
+        "rcept_no": "20260504900005",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260504900005",
+        "score": 3,
+        "strong_positive_count": 1,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결"
+        ],
+        "is_excluded": false,
+        "strategy": "E",
+        "price_change_5d": 0.0,
+        "high_52week_ratio": 23.155555555555555,
+        "foreign_consecutive_days": 0,
+        "ma5": 521.0,
+        "ma20": 521.0,
+        "bb_position": 50,
+        "ma25": 521.0,
+        "ma25_divergence": 0.0,
+        "is_bullish": true,
+        "consecutive_bullish": 6,
+        "rsi": null,
+        "golden_cross": false,
+        "has_earnings_keyword": true
+      }
+    ],
+    "recorded_at": "2026-05-04T00:16:26.764421",
+    "status": "pending"
+  },
+  {
+    "date": "20260504",
+    "strategy": "C+",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "제이스코홀딩스",
+        "corp_code": "00148531",
+        "stock_code": "023440",
+        "title": "[기재정정]최대주주변경을수반하는주식담보제공계약체결              ",
+        "date": "2026-05-04 00:00:00",
+        "rcept_no": "20260504900005",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260504900005",
+        "score": 3,
+        "strong_positive_count": 1,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결"
+        ],
+        "is_excluded": false,
+        "strategy": "E",
+        "price_change_5d": 0.0,
+        "high_52week_ratio": 23.155555555555555,
+        "foreign_consecutive_days": 0,
+        "ma5": 521.0,
+        "ma20": 521.0,
+        "bb_position": 50,
+        "ma25": 521.0,
+        "ma25_divergence": 0.0,
+        "is_bullish": true,
+        "consecutive_bullish": 6,
+        "rsi": null,
+        "golden_cross": false,
+        "has_earnings_keyword": true
+      }
+    ],
+    "recorded_at": "2026-05-04T00:16:26.934017",
+    "status": "pending"
+  },
+  {
+    "date": "20260504",
+    "strategy": "D",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "제이스코홀딩스",
+        "corp_code": "00148531",
+        "stock_code": "023440",
+        "title": "[기재정정]최대주주변경을수반하는주식담보제공계약체결              ",
+        "date": "2026-05-04 00:00:00",
+        "rcept_no": "20260504900005",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260504900005",
+        "score": 3,
+        "strong_positive_count": 1,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결"
+        ],
+        "is_excluded": false,
+        "strategy": "E",
+        "price_change_5d": 0.0,
+        "high_52week_ratio": 23.155555555555555,
+        "foreign_consecutive_days": 0,
+        "ma5": 521.0,
+        "ma20": 521.0,
+        "bb_position": 50,
+        "ma25": 521.0,
+        "ma25_divergence": 0.0,
+        "is_bullish": true,
+        "consecutive_bullish": 6,
+        "rsi": null,
+        "golden_cross": false,
+        "has_earnings_keyword": true
+      }
+    ],
+    "recorded_at": "2026-05-04T00:16:27.105940",
+    "status": "pending"
+  },
+  {
+    "date": "20260504",
+    "strategy": "E",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "제이스코홀딩스",
+        "corp_code": "00148531",
+        "stock_code": "023440",
+        "title": "[기재정정]최대주주변경을수반하는주식담보제공계약체결              ",
+        "date": "2026-05-04 00:00:00",
+        "rcept_no": "20260504900005",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260504900005",
+        "score": 3,
+        "strong_positive_count": 1,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결"
+        ],
+        "is_excluded": false,
+        "strategy": "E",
+        "price_change_5d": 0.0,
+        "high_52week_ratio": 23.155555555555555,
+        "foreign_consecutive_days": 0,
+        "ma5": 521.0,
+        "ma20": 521.0,
+        "bb_position": 50,
+        "ma25": 521.0,
+        "ma25_divergence": 0.0,
+        "is_bullish": true,
+        "consecutive_bullish": 6,
+        "rsi": null,
+        "golden_cross": false,
+        "has_earnings_keyword": true
+      }
+    ],
+    "recorded_at": "2026-05-04T00:16:27.275021",
+    "status": "pending"
   }
 ]
