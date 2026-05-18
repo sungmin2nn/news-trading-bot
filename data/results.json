@@ -1,32 +1,32 @@
 {
-  "generated_at": "2026-05-15T09:35:05.570696",
+  "generated_at": "2026-05-18T10:48:58.191719",
   "performance": {
     "strategy_a": {
-      "total_days": 77,
-      "total_trades": 688,
-      "avg_return": -0.29,
-      "win_rate": 35.6,
-      "total_return": -197.42,
+      "total_days": 78,
+      "total_trades": 698,
+      "avg_return": -0.31,
+      "win_rate": 35.4,
+      "total_return": -216.4,
       "best_return": 68.16,
       "worst_return": -14.58,
       "strategy": "A"
     },
     "strategy_b": {
-      "total_days": 77,
-      "total_trades": 644,
-      "avg_return": -0.67,
-      "win_rate": 31.8,
-      "total_return": -428.82,
+      "total_days": 78,
+      "total_trades": 654,
+      "avg_return": -0.68,
+      "win_rate": 31.7,
+      "total_return": -447.8,
       "best_return": 68.16,
       "worst_return": -22.28,
       "strategy": "B"
     },
     "strategy_c": {
-      "total_days": 76,
-      "total_trades": 544,
-      "avg_return": -0.7,
-      "win_rate": 31.8,
-      "total_return": -378.26,
+      "total_days": 77,
+      "total_trades": 552,
+      "avg_return": -0.72,
+      "win_rate": 31.5,
+      "total_return": -398.32,
       "best_return": 68.16,
       "worst_return": -22.28,
       "strategy": "C"
@@ -63,31 +63,31 @@
     },
     "comparison": {
       "strategy_a": {
-        "total_days": 77,
-        "total_trades": 688,
-        "avg_return": -0.29,
-        "win_rate": 35.6,
-        "total_return": -197.42,
+        "total_days": 78,
+        "total_trades": 698,
+        "avg_return": -0.31,
+        "win_rate": 35.4,
+        "total_return": -216.4,
         "best_return": 68.16,
         "worst_return": -14.58,
         "strategy": "A"
       },
       "strategy_b": {
-        "total_days": 77,
-        "total_trades": 644,
-        "avg_return": -0.67,
-        "win_rate": 31.8,
-        "total_return": -428.82,
+        "total_days": 78,
+        "total_trades": 654,
+        "avg_return": -0.68,
+        "win_rate": 31.7,
+        "total_return": -447.8,
         "best_return": 68.16,
         "worst_return": -22.28,
         "strategy": "B"
       },
       "strategy_c": {
-        "total_days": 76,
-        "total_trades": 544,
-        "avg_return": -0.7,
-        "win_rate": 31.8,
-        "total_return": -378.26,
+        "total_days": 77,
+        "total_trades": 552,
+        "avg_return": -0.72,
+        "win_rate": 31.5,
+        "total_return": -398.32,
         "best_return": 68.16,
         "worst_return": -22.28,
         "strategy": "C"
@@ -123,8 +123,8 @@
         "strategy": "E"
       },
       "difference": {
-        "avg_return": -0.38,
-        "win_rate": -3.8,
+        "avg_return": -0.37,
+        "win_rate": -3.7,
         "total_return": -231.4
       },
       "winner": "A"
@@ -132,7 +132,7 @@
   },
   "cumulative_returns": {
     "strategy_a": {
-      "final": -22.26,
+      "final": -23.73,
       "history": [
         100,
         99.43,
@@ -211,11 +211,12 @@
         82.47,
         81.14,
         79.22,
-        77.74
+        77.74,
+        76.27
       ]
     },
     "strategy_b": {
-      "final": -42.51,
+      "final": -43.6,
       "history": [
         100,
         99.04,
@@ -294,11 +295,12 @@
         61.34,
         59.93,
         58.58,
-        57.49
+        57.49,
+        56.4
       ]
     },
     "strategy_c": {
-      "final": -44.7,
+      "final": -46.09,
       "history": [
         100,
         99.51,
@@ -376,7 +378,8 @@
         59.0,
         57.64,
         56.34,
-        55.3
+        55.3,
+        53.91
       ]
     },
     "strategy_c_plus": {
@@ -507,24 +510,6 @@
     }
   },
   "daily_returns": [
-    {
-      "date": "20260505",
-      "strategy": "D",
-      "avg_return": 0.0,
-      "trade_count": 2
-    },
-    {
-      "date": "20260505",
-      "strategy": "E",
-      "avg_return": 0.0,
-      "trade_count": 1
-    },
-    {
-      "date": "20260507",
-      "strategy": "A",
-      "avg_return": -1.06,
-      "trade_count": 10
-    },
     {
       "date": "20260507",
       "strategy": "B",
@@ -686,6 +671,24 @@
       "strategy": "C",
       "avg_return": -1.86,
       "trade_count": 10
+    },
+    {
+      "date": "20260518",
+      "strategy": "A",
+      "avg_return": -1.9,
+      "trade_count": 10
+    },
+    {
+      "date": "20260518",
+      "strategy": "B",
+      "avg_return": -1.9,
+      "trade_count": 10
+    },
+    {
+      "date": "20260518",
+      "strategy": "C",
+      "avg_return": -2.51,
+      "trade_count": 8
     }
   ]
 }
