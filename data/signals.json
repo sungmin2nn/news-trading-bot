@@ -191302,5 +191302,220 @@
       }
     ],
     "tracked_at": "2026-05-25T10:59:20.726432"
+  },
+  {
+    "date": "20260526",
+    "strategy": "A",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "선익시스템",
+        "corp_code": "00327819",
+        "stock_code": "171090",
+        "title": "단일판매ㆍ공급계약체결              ",
+        "date": "2026-05-26 00:00:00",
+        "rcept_no": "20260526900130",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260526900130",
+        "score": 6,
+        "strong_positive_count": 2,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결",
+          "+3: 공급계약"
+        ],
+        "is_excluded": false,
+        "avg_volume": 152576.2,
+        "strategy": "D",
+        "price_change_5d": 12.841854934601665,
+        "high_52week_ratio": 65.90277777777777,
+        "rsi": 47.15189873417721,
+        "foreign_consecutive_days": 0,
+        "ma5": 84840.0,
+        "ma20": 94050.0,
+        "bb_position": 51.95452618975599,
+        "volume_ratio": 135.45,
+        "volume_surge": false,
+        "ma25": 96656.0,
+        "ma25_divergence": -1.82,
+        "is_bullish": true,
+        "consecutive_bullish": 3,
+        "golden_cross": false
+      }
+    ],
+    "recorded_at": "2026-05-26T01:29:36.178375",
+    "status": "pending"
+  },
+  {
+    "date": "20260526",
+    "strategy": "B",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "선익시스템",
+        "corp_code": "00327819",
+        "stock_code": "171090",
+        "title": "단일판매ㆍ공급계약체결              ",
+        "date": "2026-05-26 00:00:00",
+        "rcept_no": "20260526900130",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260526900130",
+        "score": 6,
+        "strong_positive_count": 2,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결",
+          "+3: 공급계약"
+        ],
+        "is_excluded": false,
+        "avg_volume": 152576.2,
+        "strategy": "D",
+        "price_change_5d": 12.841854934601665,
+        "high_52week_ratio": 65.90277777777777,
+        "rsi": 47.15189873417721,
+        "foreign_consecutive_days": 0,
+        "ma5": 84840.0,
+        "ma20": 94050.0,
+        "bb_position": 51.95452618975599,
+        "volume_ratio": 135.45,
+        "volume_surge": false,
+        "ma25": 96656.0,
+        "ma25_divergence": -1.82,
+        "is_bullish": true,
+        "consecutive_bullish": 3,
+        "golden_cross": false
+      }
+    ],
+    "recorded_at": "2026-05-26T01:29:36.376415",
+    "status": "pending"
+  },
+  {
+    "date": "20260526",
+    "strategy": "C",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "선익시스템",
+        "corp_code": "00327819",
+        "stock_code": "171090",
+        "title": "단일판매ㆍ공급계약체결              ",
+        "date": "2026-05-26 00:00:00",
+        "rcept_no": "20260526900130",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260526900130",
+        "score": 6,
+        "strong_positive_count": 2,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결",
+          "+3: 공급계약"
+        ],
+        "is_excluded": false,
+        "avg_volume": 152576.2,
+        "strategy": "D",
+        "price_change_5d": 12.841854934601665,
+        "high_52week_ratio": 65.90277777777777,
+        "rsi": 47.15189873417721,
+        "foreign_consecutive_days": 0,
+        "ma5": 84840.0,
+        "ma20": 94050.0,
+        "bb_position": 51.95452618975599,
+        "volume_ratio": 135.45,
+        "volume_surge": false,
+        "ma25": 96656.0,
+        "ma25_divergence": -1.82,
+        "is_bullish": true,
+        "consecutive_bullish": 3,
+        "golden_cross": false
+      }
+    ],
+    "recorded_at": "2026-05-26T01:29:36.579161",
+    "status": "pending"
+  },
+  {
+    "date": "20260526",
+    "strategy": "C+",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "선익시스템",
+        "corp_code": "00327819",
+        "stock_code": "171090",
+        "title": "단일판매ㆍ공급계약체결              ",
+        "date": "2026-05-26 00:00:00",
+        "rcept_no": "20260526900130",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260526900130",
+        "score": 6,
+        "strong_positive_count": 2,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결",
+          "+3: 공급계약"
+        ],
+        "is_excluded": false,
+        "avg_volume": 152576.2,
+        "strategy": "D",
+        "price_change_5d": 12.841854934601665,
+        "high_52week_ratio": 65.90277777777777,
+        "rsi": 47.15189873417721,
+        "foreign_consecutive_days": 0,
+        "ma5": 84840.0,
+        "ma20": 94050.0,
+        "bb_position": 51.95452618975599,
+        "volume_ratio": 135.45,
+        "volume_surge": false,
+        "ma25": 96656.0,
+        "ma25_divergence": -1.82,
+        "is_bullish": true,
+        "consecutive_bullish": 3,
+        "golden_cross": false
+      }
+    ],
+    "recorded_at": "2026-05-26T01:29:36.785881",
+    "status": "pending"
+  },
+  {
+    "date": "20260526",
+    "strategy": "D",
+    "signals": [
+      {
+        "source": "dart",
+        "corp_name": "선익시스템",
+        "corp_code": "00327819",
+        "stock_code": "171090",
+        "title": "단일판매ㆍ공급계약체결              ",
+        "date": "2026-05-26 00:00:00",
+        "rcept_no": "20260526900130",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260526900130",
+        "score": 6,
+        "strong_positive_count": 2,
+        "medium_positive_count": 0,
+        "negative_count": 0,
+        "matched_keywords": [
+          "+3: 계약체결",
+          "+3: 공급계약"
+        ],
+        "is_excluded": false,
+        "avg_volume": 152576.2,
+        "strategy": "D",
+        "price_change_5d": 12.841854934601665,
+        "high_52week_ratio": 65.90277777777777,
+        "rsi": 47.15189873417721,
+        "foreign_consecutive_days": 0,
+        "ma5": 84840.0,
+        "ma20": 94050.0,
+        "bb_position": 51.95452618975599,
+        "volume_ratio": 135.45,
+        "volume_surge": false,
+        "ma25": 96656.0,
+        "ma25_divergence": -1.82,
+        "is_bullish": true,
+        "consecutive_bullish": 3,
+        "golden_cross": false
+      }
+    ],
+    "recorded_at": "2026-05-26T01:29:36.990939",
+    "status": "pending"
   }
 ]
