@@ -5,6 +5,11 @@ on:
     # 08:00 KST 월~금 (= UTC 23:00 일~목). 한국 거래일 아침 장전. 휴장일은 코드에서 skip.
     - cron: '0 23 * * 0-4'
   workflow_dispatch:
+    inputs:
+      force:
+        description: '휴장일/주말에도 강제 실행 (테스트용)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -28,7 +33,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python -m src.main_brief --mode pre
+        run: |
+          ARGS="--mode pre"
+          if [ "${{ github.event.inputs.force }}" = "true" ]; then ARGS="$ARGS --force"; fi
+          python -m src.main_brief $ARGS
 
       - name: Persist sent state
         if: always()
