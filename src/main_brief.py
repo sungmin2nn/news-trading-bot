@@ -31,7 +31,12 @@ _ACTION_EMOJI = {"관심": "🟢", "관찰": "🟡", "회피": "🔴", "무시":
 
 def build_message(result: dict, mode: str) -> str:
     now = datetime.now(KST)
-    label = "장전 이슈 브리핑" if mode == "pre" else "장후 이슈 브리핑"
+    # 라벨은 거래일이면 '장전/장후', 휴장일(주말·공휴일)이면 '아침/저녁'으로 — 매일 발송
+    trading = krx_calendar.is_krx_business_day(now)
+    if mode == "pre":
+        label = "장전 이슈 브리핑" if trading else "아침 이슈 브리핑"
+    else:
+        label = "장후 이슈 브리핑" if trading else "저녁 이슈 브리핑"
     wd = _WEEKDAY[now.weekday()]
     lines = [
         f"📰 {label} · {now.month}/{now.day}({wd}) {now.strftime('%H:%M')}",
@@ -92,12 +97,8 @@ def main() -> int:
 
     settings = load_settings()
     btype = "pre" if args.mode == "pre" else "post"
-
-    # 휴장일(주말·공휴일)엔 '장전/장후' 라벨이 거짓이 되므로 생략 (--force/--dry-run 예외)
-    now = datetime.now(KST)
-    if not args.dry_run and not args.force and not krx_calendar.is_krx_business_day(now):
-        print(f"[skip] 휴장일({now.date()}) — 브리핑 생략")
-        return 0
+    # 뉴스/이슈는 매일 발생하므로 휴장일에도 발송한다(라벨만 거래일/휴장일로 분기).
+    # --force는 하위호환용으로 받기만 한다.
 
     # 1) 수집
     try:
