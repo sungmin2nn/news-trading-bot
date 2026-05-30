@@ -22,6 +22,7 @@ from src.config import load_settings
 from src.gemini import advisor
 from src.notify import telegram
 from src.state import sent_store
+from src.utils import krx_calendar
 
 KST = pytz.timezone("Asia/Seoul")
 _WEEKDAY = ["월", "화", "수", "목", "금", "토", "일"]
@@ -86,10 +87,17 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="주식 이슈 뉴스 브리핑")
     ap.add_argument("--mode", choices=["pre", "post"], default="post")
     ap.add_argument("--dry-run", action="store_true", help="발송 없이 메시지만 출력")
+    ap.add_argument("--force", action="store_true", help="휴장일에도 실행")
     args = ap.parse_args()
 
     settings = load_settings()
     btype = "pre" if args.mode == "pre" else "post"
+
+    # 휴장일(주말·공휴일)엔 '장전/장후' 라벨이 거짓이 되므로 생략 (--force/--dry-run 예외)
+    now = datetime.now(KST)
+    if not args.dry_run and not args.force and not krx_calendar.is_krx_business_day(now):
+        print(f"[skip] 휴장일({now.date()}) — 브리핑 생략")
+        return 0
 
     # 1) 수집
     try:
@@ -113,8 +121,9 @@ def main() -> int:
         _alert(settings, f"[Gemini 실패] {e}", args.dry_run)
         return 1
 
-    # NEW/지속 태깅 (발송 이력 기반)
-    result["topics"] = sent_store.mark_status(result.get("topics") or [])
+    # NEW/지속 태깅 (판정만 — 영속은 발송 성공 후)
+    topics = sent_store.mark_status(result.get("topics") or [])
+    result["topics"] = topics
 
     # 4) 메시지 조립 + 발송
     message = build_message(result, args.mode)
@@ -127,10 +136,9 @@ def main() -> int:
         _alert(settings, f"[텔레그램 발송 실패] {e}", args.dry_run)
         return 1
 
-    print(
-        f"sent={n} chunk(s) · topics={len(result.get('topics') or [])} "
-        f"· articles={len(articles)}"
-    )
+    # 발송 성공 후에만 상태 영속 — 미발송 이슈가 다음 회차 '지속'으로 둔갑하지 않게
+    sent_store.persist(topics)
+    print(f"sent={n} chunk(s) · topics={len(topics)} · articles={len(articles)}")
     return 0
 
 

@@ -2,7 +2,7 @@ name: Premarket Brief
 
 on:
   schedule:
-    # 08:00 KST 화~월 (= UTC 23:00 월~금 전일). 한국 거래일 아침 장전.
+    # 08:00 KST 월~금 (= UTC 23:00 일~목). 한국 거래일 아침 장전. 휴장일은 코드에서 skip.
     - cron: '0 23 * * 0-4'
   workflow_dispatch:
 

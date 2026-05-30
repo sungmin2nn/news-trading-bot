@@ -10,7 +10,7 @@ caps:
 
 gemini:
   model: gemini-2.5-flash    # 무료 티어, 환경변수 GEMINI_MODEL로 override 가능
-  max_output_tokens: 4096
+  max_output_tokens: 8192    # 8주제×(요약+토론3+종합)이 잘리지 않도록 여유
 
 telegram:
   max_message_len: 3800      # 텔레그램 4096자 제한 여유

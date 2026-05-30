@@ -20,7 +20,7 @@ class Settings:
     TELEGRAM_CHAT_ID: str = ""
     # 파라미터 (settings.yaml)
     GEMINI_MODEL: str = "gemini-2.5-flash"
-    GEMINI_MAX_OUTPUT_TOKENS: int = 4096
+    GEMINI_MAX_OUTPUT_TOKENS: int = 8192
     naver_main_pages: int = 3
     max_articles: int = 40
     max_topics: int = 8
@@ -28,7 +28,23 @@ class Settings:
     telegram_max_len: int = 3800
 
 
+def _load_dotenv(path: Path) -> None:
+    """의존성 없는 최소 .env 로더. 이미 설정된 env는 덮지 않는다(setdefault)."""
+    if not path.exists():
+        return
+    try:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+    except Exception:  # noqa: BLE001 — .env 파싱 실패는 무시(env/Secrets가 진실)
+        pass
+
+
 def load_settings() -> Settings:
+    _load_dotenv(ROOT / ".env")
     s = Settings()
     if SETTINGS_PATH.exists():
         data = yaml.safe_load(SETTINGS_PATH.read_text(encoding="utf-8")) or {}

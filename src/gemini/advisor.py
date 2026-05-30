@@ -47,6 +47,9 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 다관점 애널리�
 """
 
 
+_VALID_ACTIONS = {"관심", "관찰", "회피", "무시"}
+
+
 class GeminiError(RuntimeError):
     pass
 
@@ -109,11 +112,28 @@ def advise(settings: Settings, articles: list[dict], btype: str) -> dict:
     candidates = data.get("candidates") or []
     if not candidates:
         raise GeminiError(f"empty candidates: {str(data)[:300]}")
-    parts = candidates[0].get("content", {}).get("parts") or []
+    cand = candidates[0]
+    finish = cand.get("finishReason")
+    # MAX_TOKENS 등으로 잘리면 JSON이 깨진 채 와서 파싱이 cryptic하게 실패한다.
+    # 미완료를 먼저 명시적 에러로 가시화한다.
+    if finish and finish != "STOP":
+        raise GeminiError(
+            f"응답 미완료(finishReason={finish}) — maxOutputTokens 부족 또는 차단 가능. "
+            f"max_topics/입력을 줄이거나 max_output_tokens를 올려라."
+        )
+    parts = cand.get("content", {}).get("parts") or []
     text = "".join(p.get("text", "") for p in parts).strip()
     if not text:
         raise GeminiError(f"empty text: {str(data)[:300]}")
     result = _extract_json(text)
     if "topics" not in result or not isinstance(result.get("topics"), list):
         raise GeminiError(f"스키마 위반(topics 없음): {str(result)[:200]}")
+    # 프롬프트 인젝션·스키마 일탈 방어: action enum 강제, confidence clamp
+    for t in result["topics"]:
+        if t.get("action") not in _VALID_ACTIONS:
+            t["action"] = "관찰"
+        try:
+            t["confidence"] = min(1.0, max(0.0, float(t.get("confidence", 0.0))))
+        except (TypeError, ValueError):
+            t["confidence"] = 0.0
     return result

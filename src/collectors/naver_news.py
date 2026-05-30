@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import sys
 import time
 
 import requests
@@ -79,4 +80,7 @@ def fetch_main_news(pages: int = 3, delay: float = 0.5) -> list[dict]:
             errors.append(f"page{page}: {e}")
     if not out:
         raise CollectError(f"네이버 메인뉴스 수집 0건 — errors={errors}")
+    if errors:
+        # 일부 페이지 실패 — 0건은 아니라 진행하되 부분 파손을 가시화(셀렉터 변경 조기 감지)
+        print(f"[naver_news] 부분 수집 실패({len(errors)}페이지): {errors}", file=sys.stderr)
     return out
