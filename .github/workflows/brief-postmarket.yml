@@ -1,0 +1,41 @@
+name: Postmarket Brief
+
+on:
+  schedule:
+    # 18:00 KST 월~금 (= UTC 09:00 월~금). 한국 거래일 장 마감 후.
+    - cron: '0 9 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  brief:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run postmarket brief
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m src.main_brief --mode post
+
+      - name: Persist sent state
+        if: always()
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add data/sent_topics.json || true
+          git diff --staged --quiet || git commit -m "state: postmarket $(date +'%Y-%m-%d %H:%M')"
+          git pull --rebase origin main || true
+          git push || true

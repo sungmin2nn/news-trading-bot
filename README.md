@@ -1,85 +1,72 @@
-# 📊 뉴스 기반 시초가 매매 시스템
+# 📰 주식 이슈 뉴스 브리핑 봇
 
-뉴스/공시를 분석하여 장전 시간외 매수 종목을 자동 선정하고, A/B 테스트로 전략을 검증하는 시스템입니다.
+한국 증시 관련 **지금 화제가 되는 뉴스**를 수집·주제화하고, **Gemini가 "비서 + 다관점 팀" 입장에서 종합 자문**(요약 + 낙관/비관/중립 토론 + 실행 제안)한 뒤 **텔레그램으로 하루 2회** 보내준다.
 
-## 🎯 시스템 개요
+> Gemini는 텍스트 요약기가 아니라, 투자팀의 입장에서 판단하고 실행 가능한 안을 제시하는 역할.
 
-- **목표**: 장 마감 후 발생한 호재 뉴스/공시 분석 → 다음 날 매수 종목 자동 선정
-- **방식**: A/B 테스트로 단순 로직 vs 고도화 로직 비교 검증
-- **플랫폼**: GitHub Actions (무료) + GitHub Pages (대시보드)
+## 🎯 개요
 
-## 📁 프로젝트 구조
+- **입력**: 네이버 금융 메인뉴스(코스피·코스닥 전반)
+- **처리**: 중복제거·캡 → Gemini Flash 1콜(JSON) → 주제별 종합 자문
+- **출력**: 텔레그램 메시지 (장전 08:00 / 장후 18:00 KST)
+- **플랫폼**: GitHub Actions (무료) + Gemini Flash (무료 티어) + Telegram
+
+## 📁 구조
 
 ```
 news-trading-bot/
-├── .github/workflows/       # GitHub Actions
-│   ├── morning-scan.yml     # 08:30 뉴스 분석
-│   └── evening-track.yml    # 15:40 결과 추적
+├── .github/workflows/
+│   ├── brief-premarket.yml    # 08:00 KST 장전 브리핑
+│   └── brief-postmarket.yml   # 18:00 KST 장후 브리핑
 ├── src/
-│   ├── collectors/          # 데이터 수집
-│   │   ├── naver_collector.py
-│   │   ├── dart_collector.py
-│   │   └── price_collector.py
-│   ├── analyzers/           # 분석 로직
-│   │   ├── keyword_scorer.py
-│   │   ├── stock_filter.py
-│   │   └── simulator.py
-│   ├── utils/               # 유틸리티
-│   ├── morning_scan.py      # 아침 스캔 메인
-│   └── evening_track.py     # 저녁 추적 메인
-├── config/
-│   ├── keywords.yaml        # 키워드 설정
-│   └── settings.yaml        # 필터/매매 설정
-├── data/
-│   └── signals.json         # 누적 데이터
-└── docs/
-    └── index.html           # 대시보드
+│   ├── collectors/naver_news.py   # 네이버 메인뉴스 수집
+│   ├── cluster/topic_grouper.py   # 중복제거 + 입력 캡
+│   ├── gemini/advisor.py          # 비서+팀 종합 자문 (1콜 JSON)
+│   ├── notify/telegram.py         # 4096자 분할 발송
+│   ├── state/sent_store.py        # NEW/지속 판정
+│   ├── config.py                  # env + settings.yaml
+│   └── main_brief.py              # 파이프라인 엔트리
+├── config/settings.yaml           # 주제·기사 캡 등 파라미터
+└── data/sent_topics.json          # 발송 이력(자동 누적)
 ```
 
-## ⚙️ 설정 방법
+## ⚙️ 설정
 
-### 1. DART API 키 발급 (선택)
+### 1. 시크릿 등록 (GitHub Settings → Secrets and variables → Actions)
 
-1. https://opendart.fss.or.kr 접속
-2. 회원가입 후 API 키 발급
-3. GitHub 저장소 Settings → Secrets → `DART_API_KEY` 등록
+| 시크릿 | 발급처 |
+|---|---|
+| `GEMINI_API_KEY` | https://aistudio.google.com/apikey (무료) |
+| `TELEGRAM_BOT_TOKEN` | 텔레그램 [@BotFather](https://t.me/BotFather) → `/newbot` |
+| `TELEGRAM_CHAT_ID` | 봇과 대화 시작 후 `https://api.telegram.org/bot<TOKEN>/getUpdates`의 `chat.id` |
 
-### 2. GitHub Pages 활성화
+> 뉴스 브리핑 전용 **별도 봇** 권장(다른 알림과 섞이지 않게).
 
-1. Settings → Pages
-2. Source: Deploy from a branch
-3. Branch: main, /docs
-4. Save
+### 2. 로컬 실행 / 검증
 
-### 3. 수동 실행 테스트
+```
+pip install -r requirements.txt
+cp .env.example .env   # 값 채우기 (선택)
+python -m src.main_brief --mode post --dry-run   # 발송 없이 메시지 확인
+```
 
-1. Actions 탭 → Morning Scan → Run workflow
+`--dry-run`은 텔레그램 발송 없이 메시지를 콘솔에 출력한다. 시크릿 없이 수집·Gemini만 점검하려면 `GEMINI_API_KEY`만 env에 두면 된다.
 
-## 📊 A/B 로직 비교
+### 3. 자동 실행
 
-| 구분 | A로직 (단순) | B로직 (고도화) |
-|------|-------------|---------------|
-| 키워드 | ✅ | ✅ |
-| 시총/거래량 필터 | ✅ | ✅ |
-| 수주금액/시총 비율 | ❌ | ✅ |
-| 최근 급등 제외 | ❌ | ✅ |
-| 외국인/기관 수급 | ❌ | ✅ |
-| 52주 고점 제외 | ❌ | ✅ |
+워크플로가 cron으로 자동 실행된다. 수동 테스트는 Actions 탭 → *Premarket/Postmarket Brief* → **Run workflow**.
 
-## 📈 대시보드
+## 🧩 동작 메모
 
-GitHub Pages 주소: `https://[USERNAME].github.io/news-trading-bot/`
+- **다관점 토론**은 Gemini 단일 프롬프트 안에서 생성(멀티콜 없이 토큰 절약).
+- **입력 캡**(주제 8·기사 40)으로 무료 티어 토큰 통제 — `config/settings.yaml`에서 조정.
+- **NEW/지속** 태그는 발송 이력(`data/sent_topics.json`) 기준 — 장전/장후 중복 이슈 구분.
+- **실패 가시화**: 수집·Gemini·텔레그램 실패는 조용히 넘기지 않고 stderr + 텔레그램 경보.
 
-- 누적 수익률 차트
-- A/B 로직 성과 비교
-- 키워드별/요일별 분석
-- 최근 신호 목록
+## ⚠️ 주의
 
-## ⚠️ 주의사항
-
-- 이 시스템은 **페이퍼 트레이딩**(시뮬레이션)입니다.
-- 실제 매매는 하지 않으며, 전략 검증 목적입니다.
-- 투자 결정은 본인 책임입니다.
+- 자동 생성된 **참고용 자문**이며 투자 권유가 아니다. 투자 판단·책임은 본인.
+- 구 버전(뉴스 기반 A~E 페이퍼 트레이딩)은 `legacy` 브랜치 / `archive/paper-ab-2026-05-30` 태그에 보존.
 
 ## 📝 라이선스
 
