@@ -17,29 +17,35 @@ API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
 _SCHEMA = (
     '{"briefing_type":"<pre|post>","topics":['
-    '{"title":"주제명","summary":"2-3문장 핵심 요약",'
-    '"debate":{"bull":"낙관 관점","bear":"비관 관점","neutral":"중립 관점"},'
-    '"verdict":"팀 종합 판단 1-2문장","action":"<관심|관찰|회피|무시>",'
-    '"confidence":0.0,"tickers":["관련 종목명"]}],'
+    '{"title":"주제명",'
+    '"summary":"기사 핵심 내용(무슨 일이 일어났나) 2-3문장",'
+    '"analysis":"왜 중요한지·배경·파급 효과를 짚는 분석 2-3문장",'
+    '"priced_in":"<미반영|부분반영|이미반영>","priced_in_note":"반영 판단 근거 한 줄",'
+    '"direction":"<상승|하락|중립|혼조>","direction_reason":"방향 예상 근거 1-2문장",'
+    '"risk":"그 예상이 틀릴 수 있는 핵심 리스크 한 줄",'
+    '"impacts":[{"name":"종목명 또는 테마","effect":"<수혜|타격|중립>","note":"이유 짧게"}],'
+    '"action":"<관심|관찰|회피|무시>","confidence":0.0}],'
     '"noise_filtered_count":0}'
 )
 
-_PROMPT = """너는 한국 주식 투자팀의 비서이자 다관점 애널리스트 팀이다.
+_PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
 아래는 방금 수집한 국내 증시 관련 뉴스 기사 목록이다.
-너의 임무는 단순 요약이 아니라, 팀의 입장에서 판단하고 실행 가능한 안을 주는 것이다.
+단순 요약이 아니라, 기사 내용 + 너의 시장 지식으로 각 이슈를 깊이 분석하고 명확한 결론을 내라.
 
 작업 지침:
-1. 기사들을 '지금 화제가 되는 이슈 주제'별로 묶어라. 단순 시황·시세 중계·가십·중복 기사는 노이즈로 분류해 제외하고, 그 개수만 noise_filtered_count에 담아라.
-2. 각 주제마다 다음을 작성하라:
-   - summary: 무슨 일인지 핵심만.
-   - debate: 낙관(bull)/비관(bear)/중립(neutral) 세 관점에서 팀원이 토론하듯 각각 한 줄.
-   - verdict: 토론을 종합한 팀의 판단.
-   - action: 반드시 [관심|관찰|회피|무시] 중 하나. 근거 없는 매수·단정 금지, 확신이 낮으면 '관찰'.
+1. 기사들을 '지금 화제가 되는 이슈 주제'별로 묶어라. 단순 시황 중계·가십·중복은 노이즈로 제외하고 개수만 noise_filtered_count에.
+2. 각 주제마다 다음을 충실히 작성하라:
+   - summary: 기사의 핵심 내용. 무슨 일이 일어났는지 구체적으로.
+   - analysis: 이 이슈가 왜 중요한지, 배경과 파급 효과. 표면 요약 말고 한 발 더 들어간 분석.
+   - priced_in: 주가에 이미 반영됐는지 [미반영|부분반영|이미반영] + priced_in_note에 근거.
+   - direction: 단기 주가 방향 예상 [상승|하락|중립|혼조]. 애매해도 반드시 하나 고르고 direction_reason에 근거.
+   - risk: 그 방향 예상이 빗나갈 수 있는 핵심 리스크 한 줄.
+   - impacts: 영향받는 종목/테마. 각각 effect [수혜|타격|중립] + note. 명확한 것만(없으면 빈 배열).
+   - action: [관심|관찰|회피|무시] 중 하나. 근거 없는 단정 금지, 확신 낮으면 관찰.
    - confidence: 0.0~1.0.
-   - tickers: 명확히 관련된 종목명만(없으면 빈 배열).
-3. 주제는 영향도·화제성 순으로 최대 {max_topics}개까지만.
+3. 주제는 영향도·화제성 순으로 최대 {max_topics}개.
 
-출력은 아래 JSON 스키마 하나만. 설명·마크다운 없이 JSON만 출력하라. briefing_type은 "{btype}".
+출력은 아래 JSON 스키마 하나만. 설명·마크다운 없이 JSON만. briefing_type은 "{btype}".
 스키마: {schema}
 
 뉴스 목록:
@@ -48,6 +54,9 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 다관점 애널리�
 
 
 _VALID_ACTIONS = {"관심", "관찰", "회피", "무시"}
+_VALID_DIRECTIONS = {"상승", "하락", "중립", "혼조"}
+_VALID_PRICED_IN = {"미반영", "부분반영", "이미반영"}
+_VALID_EFFECTS = {"수혜", "타격", "중립"}
 
 
 class GeminiError(RuntimeError):
@@ -128,10 +137,21 @@ def advise(settings: Settings, articles: list[dict], btype: str) -> dict:
     result = _extract_json(text)
     if "topics" not in result or not isinstance(result.get("topics"), list):
         raise GeminiError(f"스키마 위반(topics 없음): {str(result)[:200]}")
-    # 프롬프트 인젝션·스키마 일탈 방어: action enum 강제, confidence clamp
+    # 프롬프트 인젝션·스키마 일탈 방어: enum 강제, confidence clamp
     for t in result["topics"]:
         if t.get("action") not in _VALID_ACTIONS:
             t["action"] = "관찰"
+        if t.get("direction") not in _VALID_DIRECTIONS:
+            t["direction"] = "중립"
+        if t.get("priced_in") not in _VALID_PRICED_IN:
+            t["priced_in"] = "부분반영"
+        impacts = t.get("impacts")
+        if not isinstance(impacts, list):
+            t["impacts"] = []
+        else:
+            for im in impacts:
+                if isinstance(im, dict) and im.get("effect") not in _VALID_EFFECTS:
+                    im["effect"] = "중립"
         try:
             t["confidence"] = min(1.0, max(0.0, float(t.get("confidence", 0.0))))
         except (TypeError, ValueError):

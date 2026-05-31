@@ -27,6 +27,8 @@ from src.utils import krx_calendar
 KST = pytz.timezone("Asia/Seoul")
 _WEEKDAY = ["월", "화", "수", "목", "금", "토", "일"]
 _ACTION_EMOJI = {"관심": "🟢", "관찰": "🟡", "회피": "🔴", "무시": "⚪"}
+_DIR_EMOJI = {"상승": "📈", "하락": "📉", "중립": "➡️", "혼조": "🔀"}
+_EFFECT_MARK = {"수혜": "🔺", "타격": "🔻", "중립": "▪️"}
 
 
 def build_message(result: dict, mode: str) -> str:
@@ -50,30 +52,40 @@ def build_message(result: dict, mode: str) -> str:
         tag = " (NEW)" if t.get("status") == "new" else " (지속)"
         lines.append(f"\n{emoji} {i}. {t.get('title', '(제목없음)')}{tag}")
         if t.get("summary"):
-            lines.append(f"  📄 {t['summary']}")
-        deb = t.get("debate") or {}
-        if any(deb.get(k) for k in ("bull", "bear", "neutral")):
-            lines.append("  💬 팀 토론")
-            if deb.get("bull"):
-                lines.append(f"   · 낙관: {deb['bull']}")
-            if deb.get("bear"):
-                lines.append(f"   · 비관: {deb['bear']}")
-            if deb.get("neutral"):
-                lines.append(f"   · 중립: {deb['neutral']}")
-        if t.get("verdict"):
-            lines.append(f"  🧭 종합: {t['verdict']}")
-        act = f"  ✅ 제안: {t.get('action', '-')}"
-        tickers = ", ".join(t.get("tickers") or [])
-        if tickers:
-            act += f" ({tickers})"
+            lines.append(f"  📰 핵심: {t['summary']}")
+        if t.get("analysis"):
+            lines.append(f"  🔍 분석: {t['analysis']}")
+        priced = t.get("priced_in")
+        if priced:
+            note = t.get("priced_in_note")
+            lines.append(f"  💹 주가반영: {priced}{f' — {note}' if note else ''}")
+        direction = t.get("direction")
+        if direction:
+            dmark = _DIR_EMOJI.get(direction, "")
+            reason = t.get("direction_reason")
+            lines.append(f"  {dmark} 예상: {direction}{f' — {reason}' if reason else ''}")
+        if t.get("risk"):
+            lines.append(f"  ⚠️ 리스크: {t['risk']}")
+        impacts = t.get("impacts") or []
+        if impacts:
+            parts = []
+            for im in impacts:
+                if not isinstance(im, dict):
+                    continue
+                name = im.get("name", "")
+                mark = _EFFECT_MARK.get(im.get("effect", ""), "")
+                parts.append(f"{name}{mark}")
+            if parts:
+                lines.append(f"  🎯 영향: {' · '.join(parts)}")
         conf = t.get("confidence")
+        concl = f"  ✅ 결론: {t.get('action', '-')}"
         if isinstance(conf, (int, float)):
-            act += f" · 확신 {conf:.0%}"
-        lines.append(act)
+            concl += f" · 확신 {conf:.0%}"
+        lines.append(concl)
     noise = result.get("noise_filtered_count") or 0
     if noise:
         lines.append(f"\n⚪ 노이즈로 거른 것: {noise}건")
-    lines.append("\n※ 자동 생성 자문 — 투자 판단·책임은 본인.")
+    lines.append("\n🔺수혜 🔻타격 ▪️중립 · 자동 자문, 판단·책임은 본인")
     return "\n".join(lines)
 
 
