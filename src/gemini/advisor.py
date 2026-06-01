@@ -17,7 +17,8 @@ API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
 _SCHEMA = (
     '{"briefing_type":"<pre|post>","topics":['
-    '{"title":"주제명",'
+    '{"title":"주제명(짧게)",'
+    '"headline":"한 줄 핵심(스캔용, 30자 내외, 무슨 일인지 한눈에)",'
     '"summary":"기사 핵심 내용(무슨 일이 일어났나) 2-3문장",'
     '"analysis":"왜 중요한지·배경·파급 효과를 짚는 분석 2-3문장",'
     '"priced_in":"<미반영|부분반영|이미반영>","priced_in_note":"반영 판단 근거 한 줄",'
@@ -35,6 +36,7 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
 작업 지침:
 1. 기사들을 '지금 화제가 되는 이슈 주제'별로 묶어라. 단순 시황 중계·가십·중복은 노이즈로 제외하고 개수만 noise_filtered_count에.
 2. 각 주제마다 다음을 충실히 작성하라:
+   - title: 주제명 짧게. headline: 한 줄로 무슨 일인지 스캔되게(30자 내외).
    - summary: 기사의 핵심 내용. 무슨 일이 일어났는지 구체적으로.
    - analysis: 이 이슈가 왜 중요한지, 배경과 파급 효과. 표면 요약 말고 한 발 더 들어간 분석.
    - priced_in: 주가에 이미 반영됐는지 [미반영|부분반영|이미반영] + priced_in_note에 근거.

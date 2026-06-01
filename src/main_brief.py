@@ -21,7 +21,7 @@ from src.collectors import naver_news
 from src.config import load_settings
 from src.gemini import advisor
 from src.notify import telegram
-from src.state import sent_store
+from src.state import prediction_ledger, sent_store
 from src.utils import krx_calendar
 
 KST = pytz.timezone("Asia/Seoul")
@@ -29,6 +29,22 @@ _WEEKDAY = ["월", "화", "수", "목", "금", "토", "일"]
 _ACTION_EMOJI = {"관심": "🟢", "관찰": "🟡", "회피": "🔴", "무시": "⚪"}
 _DIR_EMOJI = {"상승": "📈", "하락": "📉", "중립": "➡️", "혼조": "🔀"}
 _EFFECT_MARK = {"수혜": "🔺", "타격": "🔻", "중립": "▪️"}
+
+
+def _circled(i: int) -> str:
+    return chr(0x2460 + i - 1) if 1 <= i <= 20 else f"{i}."
+
+
+def _impacts_str(impacts: list) -> str:
+    parts = []
+    for im in impacts or []:
+        if not isinstance(im, dict):
+            continue
+        name = im.get("name", "")
+        if not name:
+            continue
+        parts.append(f"{name}{_EFFECT_MARK.get(im.get('effect', ''), '')}")
+    return " ".join(parts)
 
 
 def build_message(result: dict, mode: str) -> str:
@@ -40,52 +56,61 @@ def build_message(result: dict, mode: str) -> str:
     else:
         label = "장후 이슈 브리핑" if trading else "저녁 이슈 브리핑"
     wd = _WEEKDAY[now.weekday()]
-    lines = [
-        f"📰 {label} · {now.month}/{now.day}({wd}) {now.strftime('%H:%M')}",
-        "━━━━━━━━━━━━━━",
-    ]
     topics = result.get("topics") or []
+
+    lines = [f"📰 {label} · {now.month}/{now.day}({wd}) {now.strftime('%H:%M')}"]
+    # 상단 한눈 스캔 — 주제 제목 + 방향 이모지
+    if topics:
+        digest = "  ".join(
+            f"{_circled(i)}{t.get('title', '')}{_DIR_EMOJI.get(t.get('direction', ''), '')}"
+            for i, t in enumerate(topics, 1)
+        )
+        lines.append(f"핵심 ▸ {digest}")
+    lines.append("━━━━━━━━━━━━")
+
     if not topics:
-        lines.append("추려낼 이슈가 없습니다.")
+        lines.append("\n추려낼 이슈가 없습니다.")
+
     for i, t in enumerate(topics, 1):
         emoji = _ACTION_EMOJI.get(t.get("action", ""), "•")
-        tag = " (NEW)" if t.get("status") == "new" else " (지속)"
-        lines.append(f"\n{emoji} {i}. {t.get('title', '(제목없음)')}{tag}")
-        if t.get("summary"):
-            lines.append(f"  📰 핵심: {t['summary']}")
-        if t.get("analysis"):
-            lines.append(f"  🔍 분석: {t['analysis']}")
-        priced = t.get("priced_in")
-        if priced:
-            note = t.get("priced_in_note")
-            lines.append(f"  💹 주가반영: {priced}{f' — {note}' if note else ''}")
-        direction = t.get("direction")
-        if direction:
-            dmark = _DIR_EMOJI.get(direction, "")
-            reason = t.get("direction_reason")
-            lines.append(f"  {dmark} 예상: {direction}{f' — {reason}' if reason else ''}")
-        if t.get("risk"):
-            lines.append(f"  ⚠️ 리스크: {t['risk']}")
-        impacts = t.get("impacts") or []
-        if impacts:
-            parts = []
-            for im in impacts:
-                if not isinstance(im, dict):
-                    continue
-                name = im.get("name", "")
-                mark = _EFFECT_MARK.get(im.get("effect", ""), "")
-                parts.append(f"{name}{mark}")
-            if parts:
-                lines.append(f"  🎯 영향: {' · '.join(parts)}")
+        direction = t.get("direction", "")
+        dmark = _DIR_EMOJI.get(direction, "")
+        tag = "NEW" if t.get("status") == "new" else "지속"
         conf = t.get("confidence")
-        concl = f"  ✅ 결론: {t.get('action', '-')}"
-        if isinstance(conf, (int, float)):
-            concl += f" · 확신 {conf:.0%}"
-        lines.append(concl)
+        conf_s = f" · 확신{conf:.0%}" if isinstance(conf, (int, float)) else ""
+        # 스캔 헤더: 액션 + 번호 + 제목 + 방향 + 액션 + 확신
+        lines.append(
+            f"\n{emoji} {_circled(i)} {t.get('title', '(제목없음)')}"
+            f"  ·  {dmark}{direction} · {t.get('action', '-')}{conf_s} [{tag}]"
+        )
+        # 헤드라인(한 줄 gist)
+        if t.get("headline"):
+            lines.append(f"▸ {t['headline']}")
+        # 세부
+        if t.get("summary"):
+            lines.append(f" ㆍ무슨일: {t['summary']}")
+        if t.get("analysis"):
+            priced = t.get("priced_in")
+            tail = f" (반영:{priced})" if priced else ""
+            lines.append(f" ㆍ분석: {t['analysis']}{tail}")
+        # 결론: 영향 종목/테마 + 방향 근거
+        impacts_s = _impacts_str(t.get("impacts"))
+        reason = t.get("direction_reason", "")
+        if impacts_s or reason:
+            concl = " ㆍ결론: "
+            concl += impacts_s
+            if impacts_s and reason:
+                concl += " — "
+            concl += reason
+            lines.append(concl)
+        if t.get("risk"):
+            lines.append(f" ㆍ리스크: {t['risk']}")
+
     noise = result.get("noise_filtered_count") or 0
+    lines.append("\n━━━━━━━━━━━━")
     if noise:
-        lines.append(f"\n⚪ 노이즈로 거른 것: {noise}건")
-    lines.append("\n🔺수혜 🔻타격 ▪️중립 · 자동 자문, 판단·책임은 본인")
+        lines.append(f"⚪ 노이즈 {noise}건 제외")
+    lines.append("🔺수혜 🔻타격 · 자동 자문, 판단·책임은 본인")
     return "\n".join(lines)
 
 
@@ -151,7 +176,12 @@ def main() -> int:
 
     # 발송 성공 후에만 상태 영속 — 미발송 이슈가 다음 회차 '지속'으로 둔갑하지 않게
     sent_store.persist(topics)
-    print(f"sent={n} chunk(s) · topics={len(topics)} · articles={len(articles)}")
+    # 예측 원장 적재(P2) — 회고·학습 루프의 데이터 활주로
+    recorded = prediction_ledger.record(topics, args.mode)
+    print(
+        f"sent={n} chunk(s) · topics={len(topics)} · articles={len(articles)} "
+        f"· ledger+{recorded}"
+    )
     return 0
 
 
