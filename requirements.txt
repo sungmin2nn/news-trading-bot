@@ -6,3 +6,6 @@ lxml>=5.0.0
 # 설정 / 시간
 pyyaml>=6.0.0
 pytz>=2024.1
+
+# P3 알파 채점 — 가격(yfinance). 종목명→코드는 번들 data/krx_listing.json(런타임 무의존)
+yfinance>=0.2.40
