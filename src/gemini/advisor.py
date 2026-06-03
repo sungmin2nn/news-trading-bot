@@ -24,7 +24,7 @@ _SCHEMA = (
     '"priced_in":"<미반영|부분반영|이미반영>","priced_in_note":"반영 판단 근거 한 줄",'
     '"direction":"<상승|하락|중립|혼조>","direction_reason":"방향 예상 근거 1-2문장",'
     '"risk":"그 예상이 틀릴 수 있는 핵심 리스크 한 줄",'
-    '"impacts":[{"name":"종목명 또는 테마","effect":"<수혜|타격|중립>","note":"이유 짧게"}],'
+    '"impacts":[{"name":"단일 상장 종목명(코드조회 가능) 또는 테마명","kind":"<종목|테마>","effect":"<수혜|타격|중립>","note":"이유 짧게"}],'
     '"action":"<관심|관찰|회피|무시>","confidence":0.0}],'
     '"noise_filtered_count":0}'
 )
@@ -42,7 +42,7 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
    - priced_in: 주가에 이미 반영됐는지 [미반영|부분반영|이미반영] + priced_in_note에 근거.
    - direction: 단기 주가 방향 예상 [상승|하락|중립|혼조]. 애매해도 반드시 하나 고르고 direction_reason에 근거.
    - risk: 그 방향 예상이 빗나갈 수 있는 핵심 리스크 한 줄.
-   - impacts: 영향받는 종목/테마. 각각 effect [수혜|타격|중립] + note. 명확한 것만(없으면 빈 배열).
+   - impacts: 영향받는 대상. kind='종목'이면 name은 **코드 조회 가능한 단일 상장 종목명만**(예: 삼성전자, SK하이닉스). '반도체 대형주'·'소부장'·'소형주 및 비주도 섹터' 같은 묶음·서술은 개별 종목으로 쪼개거나 kind='테마'로. 괄호·복합명 금지. 각각 effect [수혜|타격|중립] + note. 명확한 것만(없으면 빈 배열).
    - action: [관심|관찰|회피|무시] 중 하나. 근거 없는 단정 금지, 확신 낮으면 관찰.
    - confidence: 0.0~1.0.
 3. 주제는 영향도·화제성 순으로 최대 {max_topics}개.
@@ -59,6 +59,7 @@ _VALID_ACTIONS = {"관심", "관찰", "회피", "무시"}
 _VALID_DIRECTIONS = {"상승", "하락", "중립", "혼조"}
 _VALID_PRICED_IN = {"미반영", "부분반영", "이미반영"}
 _VALID_EFFECTS = {"수혜", "타격", "중립"}
+_VALID_KINDS = {"종목", "테마"}
 
 
 class GeminiError(RuntimeError):
@@ -152,8 +153,12 @@ def advise(settings: Settings, articles: list[dict], btype: str) -> dict:
             t["impacts"] = []
         else:
             for im in impacts:
-                if isinstance(im, dict) and im.get("effect") not in _VALID_EFFECTS:
+                if not isinstance(im, dict):
+                    continue
+                if im.get("effect") not in _VALID_EFFECTS:
                     im["effect"] = "중립"
+                if im.get("kind") not in _VALID_KINDS:
+                    im["kind"] = "테마"  # 불명확하면 테마로(=P3 채점 제외, 안전)
         try:
             t["confidence"] = min(1.0, max(0.0, float(t.get("confidence", 0.0))))
         except (TypeError, ValueError):

@@ -26,7 +26,11 @@ DEFAULT_HORIZON_DAYS = 3
 
 def _entry(topic: dict, date_iso: str, ts_iso: str, mode: str) -> dict:
     impacts = [
-        {"name": im.get("name", ""), "effect": im.get("effect", "")}
+        {
+            "name": im.get("name", ""),
+            "kind": im.get("kind", "테마"),
+            "effect": im.get("effect", ""),
+        }
         for im in (topic.get("impacts") or [])
         if isinstance(im, dict) and im.get("name")
     ]
