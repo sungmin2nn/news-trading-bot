@@ -18,7 +18,9 @@ from pathlib import Path
 _HOLIDAYS_CACHE_DIR = Path(__file__).parent.parent.parent / "data" / "holidays_cache"
 _HOLIDAYS_MEMORY_CACHE: dict = {}
 _HOLIDAYS_REMOTE_URL = "https://raw.githubusercontent.com/hyunbinseo/holidays-kr/main/public/{year}.json"
-_KRX_OPEN_HOLIDAY_KEYWORDS = ("제헌절", "선거")
+# '선거' 제거: 전국단위 선거일(대선·총선·전국동시지방선거)은 공휴일이라 KRX 휴장.
+# holidays-kr는 공휴일만 싣는 데이터셋이라 거기 뜨는 선거일=휴장. (NTR 이식 시 '선거' 포함됐던 버그)
+_KRX_OPEN_HOLIDAY_KEYWORDS = ("제헌절",)
 
 
 def _is_krx_open_holiday(names):
