@@ -125,6 +125,24 @@ def _alert(settings, msg: str, dry_run: bool) -> None:
         print(f"[오류 알림도 실패] {e}", file=sys.stderr)
 
 
+def _alert_if_ledger_gap(settings, topics, recorded, dry_run) -> bool:
+    """원장 적재가 예측보다 적으면(=silent 유실) 가시 채널로 경보. error-visibility.
+
+    record()는 실패해도 stderr만 찍고 0을 반환하므로(브리핑 발송 보호), main()이
+    여기서 적재 건수를 결과 기반으로 검증한다. 브리핑은 이미 나간 뒤라 경보만 보낸다.
+    """
+    missing = len(topics) - recorded
+    if missing <= 0:
+        return False
+    _alert(
+        settings,
+        f"[원장 적재 실패] 예측 {len(topics)}건 중 {missing}건 미기록 — "
+        "브리핑은 발송됨, 회고·학습 활주로(predictions.jsonl) 공백. GH 로그 확인.",
+        dry_run,
+    )
+    return True
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="주식 이슈 뉴스 브리핑")
     ap.add_argument("--mode", choices=["pre", "post"], default="post")
@@ -178,6 +196,7 @@ def main() -> int:
     sent_store.persist(topics)
     # 예측 원장 적재(P2) — 회고·학습 루프의 데이터 활주로
     recorded = prediction_ledger.record(topics, args.mode)
+    _alert_if_ledger_gap(settings, topics, recorded, args.dry_run)
     print(
         f"sent={n} chunk(s) · topics={len(topics)} · articles={len(articles)} "
         f"· ledger+{recorded}"
