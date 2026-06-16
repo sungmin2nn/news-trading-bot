@@ -1,0 +1,26 @@
+name: Tests
+
+# 코드 PR·main push마다 pytest 실행. 봇 자동커밋(data/*만 변경하는 state: 커밋)은 제외.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'data/**'
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+
+      - name: Run tests
+        run: python -m pytest tests/ -q
