@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+import time
 
 import requests
 
@@ -66,6 +67,45 @@ class GeminiError(RuntimeError):
     pass
 
 
+_RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
+
+
+def _post_with_retry(
+    url,
+    *,
+    params,
+    headers,
+    data,
+    timeout,
+    max_attempts=4,
+    base_delay=2.0,
+    sleep=time.sleep,
+):
+    """Gemini POST + 지수 백오프 재시도.
+
+    무료 티어 Gemini는 수요 스파이크 때 429/503(UNAVAILABLE)·500을 흔히 던진다.
+    재시도가 없으면 transient 한 방이 brief 전체를 죽여 그날 예측이 유실된다
+    (2026-06-07~12 실패 클러스터). 일시 장애(429/5xx·네트워크 예외)에만 재시도하고,
+    4xx(인증·요청 오류)는 결정적이라 그대로 반환해 호출부가 처리하게 둔다.
+    재시도 소진 시 GeminiError로 가시화.
+    """
+    for attempt in range(max_attempts):
+        try:
+            r = requests.post(
+                url, params=params, headers=headers, data=data, timeout=timeout
+            )
+        except requests.RequestException as e:
+            last_desc = f"네트워크 오류: {e}"
+        else:
+            if r.status_code not in _RETRY_STATUS:
+                return r
+            last_desc = f"gemini {r.status_code}: {r.text[:200]}"
+        if attempt == max_attempts - 1:
+            raise GeminiError(f"{last_desc} (재시도 {max_attempts}회 소진)")
+        sleep(base_delay * (2 ** attempt))
+    raise GeminiError("unreachable")  # 루프가 항상 return/raise
+
+
 def _build_prompt(articles: list[dict], max_topics: int, btype: str) -> str:
     lines = []
     for i, a in enumerate(articles, 1):
@@ -111,7 +151,7 @@ def advise(settings: Settings, articles: list[dict], btype: str) -> dict:
             "responseMimeType": "application/json",
         },
     }
-    r = requests.post(
+    r = _post_with_retry(
         url,
         params={"key": settings.GEMINI_API_KEY},
         headers={"Content-Type": "application/json"},
