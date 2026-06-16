@@ -47,7 +47,7 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
    - action: [관심|관찰|회피|무시] 중 하나. 근거 없는 단정 금지, 확신 낮으면 관찰.
    - confidence: 0.0~1.0.
 3. 주제는 영향도·화제성 순으로 최대 {max_topics}개.
-
+{calibration}
 출력은 아래 JSON 스키마 하나만. 설명·마크다운 없이 JSON만. briefing_type은 "{btype}".
 스키마: {schema}
 
@@ -65,6 +65,37 @@ _VALID_KINDS = {"종목", "테마"}
 
 class GeminiError(RuntimeError):
     pass
+
+
+def _render_calibration(cal) -> str:
+    """calibration dict → 프롬프트 보정 블록. None/빈 것 → 빈 문자열."""
+    if not cal or not cal.get("overall"):
+        return ""
+    o = cal["overall"]
+    lines = [
+        "",
+        "[과거 적중 보정 — confidence를 실측에 맞춰라]",
+        "네 예측 실측(코스피 대비 알파, 호라이즌 3거래일):",
+        f"· 전반 N={o['n']} 적중 {o['hit_rate']:.0%}",
+    ]
+
+    def _seg(items, key):
+        parts = []
+        for it in items or []:
+            tag = " (참고)" if it.get("n", 0) < 10 else ""
+            parts.append(f"{it[key]} N={it['n']} 적중 {it['hit_rate']:.0%}{tag}")
+        return parts
+
+    bc = _seg(cal.get("by_confidence"), "bucket")
+    be = _seg(cal.get("by_effect"), "effect")
+    if bc:
+        lines.append("· 확신별: " + "  ".join(bc))
+    if be:
+        lines.append("· 효과별: " + "  ".join(be))
+    lines.append(
+        "(N<10 항목은 표본 적음·참고만.) 위 실측을 보고 각 주제 confidence를 과신 없이 보정하라."
+    )
+    return "\n".join(lines)
 
 
 _RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
@@ -106,7 +137,7 @@ def _post_with_retry(
     raise GeminiError("unreachable")  # 루프가 항상 return/raise
 
 
-def _build_prompt(articles: list[dict], max_topics: int, btype: str) -> str:
+def _build_prompt(articles: list[dict], max_topics: int, btype: str, calibration: str = "") -> str:
     lines = []
     for i, a in enumerate(articles, 1):
         stk = f" [{a['stock_name']}]" if a.get("stock_name") else ""
@@ -117,6 +148,7 @@ def _build_prompt(articles: list[dict], max_topics: int, btype: str) -> str:
         btype=btype,
         schema=_SCHEMA,
         articles="\n".join(lines),
+        calibration=calibration,
     )
 
 
@@ -140,7 +172,9 @@ def advise(settings: Settings, articles: list[dict], btype: str) -> dict:
     """기사 목록 → 구조화된 종합 자문 dict. 실패 시 GeminiError(가시화)."""
     if not settings.GEMINI_API_KEY:
         raise GeminiError("GEMINI_API_KEY missing")
-    prompt = _build_prompt(articles, settings.max_topics, btype)
+    from src.state import lessons
+    cal_block = _render_calibration((lessons.load() or {}).get("calibration"))
+    prompt = _build_prompt(articles, settings.max_topics, btype, cal_block)
     url = f"{API_BASE}/{settings.GEMINI_MODEL}:generateContent"
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
