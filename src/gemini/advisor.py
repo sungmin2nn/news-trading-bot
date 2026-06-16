@@ -72,6 +72,8 @@ def _render_calibration(cal) -> str:
     if not cal or not cal.get("overall"):
         return ""
     o = cal["overall"]
+    if o.get("n") is None or o.get("hit_rate") is None:
+        return ""
     lines = [
         "",
         "[과거 적중 보정 — confidence를 실측에 맞춰라]",
@@ -82,6 +84,8 @@ def _render_calibration(cal) -> str:
     def _seg(items, key):
         parts = []
         for it in items or []:
+            if it.get(key) is None or it.get("n") is None or it.get("hit_rate") is None:
+                continue
             tag = " (참고)" if it.get("n", 0) < 10 else ""
             parts.append(f"{it[key]} N={it['n']} 적중 {it['hit_rate']:.0%}{tag}")
         return parts

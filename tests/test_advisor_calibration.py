@@ -21,6 +21,27 @@ def test_render_marks_low_n_with_reference_tag():
     assert "(참고)" in block
 
 
+def test_render_returns_empty_when_overall_malformed():
+    # overall present but missing n/hit_rate → skip injection, don't crash
+    assert advisor._render_calibration({"overall": {}}) == ""
+    assert advisor._render_calibration({"overall": {"n": 5}}) == ""  # missing hit_rate
+
+
+def test_render_skips_malformed_segment_entries():
+    cal = {
+        "overall": {"n": 10, "hit_rate": 0.2},
+        "by_effect": [
+            {"effect": "수혜", "n": 10, "hit_rate": 0.3},   # ok
+            {"effect": "타격", "n": 5},                       # missing hit_rate → skip
+            {"n": 4, "hit_rate": 0.5},                        # missing effect key → skip
+        ],
+    }
+    block = advisor._render_calibration(cal)
+    assert "수혜 N=10" in block         # good entry kept
+    assert "타격" not in block          # malformed entry skipped, no crash
+    assert "전반 N=10" in block         # block still renders
+
+
 def test_build_prompt_includes_calibration_block():
     prompt = advisor._build_prompt([{"title": "t"}], 8, "post", "BLOCK_MARKER")
     assert "BLOCK_MARKER" in prompt
