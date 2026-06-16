@@ -52,3 +52,38 @@ def test_compute_by_effect():
 def test_compute_returns_none_when_no_scored_results():
     assert calibration.compute([]) is None
     assert calibration.compute([_rec(0.8, [{"effect": "수혜", "correct": None}])]) is None
+
+
+def test_run_writes_lessons(monkeypatch, tmp_path):
+    from src.score import calibration as c
+    from src.state import lessons
+
+    scores = tmp_path / "scores.jsonl"
+    import json
+    scores.write_text(
+        json.dumps({"confidence": 0.8, "results": [{"effect": "수혜", "correct": True}]}) + "\n",
+        encoding="utf-8",
+    )
+    lessons_path = tmp_path / "lessons.json"
+    monkeypatch.setattr(c, "SCORES", scores)
+    monkeypatch.setattr(lessons, "LESSONS", lessons_path)
+
+    rc = c.run()
+    assert rc == 0
+    data = lessons.load(lessons_path)
+    assert data["calibration"]["overall"]["n"] == 1
+
+
+def test_run_skips_when_no_data(monkeypatch, tmp_path):
+    from src.score import calibration as c
+    from src.state import lessons
+
+    scores = tmp_path / "scores.jsonl"
+    scores.write_text("", encoding="utf-8")
+    lessons_path = tmp_path / "lessons.json"
+    monkeypatch.setattr(c, "SCORES", scores)
+    monkeypatch.setattr(lessons, "LESSONS", lessons_path)
+
+    rc = c.run()
+    assert rc == 0
+    assert not lessons_path.exists()  # 콜드스타트 — 미갱신

@@ -75,11 +75,11 @@ def _read_scores(path: Path = SCORES) -> list[dict]:
 
 def run() -> int:
     """scores.jsonl → compute → lessons.json 갱신. compute None이면 미갱신(직전 유지)."""
-    cal = compute(_read_scores())
+    cal = compute(_read_scores(SCORES))
     if cal is None:
         print("[calibration] 채점 데이터 부족 — lessons 미갱신", file=sys.stderr)
         return 0
-    lessons.update_calibration(cal)
+    lessons.update_calibration(cal, path=lessons.LESSONS)
     print(f"[calibration] updated: N={cal['overall']['n']} hit={cal['overall']['hit_rate']}")
     return 0
 
