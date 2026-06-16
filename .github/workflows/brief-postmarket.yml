@@ -53,3 +53,12 @@ jobs:
           git diff --staged --quiet || git commit -m "state: postmarket $(date +'%Y-%m-%d %H:%M')"
           git pull --rebase origin main || true
           git push || true
+
+      # heartbeat: 성공 시 ping, 실패 시 /fail. secret 미설정이면 무해 no-op.
+      - name: Heartbeat ping (success)
+        if: success()
+        run: curl -fsS -m 10 --retry 3 "${{ secrets.HC_PING_POSTMARKET }}" || true
+
+      - name: Heartbeat ping (failure)
+        if: failure()
+        run: curl -fsS -m 10 --retry 3 "${{ secrets.HC_PING_POSTMARKET }}/fail" || true
