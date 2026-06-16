@@ -69,7 +69,10 @@ def _read_scores(path: Path = SCORES) -> list[dict]:
         for line in f:
             line = line.strip()
             if line:
-                out.append(json.loads(line))
+                try:
+                    out.append(json.loads(line))
+                except Exception as e:  # noqa: BLE001
+                    print(f"[calibration] 손상된 라인 skip: {e}", file=sys.stderr)
     return out
 
 

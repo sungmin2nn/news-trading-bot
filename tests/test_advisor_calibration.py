@@ -1,4 +1,22 @@
+import pytest
+
 from src.gemini import advisor
+
+
+@pytest.mark.parametrize("bad", ["garbage", [1, 2, 3], 42, {"overall": "nope"}, {"overall": [1]}])
+def test_render_non_dict_shapes_return_empty(bad):
+    assert advisor._render_calibration(bad) == ""
+
+
+def test_render_skips_non_dict_segment_entries():
+    cal = {
+        "overall": {"n": 10, "hit_rate": 0.2},
+        "by_effect": ["not-a-dict", {"effect": "수혜", "n": 10, "hit_rate": 0.3}],
+        "by_confidence": "not-a-list",
+    }
+    block = advisor._render_calibration(cal)
+    assert "수혜 N=10" in block      # valid entry kept
+    assert "전반 N=10" in block      # block still renders, no crash
 
 
 def test_render_empty_when_none():

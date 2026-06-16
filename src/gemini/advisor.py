@@ -68,11 +68,11 @@ class GeminiError(RuntimeError):
 
 
 def _render_calibration(cal) -> str:
-    """calibration dict → 프롬프트 보정 블록. None/빈 것 → 빈 문자열."""
-    if not cal or not cal.get("overall"):
+    """calibration dict → 프롬프트 보정 블록. None/빈 것/형 불일치 → 빈 문자열."""
+    if not isinstance(cal, dict):
         return ""
-    o = cal["overall"]
-    if o.get("n") is None or o.get("hit_rate") is None:
+    o = cal.get("overall")
+    if not isinstance(o, dict) or o.get("n") is None or o.get("hit_rate") is None:
         return ""
     lines = [
         "",
@@ -83,7 +83,11 @@ def _render_calibration(cal) -> str:
 
     def _seg(items, key):
         parts = []
-        for it in items or []:
+        if not isinstance(items, list):
+            items = []
+        for it in items:
+            if not isinstance(it, dict):
+                continue
             if it.get(key) is None or it.get("n") is None or it.get("hit_rate") is None:
                 continue
             tag = " (참고)" if it.get("n", 0) < 10 else ""

@@ -54,6 +54,19 @@ def test_compute_returns_none_when_no_scored_results():
     assert calibration.compute([_rec(0.8, [{"effect": "수혜", "correct": None}])]) is None
 
 
+def test_read_scores_skips_corrupt_lines(tmp_path):
+    from src.score import calibration as c
+    p = tmp_path / "scores.jsonl"
+    p.write_text(
+        '{"confidence": 0.8, "results": [{"effect": "수혜", "correct": true}]}\n'
+        "{ broken json\n"
+        '{"confidence": 0.5, "results": [{"effect": "타격", "correct": false}]}\n',
+        encoding="utf-8",
+    )
+    recs = c._read_scores(p)
+    assert len(recs) == 2  # corrupt middle line skipped, not raised
+
+
 def test_run_writes_lessons(monkeypatch, tmp_path):
     from src.score import calibration as c
     from src.state import lessons
