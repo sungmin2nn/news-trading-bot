@@ -155,27 +155,33 @@ def _prep_news_evo(settings, btype):
         return "", ""
     from datetime import timedelta, timezone
 
-    kst = timezone(timedelta(hours=9))
-    y = (datetime.now(kst).date() - timedelta(days=1)).strftime("%Y%m%d")
+    # 최후 안전망: news_evo 단계의 어떤 예외(도메인+비도메인 OSError 등)도 main()으로
+    # 새지 않게 전체를 감싼다. fetch_and_store 내부 _append()의 OSError 등도 포함.
     try:
-        results = ntr_results.fetch_and_store(y)
-    except ntr_results.NtrResultsError as e:  # noqa: BLE001
-        print(f"[news_evo] results fetch 실패(graceful): {e}", file=sys.stderr)
-        results = None
-    try:
-        pnl_cal = pnl_calibration.compute(ntr_results.read_history())
-        from src.gemini import advisor as _adv
+        kst = timezone(timedelta(hours=9))
+        y = (datetime.now(kst).date() - timedelta(days=1)).strftime("%Y%m%d")
+        try:
+            results = ntr_results.fetch_and_store(y)
+        except Exception as e:  # noqa: BLE001  도메인+비도메인 모두 graceful
+            print(f"[news_evo] results fetch 실패(graceful): {e}", file=sys.stderr)
+            results = None
+        try:
+            pnl_cal = pnl_calibration.compute(ntr_results.read_history())
+            from src.gemini import advisor as _adv
 
-        pnl_block = _adv._render_pnl_calibration(pnl_cal)
-    except Exception as e:  # noqa: BLE001
-        print(f"[news_evo] pnl-calibration 실패(graceful): {e}", file=sys.stderr)
-        pnl_block = ""
-    try:
-        lessons = lessons_builder.build_lessons_block(results, settings)
-    except Exception as e:  # noqa: BLE001
-        print(f"[news_evo] lessons 생성 실패(graceful): {e}", file=sys.stderr)
-        lessons = ""
-    return lessons, pnl_block
+            pnl_block = _adv._render_pnl_calibration(pnl_cal)
+        except Exception as e:  # noqa: BLE001
+            print(f"[news_evo] pnl-calibration 실패(graceful): {e}", file=sys.stderr)
+            pnl_block = ""
+        try:
+            lessons = lessons_builder.build_lessons_block(results, settings)
+        except Exception as e:  # noqa: BLE001
+            print(f"[news_evo] lessons 생성 실패(graceful): {e}", file=sys.stderr)
+            lessons = ""
+        return lessons, pnl_block
+    except Exception as e:  # noqa: BLE001  무엇이 깨져도 본 브리핑 비차단
+        print(f"[news_evo] _prep 전체 실패(graceful): {e}", file=sys.stderr)
+        return "", ""
 
 
 def main() -> int:
