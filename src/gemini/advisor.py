@@ -48,6 +48,7 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
    - confidence: 0.0~1.0.
 3. 주제는 영향도·화제성 순으로 최대 {max_topics}개.
 {calibration}
+{lessons}
 출력은 아래 JSON 스키마 하나만. 설명·마크다운 없이 JSON만. briefing_type은 "{btype}".
 스키마: {schema}
 
@@ -106,6 +107,32 @@ def _render_calibration(cal) -> str:
     return "\n".join(lines)
 
 
+def _render_pnl_calibration(cal) -> str:
+    """pnl_calibration.compute dict → 프롬프트 손익 보정 블록. None/콜드스타트 → 빈 문자열."""
+    if not isinstance(cal, dict):
+        return ""
+    o = cal.get("overall")
+    if not isinstance(o, dict) or o.get("n") is None:
+        return ""
+    lines = [
+        "",
+        "[전일까지 실매매 손익 실측 — 과신 보정]",
+        f"· 전반 N={o['n']} 승률 {o['win_rate']:.0%} 평균 {o['avg_pnl_pct']:+.2f}%",
+    ]
+    reasons = cal.get("by_exit_reason")
+    if not isinstance(reasons, list):
+        reasons = []
+    for it in reasons:
+        if not isinstance(it, dict):
+            continue
+        if it.get("reason") is None or it.get("n") is None or it.get("avg_pnl_pct") is None:
+            continue
+        tag = " (참고)" if it.get("n", 0) < 5 else ""
+        lines.append(f"· 청산 {it['reason']}: N={it['n']} 평균 {it['avg_pnl_pct']:+.2f}%{tag}")
+    lines.append("(손실 잦은 청산사유·저득점 버킷은 confidence 낮춰라.)")
+    return "\n".join(lines)
+
+
 _RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
 
 
@@ -145,7 +172,13 @@ def _post_with_retry(
     raise GeminiError("unreachable")  # 루프가 항상 return/raise
 
 
-def _build_prompt(articles: list[dict], max_topics: int, btype: str, calibration: str = "") -> str:
+def _build_prompt(
+    articles: list[dict],
+    max_topics: int,
+    btype: str,
+    calibration: str = "",
+    lessons: str = "",
+) -> str:
     lines = []
     for i, a in enumerate(articles, 1):
         stk = f" [{a['stock_name']}]" if a.get("stock_name") else ""
@@ -157,6 +190,7 @@ def _build_prompt(articles: list[dict], max_topics: int, btype: str, calibration
         schema=_SCHEMA,
         articles="\n".join(lines),
         calibration=calibration,
+        lessons=lessons,
     )
 
 
@@ -176,13 +210,16 @@ def _extract_json(text: str) -> dict:
         raise GeminiError(f"JSON 파싱 실패: {e}; head={t[:200]!r}") from e
 
 
-def advise(settings: Settings, articles: list[dict], btype: str) -> dict:
-    """기사 목록 → 구조화된 종합 자문 dict. 실패 시 GeminiError(가시화)."""
+def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = "") -> dict:
+    """기사 목록 → 구조화된 종합 자문 dict. 실패 시 GeminiError(가시화).
+
+    lessons: 전일 실매매 회고 블록(lessons_builder 생성). 비면 프롬프트에서 무시.
+    """
     if not settings.GEMINI_API_KEY:
         raise GeminiError("GEMINI_API_KEY missing")
-    from src.state import lessons
-    cal_block = _render_calibration((lessons.load() or {}).get("calibration"))
-    prompt = _build_prompt(articles, settings.max_topics, btype, cal_block)
+    from src.state import lessons as lessons_state
+    cal_block = _render_calibration((lessons_state.load() or {}).get("calibration"))
+    prompt = _build_prompt(articles, settings.max_topics, btype, calibration=cal_block, lessons=lessons)
     url = f"{API_BASE}/{settings.GEMINI_MODEL}:generateContent"
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -246,3 +283,53 @@ def advise(settings: Settings, articles: list[dict], btype: str) -> dict:
         except (TypeError, ValueError):
             t["confidence"] = 0.0
     return result
+
+
+def attribute_pnl(settings: Settings, trades: list[dict]) -> dict:
+    """전일 체결별 손익 귀인 한 줄씩. 반환 {code: why}.
+
+    호출측(lessons_builder._attribute)이 실패를 흡수하므로 여기선 advise와
+    동일한 견고한 호출 패턴(재시도·finishReason 체크·join 파싱)만 따른다.
+    """
+    if not settings.GEMINI_API_KEY:
+        raise GeminiError("GEMINI_API_KEY missing")
+    items = "\n".join(
+        f"{t['code']} {t.get('name', '')} {t.get('realized_pnl_pct', 0):+.2f}% 청산:{t.get('exit_reason')}"
+        for t in trades
+    )
+    prompt = (
+        "다음 전일 매매 결과 각각에 대해 '왜 이런 손익이 났는지' 뉴스·수급 맥락 추정을 "
+        '한 줄(25자 내)로. JSON {"<code>":"<한줄>"} 만 출력.\n' + items
+    )
+    url = f"{API_BASE}/{settings.GEMINI_MODEL}:generateContent"
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "maxOutputTokens": 512,
+            "temperature": 0.4,
+            "thinkingConfig": {"thinkingBudget": 0},
+            "responseMimeType": "application/json",
+        },
+    }
+    r = _post_with_retry(
+        url,
+        params={"key": settings.GEMINI_API_KEY},
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(body),
+        timeout=30,
+    )
+    if r.status_code != 200:
+        raise GeminiError(f"gemini {r.status_code}: {r.text[:300]}")
+    data = r.json()
+    candidates = data.get("candidates") or []
+    if not candidates:
+        raise GeminiError(f"empty candidates: {str(data)[:300]}")
+    cand = candidates[0]
+    finish = cand.get("finishReason")
+    if finish and finish != "STOP":
+        raise GeminiError(f"응답 미완료(finishReason={finish})")
+    parts = cand.get("content", {}).get("parts") or []
+    text = "".join(p.get("text", "") for p in parts).strip()
+    if not text:
+        raise GeminiError(f"empty text: {str(data)[:300]}")
+    return _extract_json(text)

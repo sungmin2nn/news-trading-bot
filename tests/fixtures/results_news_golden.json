@@ -1,0 +1,12 @@
+{
+  "date": "20260619",
+  "strategy": "news_evo",
+  "trades": [
+    {"code": "005930", "name": "삼성전자", "status": "filled",
+     "entry": 71000, "exit": 69200, "realized_pnl_pct": -2.54,
+     "exit_reason": "loss", "held_min": 210, "selected_score": 0.78}
+  ],
+  "skipped": [
+    {"code": "000660", "name": "SK하이닉스", "selected_score": 0.71, "skip_reason": "slot"}
+  ]
+}

@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import argparse
+import html
 import sys
 from datetime import datetime
 
@@ -21,7 +22,9 @@ from src.collectors import naver_news
 from src.config import load_settings
 from src.gemini import advisor
 from src.notify import telegram
-from src.state import prediction_ledger, sent_store
+from src.publish import candidates_emitter
+from src.score import pnl_calibration
+from src.state import lessons_builder, ntr_results, prediction_ledger, sent_store
 from src.utils import krx_calendar
 
 KST = pytz.timezone("Asia/Seoul")
@@ -35,7 +38,16 @@ def _circled(i: int) -> str:
     return chr(0x2460 + i - 1) if 1 <= i <= 20 else f"{i}."
 
 
+def _esc(s) -> str:
+    """텔레그램 HTML 모드용 이스케이프 — & < > 만 치환(따옴표는 그대로).
+
+    Gemini가 준 동적 텍스트에 <, & 가 섞이면 sendMessage가 400으로 실패한다.
+    """
+    return html.escape("" if s is None else str(s), quote=False)
+
+
 def _impacts_str(impacts: list) -> str:
+    # 종목/테마명을 굵게(<b>) — 결론 줄에서 시선이 종목에 먼저 닿게
     parts = []
     for im in impacts or []:
         if not isinstance(im, dict):
@@ -43,11 +55,12 @@ def _impacts_str(impacts: list) -> str:
         name = im.get("name", "")
         if not name:
             continue
-        parts.append(f"{name}{_EFFECT_MARK.get(im.get('effect', ''), '')}")
+        parts.append(f"<b>{_esc(name)}</b>{_EFFECT_MARK.get(im.get('effect', ''), '')}")
     return " ".join(parts)
 
 
 def build_message(result: dict, mode: str) -> str:
+    """parse_mode=HTML 전용 양식. 모든 동적 텍스트는 _esc로 이스케이프한다."""
     now = datetime.now(KST)
     # 라벨은 거래일이면 '장전/장후', 휴장일(주말·공휴일)이면 '아침/저녁'으로 — 매일 발송
     trading = krx_calendar.is_krx_business_day(now)
@@ -58,14 +71,13 @@ def build_message(result: dict, mode: str) -> str:
     wd = _WEEKDAY[now.weekday()]
     topics = result.get("topics") or []
 
-    lines = [f"📰 {label} · {now.month}/{now.day}({wd}) {now.strftime('%H:%M')}"]
-    # 상단 한눈 스캔 — 주제 제목 + 방향 이모지
+    lines = [f"📰 <b>{label}</b> · {now.month}/{now.day}({wd}) {now.strftime('%H:%M')}"]
+    # 상단 한눈 스캔 — 세로 목록(주제 제목 + 방향 이모지)
     if topics:
-        digest = "  ".join(
-            f"{_circled(i)}{t.get('title', '')}{_DIR_EMOJI.get(t.get('direction', ''), '')}"
-            for i, t in enumerate(topics, 1)
-        )
-        lines.append(f"핵심 ▸ {digest}")
+        lines.append("\n<b>핵심</b>")
+        for i, t in enumerate(topics, 1):
+            dmark = _DIR_EMOJI.get(t.get("direction", ""), "")
+            lines.append(f"{_circled(i)} {_esc(t.get('title', ''))} {dmark}".rstrip())
     lines.append("━━━━━━━━━━━━")
 
     if not topics:
@@ -77,34 +89,36 @@ def build_message(result: dict, mode: str) -> str:
         dmark = _DIR_EMOJI.get(direction, "")
         tag = "NEW" if t.get("status") == "new" else "지속"
         conf = t.get("confidence")
-        conf_s = f" · 확신{conf:.0%}" if isinstance(conf, (int, float)) else ""
-        # 스캔 헤더: 액션 + 번호 + 제목 + 방향 + 액션 + 확신
+        conf_s = f" · 확신 {conf:.0%}" if isinstance(conf, (int, float)) else ""
+        # 1줄: 액션 + 번호 + 제목(굵게) + 태그
         lines.append(
-            f"\n{emoji} {_circled(i)} {t.get('title', '(제목없음)')}"
-            f"  ·  {dmark}{direction} · {t.get('action', '-')}{conf_s} [{tag}]"
+            f"\n{emoji} <b>{_circled(i)} {_esc(t.get('title', '(제목없음)'))}</b> [{tag}]"
         )
+        # 2줄: 방향 · 액션 · 확신 (메타를 제목과 분리해 과밀 해소)
+        meta = f"{dmark} {_esc(direction)} · {_esc(t.get('action', '-'))}{conf_s}".strip()
+        if meta:
+            lines.append(meta)
         # 헤드라인(한 줄 gist)
         if t.get("headline"):
-            lines.append(f"▸ {t['headline']}")
-        # 세부
+            lines.append(f"▸ {_esc(t['headline'])}")
+        # 세부 — 라벨 굵게
         if t.get("summary"):
-            lines.append(f" ㆍ무슨일: {t['summary']}")
+            lines.append(f"<b>무슨일</b> · {_esc(t['summary'])}")
         if t.get("analysis"):
             priced = t.get("priced_in")
-            tail = f" (반영:{priced})" if priced else ""
-            lines.append(f" ㆍ분석: {t['analysis']}{tail}")
-        # 결론: 영향 종목/테마 + 방향 근거
+            tail = f" <i>(반영 {_esc(priced)})</i>" if priced else ""
+            lines.append(f"<b>분석</b> · {_esc(t['analysis'])}{tail}")
+        # 결론: 영향 종목/테마(굵게) + 방향 근거
         impacts_s = _impacts_str(t.get("impacts"))
-        reason = t.get("direction_reason", "")
+        reason = _esc(t.get("direction_reason", ""))
         if impacts_s or reason:
-            concl = " ㆍ결론: "
-            concl += impacts_s
+            concl = "<b>결론</b> · " + impacts_s
             if impacts_s and reason:
                 concl += " — "
             concl += reason
             lines.append(concl)
         if t.get("risk"):
-            lines.append(f" ㆍ리스크: {t['risk']}")
+            lines.append(f"<b>리스크</b> · {_esc(t['risk'])}")
 
     noise = result.get("noise_filtered_count") or 0
     lines.append("\n━━━━━━━━━━━━")
@@ -143,6 +157,45 @@ def _alert_if_ledger_gap(settings, topics, recorded, dry_run) -> bool:
     return True
 
 
+def _prep_news_evo(settings, btype):
+    """premarket 전: 전일 NTR results fetch·누적 → pnl-cal·서술 lessons. (pre 모드 전용)
+
+    news_evo 실패가 본 브리핑(텔레그램 발송)을 막아선 안 된다 — 모두 graceful.
+    반환: (lessons 서술 블록, pnl-calibration 렌더 블록). pre가 아니면 ("", "").
+    """
+    if btype != "pre":
+        return "", ""
+    from datetime import timedelta, timezone
+
+    # 최후 안전망: news_evo 단계의 어떤 예외(도메인+비도메인 OSError 등)도 main()으로
+    # 새지 않게 전체를 감싼다. fetch_and_store 내부 _append()의 OSError 등도 포함.
+    try:
+        kst = timezone(timedelta(hours=9))
+        y = (datetime.now(kst).date() - timedelta(days=1)).strftime("%Y%m%d")
+        try:
+            results = ntr_results.fetch_and_store(y)
+        except Exception as e:  # noqa: BLE001  도메인+비도메인 모두 graceful
+            print(f"[news_evo] results fetch 실패(graceful): {e}", file=sys.stderr)
+            results = None
+        try:
+            pnl_cal = pnl_calibration.compute(ntr_results.read_history())
+            from src.gemini import advisor as _adv
+
+            pnl_block = _adv._render_pnl_calibration(pnl_cal)
+        except Exception as e:  # noqa: BLE001
+            print(f"[news_evo] pnl-calibration 실패(graceful): {e}", file=sys.stderr)
+            pnl_block = ""
+        try:
+            lessons = lessons_builder.build_lessons_block(results, settings)
+        except Exception as e:  # noqa: BLE001
+            print(f"[news_evo] lessons 생성 실패(graceful): {e}", file=sys.stderr)
+            lessons = ""
+        return lessons, pnl_block
+    except Exception as e:  # noqa: BLE001  무엇이 깨져도 본 브리핑 비차단
+        print(f"[news_evo] _prep 전체 실패(graceful): {e}", file=sys.stderr)
+        return "", ""
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="주식 이슈 뉴스 브리핑")
     ap.add_argument("--mode", choices=["pre", "post"], default="post")
@@ -170,9 +223,11 @@ def main() -> int:
         _alert(settings, "[수집 0건] dedup 후 기사 없음", args.dry_run)
         return 1
 
-    # 3) Gemini 종합 자문
+    # 3) Gemini 종합 자문 — pre 모드면 전일 NTR results를 학습 신호로 주입(news_evo 폐쇄루프)
+    lessons_block, pnl_block = _prep_news_evo(settings, btype)
+    _news_evo_lessons = (lessons_block + "\n" + pnl_block).strip()
     try:
-        result = advisor.advise(settings, articles, btype)
+        result = advisor.advise(settings, articles, btype, lessons=_news_evo_lessons)
     except Exception as e:  # noqa: BLE001
         _alert(settings, f"[Gemini 실패] {e}", args.dry_run)
         return 1
@@ -197,6 +252,16 @@ def main() -> int:
     # 예측 원장 적재(P2) — 회고·학습 루프의 데이터 활주로
     recorded = prediction_ledger.record(topics, args.mode)
     _alert_if_ledger_gap(settings, topics, recorded, args.dry_run)
+    # news_evo 폐쇄루프: pre 선정 결과를 NTR이 가져갈 candidates로 발행(발송 성공 후만)
+    if args.mode == "pre":
+        try:
+            from datetime import timedelta, timezone
+
+            today = datetime.now(timezone(timedelta(hours=9))).strftime("%Y%m%d")
+            path = candidates_emitter.emit(today, topics)
+            print(f"[news_evo] candidates 발행: {path}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[news_evo] candidates 발행 실패: {e}", file=sys.stderr)
     print(
         f"sent={n} chunk(s) · topics={len(topics)} · articles={len(articles)} "
         f"· ledger+{recorded}"
