@@ -43,7 +43,11 @@ def send(settings: Settings, text: str) -> int:
     for chunk in chunks:
         r = requests.post(
             url,
-            data={"chat_id": settings.TELEGRAM_CHAT_ID, "text": chunk},
+            data={
+                "chat_id": settings.TELEGRAM_CHAT_ID,
+                "text": chunk,
+                "parse_mode": "HTML",
+            },
             timeout=15,
         )
         if r.status_code != 200:
