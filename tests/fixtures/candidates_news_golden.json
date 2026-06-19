@@ -1,0 +1,14 @@
+{
+  "date": "20260619",
+  "generated_at": "2026-06-19T08:05:00+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {"code": "005930", "name": "삼성전자", "score": 0.78,
+         "price": 71000, "change_pct": 1.2,
+         "themes": [{"code": "", "name": "반도체"}],
+         "direction": "long", "reason": "장전 뉴스 한줄", "confidence": 0.78}
+      ]
+    }
+  }
+}
