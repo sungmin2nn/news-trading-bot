@@ -1,18 +1,32 @@
 """전일 NTR results → Gemini 선정 프롬프트에 주입할 '서술 lessons' 블록.
 fact(기계 사유·손익) 적재 + why(Gemini 귀인). 외부 입력이므로 sanitize 필수(security.md)."""
 import re
+import unicodedata
 
-# 인젝션 패턴 — 외부 텍스트(종목명·reason)가 프롬프트 지시를 덮어쓰지 못하게 제거
+# 인젝션 패턴 — 외부 텍스트(종목명·reason)가 프롬프트 지시를 덮어쓰지 못하게 제거.
+# 조사변형('이전의 지침')·전각콜론(：)까지 흡수.
 _INJECT_RE = re.compile(
-    r"(이전\s*지침\s*무시|ignore\s+previous|system\s*:|assistant\s*:|SCORE\s*\d{2,})",
+    r"(이전.{0,3}지침.{0,3}무시|ignore\s+previous|system\s*[:：]|assistant\s*[:：]|SCORE\s*\d{2,})",
     re.IGNORECASE)
-_CTRL_RE = re.compile(r"[\x00-\x1f\x7f]")
+# 공백 완전 제거본(자간 우회 'i g n o r e') 전용. 콜론은 공백이 아니라 stripped에도 남으므로
+# 콜론 토큰은 _INJECT_RE가 그대로 잡고, 여기선 공백붕괴로 붙어버린 ignoreprevious만 추가 포착.
+_INJECT_STRIPPED_RE = re.compile(
+    r"(이전.{0,3}지침.{0,3}무시|ignoreprevious|system\s*[:：]|assistant\s*[:：]|SCORE\d{2,})",
+    re.IGNORECASE)
+_CTRL_RE = re.compile(r"[\x00-\x1f\x7f​-‏⁠﻿]")  # 제어+zero-width
+_WS_RE = re.compile(r"\s+")
 
 
 def _sanitize(text: str, max_len: int = 80) -> str:
     if not text:
         return ""
-    t = _CTRL_RE.sub(" ", str(text))
+    t = unicodedata.normalize("NFKC", str(text))   # 전각→반각 등 정규화
+    t = _CTRL_RE.sub(" ", t)
+    t = _WS_RE.sub(" ", t)                          # 자간공백 'i g n o r e' 붕괴 차단
+    # 자간 우회까지: 공백 제거본에 대해서도 인젝션 검사
+    stripped = t.replace(" ", "")
+    if _INJECT_STRIPPED_RE.search(stripped):
+        t = "▮(차단된 외부 텍스트)"
     t = _INJECT_RE.sub("▮", t)
     return t.strip()[:max_len]
 
@@ -24,7 +38,9 @@ def _attribute(trades: list[dict], settings) -> dict:
     try:
         from src.gemini import advisor
         return advisor.attribute_pnl(settings, trades)
-    except Exception:
+    except Exception as e:  # 귀인 실패는 fact-only로 degrade하되 silent 금지
+        import sys
+        print(f"[lessons_builder] 귀인 sub-call 실패(fact-only degrade): {e}", file=sys.stderr)
         return {}
 
 
