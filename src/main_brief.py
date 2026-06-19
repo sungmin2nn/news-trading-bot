@@ -21,7 +21,9 @@ from src.collectors import naver_news
 from src.config import load_settings
 from src.gemini import advisor
 from src.notify import telegram
-from src.state import prediction_ledger, sent_store
+from src.publish import candidates_emitter
+from src.score import pnl_calibration
+from src.state import lessons_builder, ntr_results, prediction_ledger, sent_store
 from src.utils import krx_calendar
 
 KST = pytz.timezone("Asia/Seoul")
@@ -143,6 +145,39 @@ def _alert_if_ledger_gap(settings, topics, recorded, dry_run) -> bool:
     return True
 
 
+def _prep_news_evo(settings, btype):
+    """premarket 전: 전일 NTR results fetch·누적 → pnl-cal·서술 lessons. (pre 모드 전용)
+
+    news_evo 실패가 본 브리핑(텔레그램 발송)을 막아선 안 된다 — 모두 graceful.
+    반환: (lessons 서술 블록, pnl-calibration 렌더 블록). pre가 아니면 ("", "").
+    """
+    if btype != "pre":
+        return "", ""
+    from datetime import timedelta, timezone
+
+    kst = timezone(timedelta(hours=9))
+    y = (datetime.now(kst).date() - timedelta(days=1)).strftime("%Y%m%d")
+    try:
+        results = ntr_results.fetch_and_store(y)
+    except ntr_results.NtrResultsError as e:  # noqa: BLE001
+        print(f"[news_evo] results fetch 실패(graceful): {e}", file=sys.stderr)
+        results = None
+    try:
+        pnl_cal = pnl_calibration.compute(ntr_results.read_history())
+        from src.gemini import advisor as _adv
+
+        pnl_block = _adv._render_pnl_calibration(pnl_cal)
+    except Exception as e:  # noqa: BLE001
+        print(f"[news_evo] pnl-calibration 실패(graceful): {e}", file=sys.stderr)
+        pnl_block = ""
+    try:
+        lessons = lessons_builder.build_lessons_block(results, settings)
+    except Exception as e:  # noqa: BLE001
+        print(f"[news_evo] lessons 생성 실패(graceful): {e}", file=sys.stderr)
+        lessons = ""
+    return lessons, pnl_block
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="주식 이슈 뉴스 브리핑")
     ap.add_argument("--mode", choices=["pre", "post"], default="post")
@@ -170,9 +205,11 @@ def main() -> int:
         _alert(settings, "[수집 0건] dedup 후 기사 없음", args.dry_run)
         return 1
 
-    # 3) Gemini 종합 자문
+    # 3) Gemini 종합 자문 — pre 모드면 전일 NTR results를 학습 신호로 주입(news_evo 폐쇄루프)
+    lessons_block, pnl_block = _prep_news_evo(settings, btype)
+    _news_evo_lessons = (lessons_block + "\n" + pnl_block).strip()
     try:
-        result = advisor.advise(settings, articles, btype)
+        result = advisor.advise(settings, articles, btype, lessons=_news_evo_lessons)
     except Exception as e:  # noqa: BLE001
         _alert(settings, f"[Gemini 실패] {e}", args.dry_run)
         return 1
@@ -197,6 +234,16 @@ def main() -> int:
     # 예측 원장 적재(P2) — 회고·학습 루프의 데이터 활주로
     recorded = prediction_ledger.record(topics, args.mode)
     _alert_if_ledger_gap(settings, topics, recorded, args.dry_run)
+    # news_evo 폐쇄루프: pre 선정 결과를 NTR이 가져갈 candidates로 발행(발송 성공 후만)
+    if args.mode == "pre":
+        try:
+            from datetime import timedelta, timezone
+
+            today = datetime.now(timezone(timedelta(hours=9))).strftime("%Y%m%d")
+            path = candidates_emitter.emit(today, topics)
+            print(f"[news_evo] candidates 발행: {path}")
+        except Exception as e:  # noqa: BLE001
+            print(f"[news_evo] candidates 발행 실패: {e}", file=sys.stderr)
     print(
         f"sent={n} chunk(s) · topics={len(topics)} · articles={len(articles)} "
         f"· ledger+{recorded}"
