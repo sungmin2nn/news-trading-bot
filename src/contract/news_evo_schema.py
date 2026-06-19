@@ -2,11 +2,14 @@
 import re
 
 _CODE_RE = re.compile(r"^\d{6}$")
-_EXIT_REASONS = {"trailing_3", "trailing_5", "trailing_10", "loss", "close"}
+# exit_reason은 NTR TRAILING_LEVELS config에서 trailing_<트리거>로 동적 생성된다.
+# 하드코딩 집합 대신 정규식으로 trailing_<digits>를 허용해 config 변경에도 발행이 안 깨지게 한다.
+_EXIT_REASON_RE = re.compile(r"^(trailing_\d+|loss|close)$")
 
 
 def _num(v):
-    return isinstance(v, (int, float)) and v == v and v not in (float("inf"), float("-inf"))
+    return (isinstance(v, (int, float)) and not isinstance(v, bool)
+            and v == v and v not in (float("inf"), float("-inf")))
 
 
 def validate_candidates(data: dict) -> None:
@@ -37,8 +40,8 @@ def validate_results(data: dict) -> None:
         if not _num(ss) or not (0.0 <= ss <= 1.0):
             raise ValueError(f"results: selected_score 0~1 위반 {ss}")
         if t["status"] == "filled":
-            if t.get("exit_reason") not in _EXIT_REASONS:
-                raise ValueError(f"results: exit_reason enum 위반 {t.get('exit_reason')}")
+            if not _EXIT_REASON_RE.match(str(t.get("exit_reason", ""))):
+                raise ValueError(f"results: exit_reason 위반 {t.get('exit_reason')}")
             if not _num(t.get("realized_pnl_pct")):
                 raise ValueError("results: realized_pnl_pct 비수치")
     for sk in data.get("skipped", []):
