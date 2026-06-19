@@ -107,6 +107,32 @@ def _render_calibration(cal) -> str:
     return "\n".join(lines)
 
 
+def _render_pnl_calibration(cal) -> str:
+    """pnl_calibration.compute dict → 프롬프트 손익 보정 블록. None/콜드스타트 → 빈 문자열."""
+    if not isinstance(cal, dict):
+        return ""
+    o = cal.get("overall")
+    if not isinstance(o, dict) or o.get("n") is None:
+        return ""
+    lines = [
+        "",
+        "[전일까지 실매매 손익 실측 — 과신 보정]",
+        f"· 전반 N={o['n']} 승률 {o['win_rate']:.0%} 평균 {o['avg_pnl_pct']:+.2f}%",
+    ]
+    reasons = cal.get("by_exit_reason")
+    if not isinstance(reasons, list):
+        reasons = []
+    for it in reasons:
+        if not isinstance(it, dict):
+            continue
+        if it.get("reason") is None or it.get("n") is None or it.get("avg_pnl_pct") is None:
+            continue
+        tag = " (참고)" if it.get("n", 0) < 5 else ""
+        lines.append(f"· 청산 {it['reason']}: N={it['n']} 평균 {it['avg_pnl_pct']:+.2f}%{tag}")
+    lines.append("(손실 잦은 청산사유·저득점 버킷은 confidence 낮춰라.)")
+    return "\n".join(lines)
+
+
 _RETRY_STATUS = frozenset({429, 500, 502, 503, 504})
 
 
