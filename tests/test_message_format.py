@@ -1,8 +1,10 @@
-"""텔레그램 메시지 양식 — HTML 서식 + 구조 재배치 테스트.
+"""텔레그램 메시지 양식 — HTML 압축 카드 + 한국식 색관습 테스트.
 
-배경: plain text 양식을 HTML(parse_mode=HTML)로 전환하면서 제목·라벨·종목명을
-굵게 처리하고 한눈 스캔 구조로 재배치한다. HTML 모드는 기사 제목에 `<`/`&`가
-있으면 발송이 400으로 실패하므로 동적 텍스트는 반드시 이스케이프해야 한다.
+배경: 서술형 2~3문장 단락(무슨일/분석)이 길고 헤드라인↔본문이 안 나뉘며,
+구 effect 마크(🔺🔻)가 둘 다 빨강이라 수혜/타격이 구분 안 됐다. 토픽당 4줄
+압축 카드로 재배치하고, 한국 주식 색관습(상승/수혜=🔴, 하락/타격=🔵, 중립=⚪)으로
+방향·effect를 통일한다. summary/analysis는 학습 루프용으로 스키마엔 남지만 렌더
+에서는 제외한다. HTML 모드는 동적 텍스트에 `<`/`&`가 있으면 400이라 이스케이프 필수.
 """
 
 from src import main_brief
@@ -39,8 +41,9 @@ def _msg(monkeypatch, result, mode="post"):
 # ---- build_message: HTML 서식 ----
 
 def test_topic_title_is_bold(monkeypatch):
+    # 번호(①)는 bold 밖, 제목만 굵게 — L1: "① <b>제목</b>   🔴상승"
     msg = _msg(monkeypatch, {"topics": [_topic(title="삼성 HBM")]})
-    assert "<b>① 삼성 HBM</b>" in msg
+    assert "① <b>삼성 HBM</b>" in msg
 
 
 def test_impact_stock_name_is_bold(monkeypatch):
@@ -48,11 +51,65 @@ def test_impact_stock_name_is_bold(monkeypatch):
     assert "<b>삼성전자</b>" in msg
 
 
-def test_section_labels_are_bold(monkeypatch):
-    msg = _msg(monkeypatch, {"topics": [_topic()]})
-    assert "<b>무슨일</b>" in msg
-    assert "<b>분석</b>" in msg
-    assert "<b>결론</b>" in msg
+def test_headline_rendered_on_own_line(monkeypatch):
+    # 헤드라인이 본문과 분리된 단독 줄로 렌더된다(서술형 단락 대체)
+    msg = _msg(monkeypatch, {"topics": [_topic(headline="HBM4 양산 앞당겨 공급 확대")]})
+    assert "\nHBM4 양산 앞당겨 공급 확대\n" in msg
+
+
+def test_action_is_bold_text_not_color_circle(monkeypatch):
+    # 액션은 색 이모지(🟢🔴) 충돌을 피해 굵은 텍스트 태그로만 표기한다
+    msg = _msg(monkeypatch, {"topics": [_topic(action="회피")]})
+    assert "<b>회피</b>" in msg
+
+
+def test_summary_analysis_not_rendered(monkeypatch):
+    # summary/analysis 서술 단락은 메시지에서 제외(스키마엔 잔존 — 학습 루프용)
+    msg = _msg(
+        monkeypatch,
+        {"topics": [_topic(summary="긴 서술 무슨일", analysis="긴 서술 분석")]},
+    )
+    assert "긴 서술 무슨일" not in msg
+    assert "긴 서술 분석" not in msg
+    assert "무슨일" not in msg
+    assert "분석" not in msg
+
+
+def test_direction_uses_korean_color(monkeypatch):
+    # 상승=🔴빨강, 하락=🔵파랑 (한국 주식 관습), 구 차트 이모지 미사용
+    up = _msg(monkeypatch, {"topics": [_topic(direction="상승")]})
+    down = _msg(monkeypatch, {"topics": [_topic(direction="하락")]})
+    assert "🔴상승" in up
+    assert "🔵하락" in down
+    assert "📈" not in up and "📉" not in down
+
+
+def test_effect_color_contrast(monkeypatch):
+    # 수혜=🔴, 타격=🔵 — 대비색으로 구분. 구 🔺🔻(둘 다 빨강)는 사라져야 한다
+    msg = _msg(
+        monkeypatch,
+        {
+            "topics": [
+                _topic(
+                    impacts=[
+                        {"name": "삼성전자", "effect": "수혜"},
+                        {"name": "LG엔솔", "effect": "타격"},
+                    ]
+                )
+            ]
+        },
+    )
+    assert "🔴수혜" in msg
+    assert "🔵타격" in msg
+    assert "🔺" not in msg and "🔻" not in msg
+
+
+def test_new_tag_only_for_new(monkeypatch):
+    new_msg = _msg(monkeypatch, {"topics": [_topic(status="new")]})
+    cont_msg = _msg(monkeypatch, {"topics": [_topic(status="continuing")]})
+    assert "NEW" in new_msg
+    assert "NEW" not in cont_msg
+    assert "지속" not in cont_msg  # 지속은 무표시
 
 
 def test_escapes_html_special_chars(monkeypatch):

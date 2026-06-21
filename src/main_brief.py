@@ -29,9 +29,12 @@ from src.utils import krx_calendar
 
 KST = pytz.timezone("Asia/Seoul")
 _WEEKDAY = ["월", "화", "수", "목", "금", "토", "일"]
-_ACTION_EMOJI = {"관심": "🟢", "관찰": "🟡", "회피": "🔴", "무시": "⚪"}
-_DIR_EMOJI = {"상승": "📈", "하락": "📉", "중립": "➡️", "혼조": "🔀"}
-_EFFECT_MARK = {"수혜": "🔺", "타격": "🔻", "중립": "▪️"}
+# 한국 주식 색관습: 상승/수혜=🔴빨강, 하락/타격=🔵파랑, 중립=⚪. 방향과 effect가
+# 같은 색체계를 공유해 한눈에 좋고/나쁨이 구분된다(구 🔺🔻는 둘 다 빨강이라 모호).
+# 액션은 색 충돌을 피하려 이모지 없이 굵은 텍스트 태그로만 표기한다.
+_DIR_EMOJI = {"상승": "🔴", "하락": "🔵", "중립": "⚪", "혼조": "🔀"}
+_EFFECT_EMOJI = {"수혜": "🔴", "타격": "🔵", "중립": "⚪"}
+_RULE = "━━━━━━━━━━━"
 
 
 def _circled(i: int) -> str:
@@ -47,84 +50,86 @@ def _esc(s) -> str:
 
 
 def _impacts_str(impacts: list) -> str:
-    # 종목/테마명을 굵게(<b>) — 결론 줄에서 시선이 종목에 먼저 닿게
-    parts = []
+    # 효과별로 묶어 색(🔴수혜/🔵타격/⚪중립) + 종목명(굵게) — 한 줄에서 수혜/타격 대비
+    groups: dict[str, list] = {"수혜": [], "타격": [], "중립": []}
     for im in impacts or []:
         if not isinstance(im, dict):
             continue
         name = im.get("name", "")
         if not name:
             continue
-        parts.append(f"<b>{_esc(name)}</b>{_EFFECT_MARK.get(im.get('effect', ''), '')}")
-    return " ".join(parts)
+        effect = im.get("effect", "중립")
+        groups.setdefault(effect, []).append(f"<b>{_esc(name)}</b>")
+    parts = []
+    for effect in ("수혜", "타격", "중립"):
+        names = groups.get(effect)
+        if names:
+            parts.append(f"{_EFFECT_EMOJI.get(effect, '')}{effect} " + "·".join(names))
+    return "  ".join(parts)
 
 
 def build_message(result: dict, mode: str) -> str:
-    """parse_mode=HTML 전용 양식. 모든 동적 텍스트는 _esc로 이스케이프한다."""
+    """parse_mode=HTML 전용 압축 카드 양식. 모든 동적 텍스트는 _esc로 이스케이프한다.
+
+    토픽당 4줄 고정으로 스캔성↑·길이↓:
+      L1 번호+제목(굵게)+방향(🔴/🔵/⚪/🔀)+NEW(신규만)
+      L2 headline (한 줄 gist — summary/analysis 서술 단락을 대체)
+      L3 액션(굵게) · 확신% · 효과별 종목(🔴수혜/🔵타격)
+      L4 ⚠ 리스크
+    summary/analysis/priced_in/direction_reason은 advisor 스키마에는 남아 학습 루프
+    (P2 원장·P3 채점·P4 규칙북)가 계속 사용하지만, 메시지 렌더에서는 제외한다.
+    """
     now = datetime.now(KST)
     # 라벨은 거래일이면 '장전/장후', 휴장일(주말·공휴일)이면 '아침/저녁'으로 — 매일 발송
     trading = krx_calendar.is_krx_business_day(now)
     if mode == "pre":
-        label = "장전 이슈 브리핑" if trading else "아침 이슈 브리핑"
+        label = "장전 브리핑" if trading else "아침 브리핑"
     else:
-        label = "장후 이슈 브리핑" if trading else "저녁 이슈 브리핑"
+        label = "장후 브리핑" if trading else "저녁 브리핑"
     wd = _WEEKDAY[now.weekday()]
     topics = result.get("topics") or []
 
-    lines = [f"📰 <b>{label}</b> · {now.month}/{now.day}({wd}) {now.strftime('%H:%M')}"]
-    # 상단 한눈 스캔 — 세로 목록(주제 제목 + 방향 이모지)
-    if topics:
-        lines.append("\n<b>핵심</b>")
-        for i, t in enumerate(topics, 1):
-            dmark = _DIR_EMOJI.get(t.get("direction", ""), "")
-            lines.append(f"{_circled(i)} {_esc(t.get('title', ''))} {dmark}".rstrip())
-    lines.append("━━━━━━━━━━━━")
+    lines = [f"📰 <b>{label}</b> {now.month}/{now.day}({wd}) {now.strftime('%H:%M')}"]
 
     if not topics:
-        lines.append("\n추려낼 이슈가 없습니다.")
+        lines.append(_RULE)
+        lines.append("추려낼 이슈가 없습니다.")
+        return "\n".join(lines)
 
     for i, t in enumerate(topics, 1):
-        emoji = _ACTION_EMOJI.get(t.get("action", ""), "•")
+        lines.append(_RULE)
         direction = t.get("direction", "")
         dmark = _DIR_EMOJI.get(direction, "")
-        tag = "NEW" if t.get("status") == "new" else "지속"
-        conf = t.get("confidence")
-        conf_s = f" · 확신 {conf:.0%}" if isinstance(conf, (int, float)) else ""
-        # 1줄: 액션 + 번호 + 제목(굵게) + 태그
-        lines.append(
-            f"\n{emoji} <b>{_circled(i)} {_esc(t.get('title', '(제목없음)'))}</b> [{tag}]"
-        )
-        # 2줄: 방향 · 액션 · 확신 (메타를 제목과 분리해 과밀 해소)
-        meta = f"{dmark} {_esc(direction)} · {_esc(t.get('action', '-'))}{conf_s}".strip()
-        if meta:
-            lines.append(meta)
-        # 헤드라인(한 줄 gist)
+        new_tag = "  NEW" if t.get("status") == "new" else ""  # 지속은 무표시(과밀 제거)
+        # L1: 번호 + 제목(굵게) + 방향 + NEW
+        head = f"{_circled(i)} <b>{_esc(t.get('title', '(제목없음)'))}</b>"
+        if direction:
+            head += f"   {dmark}{_esc(direction)}"
+        lines.append((head + new_tag).rstrip())
+        # L2: headline (한 줄 gist)
         if t.get("headline"):
-            lines.append(f"▸ {_esc(t['headline'])}")
-        # 세부 — 라벨 굵게
-        if t.get("summary"):
-            lines.append(f"<b>무슨일</b> · {_esc(t['summary'])}")
-        if t.get("analysis"):
-            priced = t.get("priced_in")
-            tail = f" <i>(반영 {_esc(priced)})</i>" if priced else ""
-            lines.append(f"<b>분석</b> · {_esc(t['analysis'])}{tail}")
-        # 결론: 영향 종목/테마(굵게) + 방향 근거
+            lines.append(_esc(t["headline"]))
+        # L3: 액션 · 확신% · 효과별 종목
+        meta = []
+        if t.get("action"):
+            meta.append(f"<b>{_esc(t['action'])}</b>")
+        conf = t.get("confidence")
+        if isinstance(conf, (int, float)):
+            meta.append(f"확신 {conf:.0%}")
         impacts_s = _impacts_str(t.get("impacts"))
-        reason = _esc(t.get("direction_reason", ""))
-        if impacts_s or reason:
-            concl = "<b>결론</b> · " + impacts_s
-            if impacts_s and reason:
-                concl += " — "
-            concl += reason
-            lines.append(concl)
+        if impacts_s:
+            meta.append(impacts_s)
+        if meta:
+            lines.append(" · ".join(meta))
+        # L4: 리스크
         if t.get("risk"):
-            lines.append(f"<b>리스크</b> · {_esc(t['risk'])}")
+            lines.append(f"⚠ {_esc(t['risk'])}")
 
+    lines.append(_RULE)
     noise = result.get("noise_filtered_count") or 0
-    lines.append("\n━━━━━━━━━━━━")
     if noise:
         lines.append(f"⚪ 노이즈 {noise}건 제외")
-    lines.append("🔺수혜 🔻타격 · 자동 자문, 판단·책임은 본인")
+    lines.append("🔴상승·수혜  🔵하락·타격  ⚪중립 · 자동자문, 판단은 본인")
     return "\n".join(lines)
 
 
