@@ -104,6 +104,44 @@ def test_effect_color_contrast(monkeypatch):
     assert "🔺" not in msg and "🔻" not in msg
 
 
+def test_neutral_impact_hidden(monkeypatch):
+    # ⚪중립 effect 종목은 L3에서 생략(신호 약함) — 수혜/타격만 노출
+    msg = _msg(
+        monkeypatch,
+        {
+            "topics": [
+                _topic(
+                    impacts=[
+                        {"name": "삼성전자", "effect": "수혜"},
+                        {"name": "중립종목", "effect": "중립"},
+                    ]
+                )
+            ]
+        },
+    )
+    assert "<b>삼성전자</b>" in msg
+    assert "중립종목" not in msg
+
+
+def test_impact_names_capped_with_overflow(monkeypatch):
+    # 효과별 종목 최대 3개 노출 + 나머지는 '외 N'으로 축약
+    msg = _msg(
+        monkeypatch,
+        {
+            "topics": [
+                _topic(
+                    impacts=[
+                        {"name": f"종목{i}", "effect": "수혜"} for i in range(1, 6)
+                    ]
+                )
+            ]
+        },
+    )
+    assert "<b>종목1</b>·<b>종목2</b>·<b>종목3</b>" in msg
+    assert "외 2" in msg
+    assert "종목4" not in msg and "종목5" not in msg
+
+
 def test_new_tag_only_for_new(monkeypatch):
     new_msg = _msg(monkeypatch, {"topics": [_topic(status="new")]})
     cont_msg = _msg(monkeypatch, {"topics": [_topic(status="continuing")]})

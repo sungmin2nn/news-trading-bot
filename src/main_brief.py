@@ -49,22 +49,32 @@ def _esc(s) -> str:
     return html.escape("" if s is None else str(s), quote=False)
 
 
+_MAX_IMPACT_NAMES = 3  # L3 과밀 방지 — 효과별 종목을 N개까지만 노출
+
+
 def _impacts_str(impacts: list) -> str:
-    # 효과별로 묶어 색(🔴수혜/🔵타격/⚪중립) + 종목명(굵게) — 한 줄에서 수혜/타격 대비
-    groups: dict[str, list] = {"수혜": [], "타격": [], "중립": []}
+    # 수혜/타격만 노출(중립은 신호 약해 생략), 효과별 종목명(굵게) 최대 3개+'외 N'으로 축약
+    groups: dict[str, list] = {"수혜": [], "타격": []}
     for im in impacts or []:
         if not isinstance(im, dict):
             continue
         name = im.get("name", "")
         if not name:
             continue
-        effect = im.get("effect", "중립")
-        groups.setdefault(effect, []).append(f"<b>{_esc(name)}</b>")
+        effect = im.get("effect", "")
+        if effect not in groups:  # 중립·기타 effect는 L3에서 생략
+            continue
+        groups[effect].append(f"<b>{_esc(name)}</b>")
     parts = []
-    for effect in ("수혜", "타격", "중립"):
-        names = groups.get(effect)
-        if names:
-            parts.append(f"{_EFFECT_EMOJI.get(effect, '')}{effect} " + "·".join(names))
+    for effect in ("수혜", "타격"):
+        names = groups[effect]
+        if not names:
+            continue
+        shown = "·".join(names[:_MAX_IMPACT_NAMES])
+        extra = len(names) - _MAX_IMPACT_NAMES
+        if extra > 0:
+            shown += f" 외 {extra}"
+        parts.append(f"{_EFFECT_EMOJI.get(effect, '')}{effect} {shown}")
     return "  ".join(parts)
 
 
