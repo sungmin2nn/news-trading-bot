@@ -43,7 +43,8 @@ jobs:
         run: |
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add data/sent_topics.json data/predictions.jsonl data/news_evo/ data/ntr_results.jsonl || true
+          # 파일별 add — 부재 파일(부트스트랩 시 ntr_results.jsonl 등)이 git add 전체를 abort시키지 않게.
+          for f in data/sent_topics.json data/predictions.jsonl data/news_evo data/ntr_results.jsonl; do git add "$f" 2>/dev/null || true; done
           git diff --staged --quiet || git commit -m "state: premarket $(date +'%Y-%m-%d %H:%M')"
           git pull --rebase origin main || true
           git push || true
