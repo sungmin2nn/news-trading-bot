@@ -1,0 +1,87 @@
+{
+  "date": "20260623",
+  "generated_at": "2026-06-23T08:57:54+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2919000,
+          "change_pct": 5.61,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 시총 1위 등극, 반도체 빅사이클 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 353500,
+          "change_pct": -0.14,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 시총 1위 등극, 반도체 빅사이클 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어",
+          "score": 0.6,
+          "price": 1970000,
+          "change_pct": 10.67,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 시총 1위 등극, 반도체 빅사이클 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "036090",
+          "name": "위지트",
+          "score": 0.6,
+          "price": 1340,
+          "change_pct": 7.11,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 시총 1위 등극, 반도체 빅사이클 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "score": 0.6,
+          "price": 2228000,
+          "change_pct": -1.85,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 시총 1위 등극, 반도체 빅사이클 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "score": 0.7,
+          "price": 1125000,
+          "change_pct": 0.27,
+          "themes": [],
+          "direction": "long",
+          "reason": "전쟁 특수 넘어 K-방산 구조적 성장 국면 진입",
+          "confidence": 0.7
+        },
+        {
+          "code": "064350",
+          "name": "현대로템",
+          "score": 0.7,
+          "price": 203500,
+          "change_pct": -1.69,
+          "themes": [],
+          "direction": "long",
+          "reason": "전쟁 특수 넘어 K-방산 구조적 성장 국면 진입",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
