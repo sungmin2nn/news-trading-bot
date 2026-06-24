@@ -79,18 +79,8 @@ def _impacts_str(impacts: list) -> str:
 
 
 def build_message(result: dict, mode: str) -> str:
-    """parse_mode=HTML 전용 압축 카드 양식. 모든 동적 텍스트는 _esc로 이스케이프한다.
-
-    토픽당 4줄 고정으로 스캔성↑·길이↓:
-      L1 번호+제목(굵게)+방향(🔴/🔵/⚪/🔀)+NEW(신규만)
-      L2 headline (한 줄 gist — summary/analysis 서술 단락을 대체)
-      L3 액션(굵게) · 확신% · 효과별 종목(🔴수혜/🔵타격)
-      L4 ⚠ 리스크
-    summary/analysis/priced_in/direction_reason은 advisor 스키마에는 남아 학습 루프
-    (P2 원장·P3 채점·P4 규칙북)가 계속 사용하지만, 메시지 렌더에서는 제외한다.
-    """
+    """parse_mode=HTML. 토픽당 3줄: 제목+방향 / headline / picks / 리스크."""
     now = datetime.now(KST)
-    # 라벨은 거래일이면 '장전/장후', 휴장일(주말·공휴일)이면 '아침/저녁'으로 — 매일 발송
     trading = krx_calendar.is_krx_business_day(now)
     if mode == "pre":
         label = "장전 브리핑" if trading else "아침 브리핑"
@@ -110,27 +100,23 @@ def build_message(result: dict, mode: str) -> str:
         lines.append(_RULE)
         direction = t.get("direction", "")
         dmark = _DIR_EMOJI.get(direction, "")
-        new_tag = "  NEW" if t.get("status") == "new" else ""  # 지속은 무표시(과밀 제거)
-        # L1: 번호 + 제목(굵게) + 방향 + NEW
+        new_tag = "  NEW" if t.get("status") == "new" else ""
+        # L1: 번호 + 제목 + 방향
         head = f"{_circled(i)} <b>{_esc(t.get('title', '(제목없음)'))}</b>"
         if direction:
-            head += f"   {dmark}{_esc(direction)}"
+            head += f"  {dmark}{_esc(direction)}"
         lines.append((head + new_tag).rstrip())
-        # L2: headline (한 줄 gist)
+        # L2: headline
         if t.get("headline"):
             lines.append(_esc(t["headline"]))
-        # L3: 액션 · 확신% · 효과별 종목
-        meta = []
-        if t.get("action"):
-            meta.append(f"<b>{_esc(t['action'])}</b>")
-        conf = t.get("confidence")
-        if isinstance(conf, (int, float)):
-            meta.append(f"확신 {conf:.0%}")
-        impacts_s = _impacts_str(t.get("impacts"))
-        if impacts_s:
-            meta.append(impacts_s)
-        if meta:
-            lines.append(" · ".join(meta))
+        # L3: picks — 매수/회피 종목 직접 표시
+        picks = t.get("picks") or []
+        buy_names = [_esc(p["name"]) for p in picks if p.get("action") == "매수"]
+        avoid_names = [_esc(p["name"]) for p in picks if p.get("action") == "회피"]
+        if buy_names:
+            lines.append(f"▶ <b>{'  '.join(buy_names)}</b> 매수")
+        if avoid_names:
+            lines.append(f"✕ {'  '.join(avoid_names)} 회피")
         # L4: 리스크
         if t.get("risk"):
             lines.append(f"⚠ {_esc(t['risk'])}")
@@ -139,7 +125,6 @@ def build_message(result: dict, mode: str) -> str:
     noise = result.get("noise_filtered_count") or 0
     if noise:
         lines.append(f"⚪ 노이즈 {noise}건 제외")
-    lines.append("🔴상승·수혜  🔵하락·타격  ⚪중립 · 자동자문, 판단은 본인")
     return "\n".join(lines)
 
 

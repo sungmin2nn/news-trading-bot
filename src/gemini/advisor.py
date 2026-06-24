@@ -25,6 +25,7 @@ _SCHEMA = (
     '"priced_in":"<미반영|부분반영|이미반영>","priced_in_note":"반영 판단 근거 한 줄",'
     '"direction":"<상승|하락|중립|혼조>","direction_reason":"방향 예상 근거 1-2문장",'
     '"risk":"그 예상이 틀릴 수 있는 핵심 리스크 한 줄",'
+    '"picks":[{"name":"단일 상장 종목명","action":"<매수|회피|보유>"}],'
     '"impacts":[{"name":"단일 상장 종목명(코드조회 가능) 또는 테마명","kind":"<종목|테마>","effect":"<수혜|타격|중립>","note":"이유 짧게"}],'
     '"action":"<관심|관찰|회피|무시>","confidence":0.0}],'
     '"noise_filtered_count":0}'
@@ -43,6 +44,7 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
    - priced_in: 주가에 이미 반영됐는지 [미반영|부분반영|이미반영] + priced_in_note에 근거.
    - direction: 단기 주가 방향 예상 [상승|하락|중립|혼조]. 애매해도 반드시 하나 고르고 direction_reason에 근거.
    - risk: 그 방향 예상이 빗나갈 수 있는 핵심 리스크 한 줄.
+   - picks: 이 이슈로 지금 구체적으로 행동할 종목 목록. action=매수(지금 살 만함)·회피(노출 피할 것)·보유(이미 보유시 유지). 확신 없으면 빈 배열. name은 단일 상장 종목명만.
    - impacts: 영향받는 대상. kind='종목'이면 name은 **코드 조회 가능한 단일 상장 종목명만**(예: 삼성전자, SK하이닉스). '반도체 대형주'·'소부장'·'소형주 및 비주도 섹터' 같은 묶음·서술은 개별 종목으로 쪼개거나 kind='테마'로. 괄호·복합명 금지. 각각 effect [수혜|타격|중립] + note. 명확한 것만(없으면 빈 배열).
    - action: [관심|관찰|회피|무시] 중 하나. 근거 없는 단정 금지, 확신 낮으면 관찰.
    - confidence: 0.0~1.0.
@@ -58,6 +60,7 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
 
 
 _VALID_ACTIONS = {"관심", "관찰", "회피", "무시"}
+_VALID_PICK_ACTIONS = {"매수", "회피", "보유"}
 _VALID_DIRECTIONS = {"상승", "하락", "중립", "혼조"}
 _VALID_PRICED_IN = {"미반영", "부분반영", "이미반영"}
 _VALID_EFFECTS = {"수혜", "타격", "중립"}
@@ -267,6 +270,14 @@ def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = 
             t["direction"] = "중립"
         if t.get("priced_in") not in _VALID_PRICED_IN:
             t["priced_in"] = "부분반영"
+        picks = t.get("picks")
+        if not isinstance(picks, list):
+            t["picks"] = []
+        else:
+            t["picks"] = [
+                p for p in picks
+                if isinstance(p, dict) and p.get("name") and p.get("action") in _VALID_PICK_ACTIONS
+            ]
         impacts = t.get("impacts")
         if not isinstance(impacts, list):
             t["impacts"] = []
