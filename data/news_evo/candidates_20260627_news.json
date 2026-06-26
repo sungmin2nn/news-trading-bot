@@ -1,0 +1,43 @@
+{
+  "date": "20260627",
+  "generated_at": "2026-06-27T08:52:14+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2673000,
+          "change_pct": -8.36,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 美 ADR 상장, 수급 영향 주목",
+          "confidence": 0.6
+        },
+        {
+          "code": "028260",
+          "name": "삼성물산",
+          "score": 0.7,
+          "price": 494500,
+          "change_pct": -4.72,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성물산, 지주사 가치 부각에 목표가 상향",
+          "confidence": 0.7
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.7,
+          "price": 339500,
+          "change_pct": -5.3,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성물산, 지주사 가치 부각에 목표가 상향",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
