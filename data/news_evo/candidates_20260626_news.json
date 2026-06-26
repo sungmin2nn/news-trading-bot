@@ -1,0 +1,98 @@
+{
+  "date": "20260626",
+  "generated_at": "2026-06-26T09:02:14+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.7,
+          "price": 358500,
+          "change_pct": 5.29,
+          "themes": [],
+          "direction": "long",
+          "reason": "마이크론 호실적, 국내 반도체 랠리 지속",
+          "confidence": 0.7
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 2917000,
+          "change_pct": 11.29,
+          "themes": [],
+          "direction": "long",
+          "reason": "마이크론 호실적, 국내 반도체 랠리 지속",
+          "confidence": 0.7
+        },
+        {
+          "code": "042700",
+          "name": "한미반도체",
+          "score": 0.7,
+          "price": 273000,
+          "change_pct": 1.11,
+          "themes": [],
+          "direction": "long",
+          "reason": "마이크론 호실적, 국내 반도체 랠리 지속",
+          "confidence": 0.7
+        },
+        {
+          "code": "005440",
+          "name": "현대지에프홀딩스",
+          "score": 0.6,
+          "price": 14840,
+          "change_pct": 9.04,
+          "themes": [],
+          "direction": "long",
+          "reason": "현대지에프홀딩스, 백화점 지분 확대 주가 상승 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "069960",
+          "name": "현대백화점",
+          "score": 0.6,
+          "price": 195500,
+          "change_pct": 3.38,
+          "themes": [],
+          "direction": "long",
+          "reason": "현대지에프홀딩스, 백화점 지분 확대 주가 상승 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "352820",
+          "name": "하이브",
+          "score": 0.5,
+          "price": 187700,
+          "change_pct": -3.2,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체 랠리 속 엔터주 소외, 빅뱅 컴백 기대감",
+          "confidence": 0.5
+        },
+        {
+          "code": "041510",
+          "name": "에스엠",
+          "score": 0.5,
+          "price": 68500,
+          "change_pct": -2.97,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체 랠리 속 엔터주 소외, 빅뱅 컴백 기대감",
+          "confidence": 0.5
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 2917000,
+          "change_pct": 11.29,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스, 나스닥 ADR 상장 추진으로 급등",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
