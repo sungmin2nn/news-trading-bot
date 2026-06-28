@@ -1,0 +1,32 @@
+{
+  "date": "20260629",
+  "generated_at": "2026-06-29T08:57:11+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2673000,
+          "change_pct": -8.36,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 투자 부담↑, 삼성전자 2Q 실적 기대 하회 전망",
+          "confidence": 0.6
+        },
+        {
+          "code": "240810",
+          "name": "원익IPS",
+          "score": 0.6,
+          "price": 163800,
+          "change_pct": 5.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 투자 부담↑, 삼성전자 2Q 실적 기대 하회 전망",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
