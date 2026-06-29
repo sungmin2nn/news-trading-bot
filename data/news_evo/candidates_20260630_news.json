@@ -1,0 +1,43 @@
+{
+  "date": "20260630",
+  "generated_at": "2026-06-30T08:48:27+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 323000,
+          "change_pct": -4.86,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 기술주 반등, 국내 증시 훈풍 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2628000,
+          "change_pct": -1.68,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 기술주 반등, 국내 증시 훈풍 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "006260",
+          "name": "LS",
+          "score": 0.7,
+          "price": 358500,
+          "change_pct": 7.34,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 전력망 기대에 LS그룹주 강세",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
