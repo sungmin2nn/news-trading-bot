@@ -1,0 +1,54 @@
+{
+  "date": "20260702",
+  "generated_at": "2026-07-02T08:59:43+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "028050",
+          "name": "삼성E&A",
+          "score": 0.7,
+          "price": 51700,
+          "change_pct": 8.61,
+          "themes": [],
+          "direction": "long",
+          "reason": "1500조 반도체 투자, 소부장 기대감 고조",
+          "confidence": 0.7
+        },
+        {
+          "code": "117670",
+          "name": "알파칩스",
+          "score": 0.7,
+          "price": 9810,
+          "change_pct": -1.11,
+          "themes": [],
+          "direction": "long",
+          "reason": "1500조 반도체 투자, 소부장 기대감 고조",
+          "confidence": 0.7
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어",
+          "score": 0.5,
+          "price": 1757000,
+          "change_pct": 3.54,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 美 ADR 상장, SK스퀘어 수혜 기대",
+          "confidence": 0.5
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.5,
+          "price": 2560000,
+          "change_pct": -3.4,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 美 ADR 상장, SK스퀘어 수혜 기대",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
