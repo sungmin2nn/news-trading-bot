@@ -1,0 +1,21 @@
+{
+  "date": "20260704",
+  "generated_at": "2026-07-04T08:52:44+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "120110",
+          "name": "코오롱인더",
+          "score": 0.6,
+          "price": 59400,
+          "change_pct": -1.33,
+          "themes": [],
+          "direction": "long",
+          "reason": "IMM PE, 코오롱인더 소재 사업부 인수 우선협상대상자 선정",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
