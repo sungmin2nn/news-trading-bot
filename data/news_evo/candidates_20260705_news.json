@@ -1,0 +1,65 @@
+{
+  "date": "20260705",
+  "generated_at": "2026-07-05T08:50:01+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.5,
+          "price": 2425000,
+          "change_pct": 10.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "국민연금 리밸런싱, 매도 강도 완화",
+          "confidence": 0.5
+        },
+        {
+          "code": "352820",
+          "name": "하이브",
+          "score": 0.7,
+          "price": 205000,
+          "change_pct": -3.98,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 쏠림 속 엔터주, 실적 개선에 저가 매수 기회",
+          "confidence": 0.7
+        },
+        {
+          "code": "035900",
+          "name": "JYP Ent.",
+          "score": 0.7,
+          "price": 53200,
+          "change_pct": -4.14,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 쏠림 속 엔터주, 실적 개선에 저가 매수 기회",
+          "confidence": 0.7
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "score": 0.6,
+          "price": 1175000,
+          "change_pct": 5.29,
+          "themes": [],
+          "direction": "long",
+          "reason": "K-방산, 美 우주산업 ETF 신규 상장",
+          "confidence": 0.6
+        },
+        {
+          "code": "047810",
+          "name": "한국항공우주",
+          "score": 0.6,
+          "price": 156600,
+          "change_pct": 1.56,
+          "themes": [],
+          "direction": "long",
+          "reason": "K-방산, 美 우주산업 ETF 신규 상장",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
