@@ -1,0 +1,54 @@
+{
+  "date": "20260706",
+  "generated_at": "2026-07-06T08:52:46+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 309500,
+          "change_pct": 8.22,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체 주도주 복귀론, 실적·이벤트 주목",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2425000,
+          "change_pct": 10.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체 주도주 복귀론, 실적·이벤트 주목",
+          "confidence": 0.6
+        },
+        {
+          "code": "011070",
+          "name": "LG이노텍",
+          "score": 0.7,
+          "price": 872000,
+          "change_pct": -0.23,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성SDS AI 데이터센터, LG이노텍 전장 성장",
+          "confidence": 0.7
+        },
+        {
+          "code": "207940",
+          "name": "삼성바이오로직스",
+          "score": 0.7,
+          "price": 1421000,
+          "change_pct": 1.07,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성바이오, 피하주사 원료의약품 수주",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
