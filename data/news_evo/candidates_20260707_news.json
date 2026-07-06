@@ -1,0 +1,54 @@
+{
+  "date": "20260707",
+  "generated_at": "2026-07-07T08:54:57+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "score": 0.6,
+          "price": 1828000,
+          "change_pct": -8.09,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성전자 2분기 역대급 실적, AI 반도체 훈풍",
+          "confidence": 0.6
+        },
+        {
+          "code": "319660",
+          "name": "피에스케이",
+          "score": 0.6,
+          "price": 170800,
+          "change_pct": -6.31,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성전자 2분기 역대급 실적, AI 반도체 훈풍",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 2343000,
+          "change_pct": -3.38,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스, 나스닥 ADR 상장으로 글로벌 자금 유입 기대",
+          "confidence": 0.7
+        },
+        {
+          "code": "373220",
+          "name": "LG에너지솔루션",
+          "score": 0.6,
+          "price": 354500,
+          "change_pct": -2.21,
+          "themes": [],
+          "direction": "long",
+          "reason": "LG엔솔, 하반기 ESS·EV 배터리 개선으로 실적 반등 전망",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
