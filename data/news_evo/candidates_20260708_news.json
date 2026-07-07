@@ -1,0 +1,21 @@
+{
+  "date": "20260708",
+  "generated_at": "2026-07-08T08:42:57+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2201000,
+          "change_pct": -6.06,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 ADR 상장, 대규모 달러 유입으로 환율 안정 기대",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
