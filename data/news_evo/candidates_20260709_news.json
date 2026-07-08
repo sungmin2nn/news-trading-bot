@@ -1,0 +1,21 @@
+{
+  "date": "20260709",
+  "generated_at": "2026-07-09T08:57:03+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2076000,
+          "change_pct": -5.68,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 ADR 흥행, 주가 재평가 신호탄?",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
