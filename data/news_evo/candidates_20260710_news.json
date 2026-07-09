@@ -1,0 +1,43 @@
+{
+  "date": "20260710",
+  "generated_at": "2026-07-10T08:55:36+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2186000,
+          "change_pct": 5.3,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 나스닥 상장, 반도체주 강세 견인",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 278000,
+          "change_pct": 0.18,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 나스닥 상장, 반도체주 강세 견인",
+          "confidence": 0.6
+        },
+        {
+          "code": "000270",
+          "name": "기아",
+          "score": 0.6,
+          "price": 144800,
+          "change_pct": -7.65,
+          "themes": [],
+          "direction": "long",
+          "reason": "기아, 현대차그룹 내 선전…증권가 목표가 상향",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
