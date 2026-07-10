@@ -1,0 +1,65 @@
+{
+  "date": "20260711",
+  "generated_at": "2026-07-11T08:44:17+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2180000,
+          "change_pct": -0.27,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 美 데뷔 성공, AI 기대감 재확인",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 285000,
+          "change_pct": 2.52,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 美 데뷔 성공, AI 기대감 재확인",
+          "confidence": 0.6
+        },
+        {
+          "code": "010950",
+          "name": "S-Oil",
+          "score": 0.6,
+          "price": 132100,
+          "change_pct": -1.05,
+          "themes": [],
+          "direction": "long",
+          "reason": "호르무즈 긴장 고조, 정유주 반사 수혜",
+          "confidence": 0.6
+        },
+        {
+          "code": "096770",
+          "name": "SK이노베이션",
+          "score": 0.6,
+          "price": 102900,
+          "change_pct": 3.94,
+          "themes": [],
+          "direction": "long",
+          "reason": "호르무즈 긴장 고조, 정유주 반사 수혜",
+          "confidence": 0.6
+        },
+        {
+          "code": "078930",
+          "name": "GS",
+          "score": 0.6,
+          "price": 80200,
+          "change_pct": 6.08,
+          "themes": [],
+          "direction": "long",
+          "reason": "호르무즈 긴장 고조, 정유주 반사 수혜",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
