@@ -1,0 +1,21 @@
+{
+  "date": "20260712",
+  "generated_at": "2026-07-12T08:40:08+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2180000,
+          "change_pct": -0.27,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체 피크아웃 우려 속 SK하이닉스 ADR 상장",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
