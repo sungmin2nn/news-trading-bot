@@ -1,0 +1,54 @@
+{
+  "date": "20260713",
+  "generated_at": "2026-07-13T08:39:47+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2180000,
+          "change_pct": -0.27,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 ADR 흥행, 반도체 업황 기대감 증폭",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 285000,
+          "change_pct": 2.52,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 ADR 흥행, 반도체 업황 기대감 증폭",
+          "confidence": 0.6
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어",
+          "score": 0.6,
+          "price": 1409000,
+          "change_pct": 6.18,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 ADR 흥행, 반도체 업황 기대감 증폭",
+          "confidence": 0.6
+        },
+        {
+          "code": "207940",
+          "name": "삼성바이오로직스",
+          "score": 0.6,
+          "price": 1395000,
+          "change_pct": 5.28,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성바이오에피스, 美 대형 PBM 두 곳 처방집 등재 성공",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
