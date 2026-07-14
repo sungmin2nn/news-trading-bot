@@ -1,0 +1,54 @@
+{
+  "date": "20260715",
+  "generated_at": "2026-07-15T08:39:28+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1913000,
+          "change_pct": 3.69,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 ADR 27%↑, 반도체 랠리 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 263000,
+          "change_pct": 3.34,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 ADR 27%↑, 반도체 랠리 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "004020",
+          "name": "현대제철",
+          "score": 0.5,
+          "price": 26250,
+          "change_pct": -2.05,
+          "themes": [],
+          "direction": "long",
+          "reason": "철강주 PBR 0.39배, 업황 개선 기대",
+          "confidence": 0.5
+        },
+        {
+          "code": "460860",
+          "name": "동국제강",
+          "score": 0.5,
+          "price": 8280,
+          "change_pct": -0.72,
+          "themes": [],
+          "direction": "long",
+          "reason": "철강주 PBR 0.39배, 업황 개선 기대",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
