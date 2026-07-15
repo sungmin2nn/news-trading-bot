@@ -1,0 +1,87 @@
+{
+  "date": "20260716",
+  "generated_at": "2026-07-16T08:45:35+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 279500,
+          "change_pct": 6.27,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체주, 美 물가 둔화에도 변동성 확대",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 2082000,
+          "change_pct": 8.83,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체주, 美 물가 둔화에도 변동성 확대",
+          "confidence": 0.6
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "score": 0.6,
+          "price": 1413000,
+          "change_pct": 12.14,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체주, 美 물가 둔화에도 변동성 확대",
+          "confidence": 0.6
+        },
+        {
+          "code": "011070",
+          "name": "LG이노텍",
+          "score": 0.6,
+          "price": 688000,
+          "change_pct": 7.33,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·하닉 제외해도 2분기 영업익 급증 전망",
+          "confidence": 0.6
+        },
+        {
+          "code": "010140",
+          "name": "삼성중공업",
+          "score": 0.6,
+          "price": 21850,
+          "change_pct": 2.82,
+          "themes": [],
+          "direction": "long",
+          "reason": "LNG선 호황 최소 5년 더 간다",
+          "confidence": 0.6
+        },
+        {
+          "code": "009540",
+          "name": "HD한국조선해양",
+          "score": 0.6,
+          "price": 335000,
+          "change_pct": 2.45,
+          "themes": [],
+          "direction": "long",
+          "reason": "LNG선 호황 최소 5년 더 간다",
+          "confidence": 0.6
+        },
+        {
+          "code": "042660",
+          "name": "한화오션",
+          "score": 0.6,
+          "price": 82000,
+          "change_pct": 6.77,
+          "themes": [],
+          "direction": "long",
+          "reason": "LNG선 호황 최소 5년 더 간다",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
