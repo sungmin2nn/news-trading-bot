@@ -1,0 +1,54 @@
+{
+  "date": "20260719",
+  "generated_at": "2026-07-19T08:39:27+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.5,
+          "price": 255000,
+          "change_pct": -8.77,
+          "themes": [],
+          "direction": "long",
+          "reason": "알파벳 실적, 코스피 AI·반도체 향방 결정",
+          "confidence": 0.5
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.5,
+          "price": 1842000,
+          "change_pct": -11.53,
+          "themes": [],
+          "direction": "long",
+          "reason": "알파벳 실적, 코스피 AI·반도체 향방 결정",
+          "confidence": 0.5
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "score": 0.6,
+          "price": 943000,
+          "change_pct": 1.51,
+          "themes": [],
+          "direction": "long",
+          "reason": "상반기 치솟던 방산주, 중동 리스크에 조정",
+          "confidence": 0.6
+        },
+        {
+          "code": "064350",
+          "name": "현대로템",
+          "score": 0.6,
+          "price": 159000,
+          "change_pct": -5.19,
+          "themes": [],
+          "direction": "long",
+          "reason": "상반기 치솟던 방산주, 중동 리스크에 조정",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
