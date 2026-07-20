@@ -1,0 +1,54 @@
+{
+  "date": "20260721",
+  "generated_at": "2026-07-21T08:44:02+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 244000,
+          "change_pct": -4.31,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체주 'AI 피크아웃' 우려 속 저가 매수론",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1764000,
+          "change_pct": -4.23,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체주 'AI 피크아웃' 우려 속 저가 매수론",
+          "confidence": 0.6
+        },
+        {
+          "code": "011070",
+          "name": "LG이노텍",
+          "score": 0.6,
+          "price": 602000,
+          "change_pct": -9.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체주 'AI 피크아웃' 우려 속 저가 매수론",
+          "confidence": 0.6
+        },
+        {
+          "code": "000880",
+          "name": "한화",
+          "score": 0.5,
+          "price": 87200,
+          "change_pct": -6.44,
+          "themes": [],
+          "direction": "long",
+          "reason": "한화 2분기 실적 양호 전망, JYP 박진영 주식 손실",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
