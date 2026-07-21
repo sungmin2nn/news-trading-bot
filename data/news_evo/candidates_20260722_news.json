@@ -1,0 +1,32 @@
+{
+  "date": "20260722",
+  "generated_at": "2026-07-22T08:44:53+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 259000,
+          "change_pct": 6.15,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 반도체 훈풍, 국내 증시 반등 기대감 고조",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1836000,
+          "change_pct": 4.08,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 반도체 훈풍, 국내 증시 반등 기대감 고조",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
