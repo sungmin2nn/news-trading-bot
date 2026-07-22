@@ -1,0 +1,54 @@
+{
+  "date": "20260723",
+  "generated_at": "2026-07-23T08:50:21+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 260500,
+          "change_pct": 0.58,
+          "themes": [],
+          "direction": "long",
+          "reason": "구글 AI 투자 확대, 반도체주 반등 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1830000,
+          "change_pct": -0.33,
+          "themes": [],
+          "direction": "long",
+          "reason": "구글 AI 투자 확대, 반도체주 반등 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "score": 0.6,
+          "price": 1345000,
+          "change_pct": 2.67,
+          "themes": [],
+          "direction": "long",
+          "reason": "구글 AI 투자 확대, 반도체주 반등 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "011070",
+          "name": "LG이노텍",
+          "score": 0.6,
+          "price": 647000,
+          "change_pct": 2.86,
+          "themes": [],
+          "direction": "long",
+          "reason": "구글 AI 투자 확대, 반도체주 반등 기대",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
