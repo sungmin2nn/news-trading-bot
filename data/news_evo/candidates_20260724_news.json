@@ -1,0 +1,120 @@
+{
+  "date": "20260724",
+  "generated_at": "2026-07-24T08:45:34+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.7,
+          "price": 270000,
+          "change_pct": 3.65,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전닉스 급락 후 낸드 악재 반영, 인텔 호실적에 반도체 투심 회복 기대",
+          "confidence": 0.7
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 1919000,
+          "change_pct": 4.86,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전닉스 급락 후 낸드 악재 반영, 인텔 호실적에 반도체 투심 회복 기대",
+          "confidence": 0.7
+        },
+        {
+          "code": "011070",
+          "name": "LG이노텍",
+          "score": 0.7,
+          "price": 679000,
+          "change_pct": 4.95,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전닉스 급락 후 낸드 악재 반영, 인텔 호실적에 반도체 투심 회복 기대",
+          "confidence": 0.7
+        },
+        {
+          "code": "003160",
+          "name": "디아이",
+          "score": 0.7,
+          "price": 20600,
+          "change_pct": 6.57,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전닉스 급락 후 낸드 악재 반영, 인텔 호실적에 반도체 투심 회복 기대",
+          "confidence": 0.7
+        },
+        {
+          "code": "009150",
+          "name": "삼성전기",
+          "score": 0.7,
+          "price": 1448000,
+          "change_pct": 7.66,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전닉스 급락 후 낸드 악재 반영, 인텔 호실적에 반도체 투심 회복 기대",
+          "confidence": 0.7
+        },
+        {
+          "code": "045510",
+          "name": "정원엔시스",
+          "score": 0.6,
+          "price": 941,
+          "change_pct": 8.79,
+          "themes": [],
+          "direction": "long",
+          "reason": "정원엔시스 자사주 소각, SK㈜ 자회사 상폐 등 주주환원 및 지배구조 개선 노력",
+          "confidence": 0.6
+        },
+        {
+          "code": "034730",
+          "name": "SK",
+          "score": 0.6,
+          "price": 655000,
+          "change_pct": 4.97,
+          "themes": [],
+          "direction": "long",
+          "reason": "정원엔시스 자사주 소각, SK㈜ 자회사 상폐 등 주주환원 및 지배구조 개선 노력",
+          "confidence": 0.6
+        },
+        {
+          "code": "028050",
+          "name": "삼성E&A",
+          "score": 0.6,
+          "price": 46650,
+          "change_pct": 12.95,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성E&A 반도체 증설 수혜, SK이터닉스 신재생에너지로 급등",
+          "confidence": 0.6
+        },
+        {
+          "code": "475150",
+          "name": "SK이터닉스",
+          "score": 0.6,
+          "price": 80600,
+          "change_pct": 30.0,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성E&A 반도체 증설 수혜, SK이터닉스 신재생에너지로 급등",
+          "confidence": 0.6
+        },
+        {
+          "code": "259960",
+          "name": "크래프톤",
+          "score": 0.5,
+          "price": 237500,
+          "change_pct": 2.81,
+          "themes": [],
+          "direction": "long",
+          "reason": "크래프톤·엔씨 2분기 실적 호조, 신작 기대감 유효",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
