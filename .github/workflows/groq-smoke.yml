@@ -1,0 +1,37 @@
+name: groq-smoke  # 일회용 — Groq 폴백 경로 실검증. 확인 후 삭제.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Force-Groq smoke test
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          # GEMINI_API_KEY 를 일부러 주지 않음 -> advise()가 Gemini 건너뛰고 Groq만 탄다
+        run: |
+          python - <<'PY'
+          from src.config import load_settings
+          from src.gemini import advisor
+          s = load_settings()
+          assert s.GROQ_API_KEY, "GROQ_API_KEY 미주입"
+          assert not s.GEMINI_API_KEY, "GEMINI_API_KEY 가 있으면 강제-Groq 테스트가 안 됨"
+          articles = [
+              {"title": "삼성전자 3분기 영업이익 시장 예상 상회", "summary": "반도체 업황 회복"},
+              {"title": "코스피 외국인 순매수 전환", "summary": "환율 안정에 수급 개선"},
+          ]
+          r = advisor.advise(s, articles, "post")
+          topics = r.get("topics", [])
+          print("GROQ_OK model=", s.GROQ_MODEL, "topics=", len(topics))
+          if topics:
+              print("first_title=", topics[0].get("title"))
+              print("first_action=", topics[0].get("action"))
+          PY
