@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 
 import requests
@@ -197,6 +198,23 @@ def _build_prompt(
     )
 
 
+_TRAILING_COMMA_RE = re.compile(r",(\s*[}\]])")
+
+
+def _repair_candidates(t: str):
+    """비파괴적 복구 후보를 순서대로 생성 — 안전한 것부터.
+    a) 첫 '{'~마지막 '}'만 취해 앞뒤 설명/잡텍스트 제거
+    b) 그 위에 trailing comma(,} ,]) 제거."""
+    start, end = t.find("{"), t.rfind("}")
+    core = t[start:end + 1] if (start != -1 and end > start) else t
+    no_trailing = _TRAILING_COMMA_RE.sub(r"\1", core)
+    seen = set()
+    for c in (core, no_trailing):
+        if c and c not in seen:
+            seen.add(c)
+            yield c
+
+
 def _extract_json(text: str) -> dict:
     t = text.strip()
     if t.startswith("```"):
@@ -210,19 +228,24 @@ def _extract_json(text: str) -> dict:
     try:
         return json.loads(t)
     except Exception as e:  # noqa: BLE001
-        raise GeminiError(f"JSON 파싱 실패: {e}; head={t[:200]!r}") from e
+        err = e
+    # Gemini가 finishReason=STOP인데도 trailing comma·앞뒤 잡텍스트로 JSON을 살짝
+    # 깨뜨리는 케이스(2026-07-24 실장애: "Expecting property name" @line127)를 살린다.
+    # 진짜 잘림(MAX_TOKENS)은 advise()의 finishReason 가드가 이미 별도 처리하므로,
+    # 여기선 억지 복구로 데이터를 지어내지 않고 비파괴 복구만 시도한다.
+    for candidate in _repair_candidates(t):
+        try:
+            return json.loads(candidate)
+        except Exception:  # noqa: BLE001
+            continue
+    raise GeminiError(f"JSON 파싱 실패: {err}; head={t[:200]!r}") from err
 
 
-def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = "") -> dict:
-    """기사 목록 → 구조화된 종합 자문 dict. 실패 시 GeminiError(가시화).
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-    lessons: 전일 실매매 회고 블록(lessons_builder 생성). 비면 프롬프트에서 무시.
-    """
-    if not settings.GEMINI_API_KEY:
-        raise GeminiError("GEMINI_API_KEY missing")
-    from src.state import lessons as lessons_state
-    cal_block = _render_calibration((lessons_state.load() or {}).get("calibration"))
-    prompt = _build_prompt(articles, settings.max_topics, btype, calibration=cal_block, lessons=lessons)
+
+def _gemini_generate(settings: Settings, prompt: str) -> str:
+    """Gemini generateContent → 완성 텍스트. 실패·미완료는 GeminiError."""
     url = f"{API_BASE}/{settings.GEMINI_MODEL}:generateContent"
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -259,10 +282,48 @@ def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = 
     text = "".join(p.get("text", "") for p in parts).strip()
     if not text:
         raise GeminiError(f"empty text: {str(data)[:300]}")
-    result = _extract_json(text)
+    return text
+
+
+def _groq_generate(settings: Settings, prompt: str) -> str:
+    """Groq(OpenAI 호환) chat completions → 텍스트. Gemini 폴백용."""
+    body = {
+        "model": settings.GROQ_MODEL,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.4,
+        "max_tokens": settings.GEMINI_MAX_OUTPUT_TOKENS,
+        "response_format": {"type": "json_object"},
+    }
+    r = _post_with_retry(
+        GROQ_URL,
+        params=None,
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {settings.GROQ_API_KEY}",
+        },
+        data=json.dumps(body),
+        timeout=45,
+    )
+    if r.status_code != 200:
+        raise GeminiError(f"groq {r.status_code}: {r.text[:300]}")
+    data = r.json()
+    choices = data.get("choices") or []
+    if not choices:
+        raise GeminiError(f"groq empty choices: {str(data)[:300]}")
+    ch = choices[0]
+    if ch.get("finish_reason") == "length":  # 잘림 → JSON 깨짐 방지 위해 명시 에러
+        raise GeminiError("groq 응답 미완료(finish_reason=length) — max_tokens 부족")
+    text = ((ch.get("message") or {}).get("content") or "").strip()
+    if not text:
+        raise GeminiError(f"groq empty text: {str(data)[:300]}")
+    return text
+
+
+def _normalize(result: dict) -> dict:
+    """스키마 검증 + enum 강제 + confidence clamp(프롬프트 인젝션·일탈 방어).
+    Gemini·Groq 두 경로가 공유한다."""
     if "topics" not in result or not isinstance(result.get("topics"), list):
         raise GeminiError(f"스키마 위반(topics 없음): {str(result)[:200]}")
-    # 프롬프트 인젝션·스키마 일탈 방어: enum 강제, confidence clamp
     for t in result["topics"]:
         if t.get("action") not in _VALID_ACTIONS:
             t["action"] = "관찰"
@@ -294,6 +355,29 @@ def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = 
         except (TypeError, ValueError):
             t["confidence"] = 0.0
     return result
+
+
+def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = "") -> dict:
+    """기사 목록 → 구조화된 종합 자문 dict. 실패 시 GeminiError(가시화).
+
+    lessons: 전일 실매매 회고 블록(lessons_builder 생성). 비면 프롬프트에서 무시.
+    메인=Gemini, 실패 시 GROQ_API_KEY 있으면 Groq로 폴백해 브리핑 단절을 막는다.
+    """
+    if not settings.GEMINI_API_KEY and not settings.GROQ_API_KEY:
+        raise GeminiError("GEMINI_API_KEY/GROQ_API_KEY 모두 없음")
+    from src.state import lessons as lessons_state
+    cal_block = _render_calibration((lessons_state.load() or {}).get("calibration"))
+    prompt = _build_prompt(articles, settings.max_topics, btype, calibration=cal_block, lessons=lessons)
+
+    # 1) 메인 = Gemini. 2) 실패 시 GROQ_API_KEY 있으면 Groq 폴백(브리핑 단절 방지).
+    if settings.GEMINI_API_KEY:
+        try:
+            return _normalize(_extract_json(_gemini_generate(settings, prompt)))
+        except Exception as e:  # noqa: BLE001
+            if not settings.GROQ_API_KEY:
+                raise
+            print(f"[advisor] Gemini 실패 -> Groq 폴백: {e}", flush=True)
+    return _normalize(_extract_json(_groq_generate(settings, prompt)))
 
 
 def attribute_pnl(settings: Settings, trades: list[dict]) -> dict:

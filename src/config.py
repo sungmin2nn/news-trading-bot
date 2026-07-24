@@ -16,11 +16,13 @@ SETTINGS_PATH = ROOT / "config" / "settings.yaml"
 class Settings:
     # 시크릿 (env / GitHub Secrets)
     GEMINI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""  # Gemini 실패 시 폴백(없으면 폴백 비활성)
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_CHAT_ID: str = ""
     # 파라미터 (settings.yaml)
     GEMINI_MODEL: str = "gemini-2.5-flash"
     GEMINI_MAX_OUTPUT_TOKENS: int = 8192
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"  # Groq 무료 티어, JSON 모드 지원
     naver_main_pages: int = 3
     max_articles: int = 40
     max_topics: int = 8
@@ -65,7 +67,9 @@ def load_settings() -> Settings:
         s.telegram_max_len = int(tg.get("max_message_len", s.telegram_max_len))
     # 시크릿은 env가 진실 (yaml에 두지 않는다)
     s.GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+    s.GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
     s.TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     s.TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
     s.GEMINI_MODEL = os.environ.get("GEMINI_MODEL", s.GEMINI_MODEL)
+    s.GROQ_MODEL = os.environ.get("GROQ_MODEL", s.GROQ_MODEL)
     return s
