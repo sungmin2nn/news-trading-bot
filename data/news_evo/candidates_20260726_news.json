@@ -1,0 +1,32 @@
+{
+  "date": "20260726",
+  "generated_at": "2026-07-26T08:47:13+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.5,
+          "price": 249500,
+          "change_pct": -7.59,
+          "themes": [],
+          "direction": "long",
+          "reason": "낸드 가격 하락 우려 해소, 저점 매수 기회",
+          "confidence": 0.5
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.5,
+          "price": 1759000,
+          "change_pct": -8.34,
+          "themes": [],
+          "direction": "long",
+          "reason": "낸드 가격 하락 우려 해소, 저점 매수 기회",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
