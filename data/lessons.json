@@ -1,6 +1,6 @@
 {
   "calibration": {
-    "updated_at": "2026-07-25T19:20:14+09:00",
+    "updated_at": "2026-07-26T19:28:17+09:00",
     "overall": {
       "n": 547,
       "hit_rate": 0.3291
@@ -234,6 +234,11 @@
     },
     {
       "ts": "2026-07-25T19:20:14+09:00",
+      "event": "calibration_updated",
+      "note": "N=547"
+    },
+    {
+      "ts": "2026-07-26T19:28:17+09:00",
       "event": "calibration_updated",
       "note": "N=547"
     }
