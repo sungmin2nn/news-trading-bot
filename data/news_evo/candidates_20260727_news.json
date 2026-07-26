@@ -1,0 +1,109 @@
+{
+  "date": "20260727",
+  "generated_at": "2026-07-27T08:48:12+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 249500,
+          "change_pct": -7.59,
+          "themes": [],
+          "direction": "long",
+          "reason": "네이버 엔비디아 투자 유치, 반도체주 반등 시도",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1759000,
+          "change_pct": -8.34,
+          "themes": [],
+          "direction": "long",
+          "reason": "네이버 엔비디아 투자 유치, 반도체주 반등 시도",
+          "confidence": 0.6
+        },
+        {
+          "code": "012330",
+          "name": "현대모비스",
+          "score": 0.5,
+          "price": 482000,
+          "change_pct": -8.02,
+          "themes": [],
+          "direction": "long",
+          "reason": "기아 목표가 하향에도 매수 유지, 현대모비스 수익성 개선",
+          "confidence": 0.5
+        },
+        {
+          "code": "005380",
+          "name": "현대차",
+          "score": 0.5,
+          "price": 401000,
+          "change_pct": -7.18,
+          "themes": [],
+          "direction": "long",
+          "reason": "기아 목표가 하향에도 매수 유지, 현대모비스 수익성 개선",
+          "confidence": 0.5
+        },
+        {
+          "code": "267260",
+          "name": "HD현대일렉트릭",
+          "score": 0.7,
+          "price": 810000,
+          "change_pct": -6.79,
+          "themes": [],
+          "direction": "long",
+          "reason": "전력기기주 40% 급락에도 슈퍼사이클 지속 전망",
+          "confidence": 0.7
+        },
+        {
+          "code": "033100",
+          "name": "제룡전기",
+          "score": 0.7,
+          "price": 44800,
+          "change_pct": -4.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "전력기기주 40% 급락에도 슈퍼사이클 지속 전망",
+          "confidence": 0.7
+        },
+        {
+          "code": "010140",
+          "name": "삼성중공업",
+          "score": 0.7,
+          "price": 22900,
+          "change_pct": -3.17,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성중공업 14조 수주 잭팟 청신호, 증권가 매수 조언",
+          "confidence": 0.7
+        },
+        {
+          "code": "009540",
+          "name": "HD한국조선해양",
+          "score": 0.7,
+          "price": 372000,
+          "change_pct": -2.36,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성중공업 14조 수주 잭팟 청신호, 증권가 매수 조언",
+          "confidence": 0.7
+        },
+        {
+          "code": "042660",
+          "name": "한화오션",
+          "score": 0.7,
+          "price": 87900,
+          "change_pct": -2.22,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성중공업 14조 수주 잭팟 청신호, 증권가 매수 조언",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
