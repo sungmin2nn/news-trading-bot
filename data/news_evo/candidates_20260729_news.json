@@ -1,0 +1,54 @@
+{
+  "date": "20260729",
+  "generated_at": "2026-07-29T08:46:52+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "037070",
+          "name": "파세코",
+          "score": 0.7,
+          "price": 6720,
+          "change_pct": -6.67,
+          "themes": [],
+          "direction": "long",
+          "reason": "기록적 폭염에 유럽 냉방 수요 급증, 관련주 관심",
+          "confidence": 0.7
+        },
+        {
+          "code": "002700",
+          "name": "신일전자",
+          "score": 0.7,
+          "price": 1058,
+          "change_pct": -4.51,
+          "themes": [],
+          "direction": "long",
+          "reason": "기록적 폭염에 유럽 냉방 수요 급증, 관련주 관심",
+          "confidence": 0.7
+        },
+        {
+          "code": "207940",
+          "name": "삼성바이오로직스",
+          "score": 0.6,
+          "price": 1549000,
+          "change_pct": 0.26,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성바이오로직스·셀트리온, 역대급 실적 발표로 바이오주 반등 시도",
+          "confidence": 0.6
+        },
+        {
+          "code": "068270",
+          "name": "셀트리온",
+          "score": 0.6,
+          "price": 177400,
+          "change_pct": -0.73,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성바이오로직스·셀트리온, 역대급 실적 발표로 바이오주 반등 시도",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
