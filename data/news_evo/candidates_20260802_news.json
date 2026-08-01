@@ -1,0 +1,32 @@
+{
+  "date": "20260802",
+  "generated_at": "2026-08-02T08:44:50+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "011200",
+          "name": "HMM",
+          "score": 0.6,
+          "price": 20950,
+          "change_pct": 1.45,
+          "themes": [],
+          "direction": "long",
+          "reason": "혼란한 증시 속 해운업종, 방어주로 주목",
+          "confidence": 0.6
+        },
+        {
+          "code": "028670",
+          "name": "팬오션",
+          "score": 0.6,
+          "price": 5470,
+          "change_pct": 10.84,
+          "themes": [],
+          "direction": "long",
+          "reason": "혼란한 증시 속 해운업종, 방어주로 주목",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
