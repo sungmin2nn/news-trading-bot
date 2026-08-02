@@ -1,0 +1,21 @@
+{
+  "date": "20260803",
+  "generated_at": "2026-08-03T08:46:13+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000150",
+          "name": "두산",
+          "score": 0.6,
+          "price": 1170000,
+          "change_pct": 30.0,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체 업황 회복 기대 속 차익실현 압력",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
