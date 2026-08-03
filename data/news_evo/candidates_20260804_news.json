@@ -1,0 +1,54 @@
+{
+  "date": "20260804",
+  "generated_at": "2026-08-04T08:56:28+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 239500,
+          "change_pct": -8.76,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 증시 기술주 강세, 중동 리스크 완화로 국내 증시 반등 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1567000,
+          "change_pct": -8.79,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 증시 기술주 강세, 중동 리스크 완화로 국내 증시 반등 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "066570",
+          "name": "LG전자",
+          "score": 0.4,
+          "price": 158800,
+          "change_pct": -2.04,
+          "themes": [],
+          "direction": "long",
+          "reason": "LG전자 주가 하락에도 증권가 목표가 상향, MSCI 편출입 주목",
+          "confidence": 0.4
+        },
+        {
+          "code": "016360",
+          "name": "삼성증권",
+          "score": 0.6,
+          "price": 97000,
+          "change_pct": -2.81,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성증권, 9년 만에 발행어음 인가 임박",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
