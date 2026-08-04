@@ -1,0 +1,43 @@
+{
+  "date": "20260805",
+  "generated_at": "2026-08-05T08:50:54+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1577000,
+          "change_pct": 0.64,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 반도체 강세, 월가 하이닉스 매수 추천",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 240000,
+          "change_pct": 0.21,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 반도체 강세, 월가 하이닉스 매수 추천",
+          "confidence": 0.6
+        },
+        {
+          "code": "033160",
+          "name": "엠케이전자",
+          "score": 0.6,
+          "price": 15350,
+          "change_pct": 6.3,
+          "themes": [],
+          "direction": "long",
+          "reason": "美 반도체 강세, 월가 하이닉스 매수 추천",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
