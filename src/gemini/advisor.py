@@ -36,6 +36,8 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
 아래는 방금 수집한 국내 증시 관련 뉴스 기사 목록이다.
 단순 요약이 아니라, 기사 내용 + 너의 시장 지식으로 각 이슈를 깊이 분석하고 명확한 결론을 내라.
 
+{stance}
+
 작업 지침:
 1. 기사들을 '지금 화제가 되는 이슈 주제'별로 묶어라. 단순 시황 중계·가십·중복은 노이즈로 제외하고 개수만 noise_filtered_count에.
 2. 각 주제마다 다음을 충실히 작성하라:
@@ -58,6 +60,25 @@ _PROMPT = """너는 한국 주식 투자팀의 비서이자 애널리스트다.
 뉴스 목록:
 {articles}
 """
+
+
+# 장전/장후 분석 방향(stance) — 같은 뉴스라도 관점을 반대로 잡는다.
+_STANCE_PRE = (
+    "[모드: 장전 · 원인→결과 예측]\n"
+    "지금은 장 시작 전이다. 각 이슈를 '원인'으로 보고, 오늘 장·섹터·개별종목에 어떤 방향의 "
+    "영향을 줄지 '전망'하라. direction/priced_in/picks 모두 '오늘 예상' 관점이다. "
+    "아직 일어나지 않은 결과를 예측하는 것이 목적이다."
+)
+_STANCE_POST = (
+    "[모드: 장후 · 결과→원인 드릴다운]\n"
+    "지금은 장 마감 후다. 오늘 실제 시장 결과:\n{market}\n"
+    "브리핑 전체는 '오늘 코스피/코스닥이 왜 이렇게 움직였는지'를 설명해야 한다. "
+    "이 '결과'를 만든 원인 사건·이슈를 드릴다운해서 정리하라. 각 주제 analysis에는 그 이슈가 "
+    "오늘 지수를 '밀어올렸는지/끌어내렸는지, 어느 섹터를 움직였는지'를 명시하라. "
+    "예측이 아니라 오늘 일어난 것의 설명이다. headline도 '무슨 일이 있었고 그래서 오늘 어떻게 됐다' 식으로. "
+    "direction은 오늘 이미 반영된 실제 방향, priced_in은 대개 '이미반영', "
+    "risk는 '이 해석이 틀렸을 가능성', picks는 내일도 여전히 유효한 것만 담아라."
+)
 
 
 _VALID_ACTIONS = {"관심", "관찰", "회피", "무시"}
@@ -182,6 +203,7 @@ def _build_prompt(
     btype: str,
     calibration: str = "",
     lessons: str = "",
+    stance: str = "",
 ) -> str:
     lines = []
     for i, a in enumerate(articles, 1):
@@ -195,6 +217,7 @@ def _build_prompt(
         articles="\n".join(lines),
         calibration=calibration,
         lessons=lessons,
+        stance=stance,
     )
 
 
@@ -357,17 +380,23 @@ def _normalize(result: dict) -> dict:
     return result
 
 
-def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = "") -> dict:
+def advise(settings: Settings, articles: list[dict], btype: str, lessons: str = "",
+           market: str = "") -> dict:
     """기사 목록 → 구조화된 종합 자문 dict. 실패 시 GeminiError(가시화).
 
     lessons: 전일 실매매 회고 블록(lessons_builder 생성). 비면 프롬프트에서 무시.
+    market: 장후(post) 전용 — 오늘 지수 결과 요약(결과→원인 드릴다운의 앵커).
+    stance: 장전=원인→결과 예측, 장후=결과→원인 드릴다운으로 분석 방향을 반대로 잡는다.
     메인=Gemini, 실패 시 GROQ_API_KEY 있으면 Groq로 폴백해 브리핑 단절을 막는다.
     """
     if not settings.GEMINI_API_KEY and not settings.GROQ_API_KEY:
         raise GeminiError("GEMINI_API_KEY/GROQ_API_KEY 모두 없음")
     from src.state import lessons as lessons_state
     cal_block = _render_calibration((lessons_state.load() or {}).get("calibration"))
-    prompt = _build_prompt(articles, settings.max_topics, btype, calibration=cal_block, lessons=lessons)
+    stance = (_STANCE_POST.format(market=market or "(지수 데이터 없음)")
+              if btype == "post" else _STANCE_PRE)
+    prompt = _build_prompt(articles, settings.max_topics, btype,
+                           calibration=cal_block, lessons=lessons, stance=stance)
 
     # 1) 메인 = Gemini. 2) 실패 시 GROQ_API_KEY 있으면 Groq 폴백(브리핑 단절 방지).
     if settings.GEMINI_API_KEY:

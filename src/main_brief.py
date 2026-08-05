@@ -128,6 +128,30 @@ def build_message(result: dict, mode: str) -> str:
     return "\n".join(lines)
 
 
+def _market_snapshot() -> str:
+    """장후(post)용 — 오늘 코스피·코스닥 종가·등락률. 결과→원인 드릴다운의 앵커.
+    실패 시 빈 문자열(브리핑은 계속 나가야 하므로 조용히 스킵)."""
+    from datetime import timedelta
+
+    from src.score import price
+    now = datetime.now(KST)
+    start = (now - timedelta(days=10)).strftime("%Y-%m-%d")
+    end = now.strftime("%Y-%m-%d")
+    parts = []
+    for name, sym in (("코스피", "^KS11"), ("코스닥", "^KQ11")):
+        try:
+            closes = price.fetch_closes(sym, start, end)
+            items = sorted(closes.items())
+            if len(items) < 2:
+                continue
+            last_c, prev_c = items[-1][1], items[-2][1]
+            chg = (last_c / prev_c - 1) * 100
+            parts.append(f"{name} {last_c:,.2f} ({chg:+.2f}%)")
+        except Exception:  # noqa: BLE001
+            continue
+    return " / ".join(parts)
+
+
 def _alert(settings, msg: str, dry_run: bool) -> None:
     """오류를 stderr + (가능하면) 텔레그램으로 가시화."""
     print(msg, file=sys.stderr)
@@ -226,8 +250,11 @@ def main() -> int:
     # 3) Gemini 종합 자문 — pre 모드면 전일 NTR results를 학습 신호로 주입(news_evo 폐쇄루프)
     lessons_block, pnl_block = _prep_news_evo(settings, btype)
     _news_evo_lessons = (lessons_block + "\n" + pnl_block).strip()
+    # 장후는 오늘 지수 결과를 앵커로 주입(결과→원인 드릴다운). 장전은 불필요.
+    market_ctx = _market_snapshot() if btype == "post" else ""
     try:
-        result = advisor.advise(settings, articles, btype, lessons=_news_evo_lessons)
+        result = advisor.advise(settings, articles, btype, lessons=_news_evo_lessons,
+                                market=market_ctx)
     except Exception as e:  # noqa: BLE001
         _alert(settings, f"[Gemini 실패] {e}", args.dry_run)
         return 1
