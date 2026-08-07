@@ -1,0 +1,54 @@
+{
+  "date": "20260807",
+  "generated_at": "2026-08-07T10:39:51+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.5,
+          "price": 232500,
+          "change_pct": 0.87,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·하이닉스 급락 후 반등 모색",
+          "confidence": 0.5
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.5,
+          "price": 1437000,
+          "change_pct": -3.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·하이닉스 급락 후 반등 모색",
+          "confidence": 0.5
+        },
+        {
+          "code": "035760",
+          "name": "CJ ENM",
+          "score": 0.6,
+          "price": 35200,
+          "change_pct": 3.23,
+          "themes": [],
+          "direction": "long",
+          "reason": "CJ ENM·스튜디오드래곤, 턴어라운드 청신호",
+          "confidence": 0.6
+        },
+        {
+          "code": "253450",
+          "name": "스튜디오드래곤",
+          "score": 0.6,
+          "price": 25050,
+          "change_pct": 2.24,
+          "themes": [],
+          "direction": "long",
+          "reason": "CJ ENM·스튜디오드래곤, 턴어라운드 청신호",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
