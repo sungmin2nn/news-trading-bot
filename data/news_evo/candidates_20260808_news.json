@@ -1,0 +1,21 @@
+{
+  "date": "20260808",
+  "generated_at": "2026-08-08T08:21:55+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "009830",
+          "name": "한화솔루션",
+          "score": 0.7,
+          "price": 33900,
+          "change_pct": 11.51,
+          "themes": [],
+          "direction": "long",
+          "reason": "한화솔루션, 美 태양광 견제 수혜로 급등",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
