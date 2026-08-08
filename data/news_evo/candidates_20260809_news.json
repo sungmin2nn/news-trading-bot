@@ -1,0 +1,32 @@
+{
+  "date": "20260809",
+  "generated_at": "2026-08-09T08:15:27+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1422000,
+          "change_pct": -4.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 주주환원 공시, 투자심리 개선 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "096770",
+          "name": "SK이노베이션",
+          "score": 0.6,
+          "price": 120300,
+          "change_pct": 10.77,
+          "themes": [],
+          "direction": "long",
+          "reason": "2분기 실적 긍정적, 3분기 이익 모멘텀 기대",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
