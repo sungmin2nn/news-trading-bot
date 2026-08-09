@@ -1,0 +1,54 @@
+{
+  "date": "20260810",
+  "generated_at": "2026-08-10T08:17:45+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.7,
+          "price": 231000,
+          "change_pct": 0.22,
+          "themes": [],
+          "direction": "long",
+          "reason": "모건스탠리, 메모리 반도체 조정 종료…매수 적기",
+          "confidence": 0.7
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 1422000,
+          "change_pct": -4.88,
+          "themes": [],
+          "direction": "long",
+          "reason": "모건스탠리, 메모리 반도체 조정 종료…매수 적기",
+          "confidence": 0.7
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 231000,
+          "change_pct": 0.22,
+          "themes": [],
+          "direction": "long",
+          "reason": "KB증권, 삼성전자 주주환원 최대 200조원 전망",
+          "confidence": 0.6
+        },
+        {
+          "code": "067170",
+          "name": "오텍",
+          "score": 0.5,
+          "price": 2080,
+          "change_pct": 1.46,
+          "themes": [],
+          "direction": "long",
+          "reason": "오텍, AI 데이터센터 냉각 시장 진입…재평가 기대",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
