@@ -1,42 +1,42 @@
 {
   "calibration": {
-    "updated_at": "2026-08-12T18:52:46+09:00",
+    "updated_at": "2026-08-13T18:52:42+09:00",
     "overall": {
-      "n": 728,
-      "hit_rate": 0.3214
+      "n": 740,
+      "hit_rate": 0.3243
     },
     "by_confidence": [
       {
         "bucket": ">=0.7",
-        "n": 206,
-        "hit_rate": 0.301
+        "n": 209,
+        "hit_rate": 0.3062
       },
       {
         "bucket": "0.5-0.7",
-        "n": 448,
-        "hit_rate": 0.3259
+        "n": 455,
+        "hit_rate": 0.3275
       },
       {
         "bucket": "<0.5",
-        "n": 74,
-        "hit_rate": 0.3514
+        "n": 76,
+        "hit_rate": 0.3553
       }
     ],
     "by_effect": [
       {
         "effect": "수혜",
-        "n": 426,
-        "hit_rate": 0.338
+        "n": 433,
+        "hit_rate": 0.3441
       },
       {
         "effect": "타격",
-        "n": 178,
-        "hit_rate": 0.4494
+        "n": 180,
+        "hit_rate": 0.4444
       },
       {
         "effect": "중립",
-        "n": 124,
-        "hit_rate": 0.0806
+        "n": 127,
+        "hit_rate": 0.0866
       }
     ]
   },
@@ -326,6 +326,11 @@
       "ts": "2026-08-12T18:52:46+09:00",
       "event": "calibration_updated",
       "note": "N=728"
+    },
+    {
+      "ts": "2026-08-13T18:52:42+09:00",
+      "event": "calibration_updated",
+      "note": "N=740"
     }
   ]
 }
