@@ -1,0 +1,65 @@
+{
+  "date": "20260814",
+  "generated_at": "2026-08-14T08:28:32+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.7,
+          "price": 268000,
+          "change_pct": 4.89,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 반도체 수요↑, 美 메모리주 급등",
+          "confidence": 0.7
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 1593000,
+          "change_pct": 5.92,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 반도체 수요↑, 美 메모리주 급등",
+          "confidence": 0.7
+        },
+        {
+          "code": "095610",
+          "name": "테스",
+          "score": 0.7,
+          "price": 145000,
+          "change_pct": -0.62,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 반도체 수요↑, 美 메모리주 급등",
+          "confidence": 0.7
+        },
+        {
+          "code": "222800",
+          "name": "심텍",
+          "score": 0.7,
+          "price": 105800,
+          "change_pct": 1.15,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 반도체 수요↑, 美 메모리주 급등",
+          "confidence": 0.7
+        },
+        {
+          "code": "207940",
+          "name": "삼성바이오로직스",
+          "score": 0.5,
+          "price": 1564000,
+          "change_pct": 0.97,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성바이오로직스, 빅파마 신약 CMO 수주",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
