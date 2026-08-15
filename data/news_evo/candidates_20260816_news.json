@@ -1,0 +1,32 @@
+{
+  "date": "20260816",
+  "generated_at": "2026-08-16T08:08:27+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 274500,
+          "change_pct": 2.43,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·하닉 반등, 비반도체 순환매 기대",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1645000,
+          "change_pct": 3.26,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·하닉 반등, 비반도체 순환매 기대",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
