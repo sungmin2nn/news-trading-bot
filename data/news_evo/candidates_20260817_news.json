@@ -1,0 +1,54 @@
+{
+  "date": "20260817",
+  "generated_at": "2026-08-17T08:07:44+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 274500,
+          "change_pct": 2.43,
+          "themes": [],
+          "direction": "long",
+          "reason": "반도체 업황 호조 속 솔리다임 IPO 논란",
+          "confidence": 0.6
+        },
+        {
+          "code": "010950",
+          "name": "S-Oil",
+          "score": 0.7,
+          "price": 147600,
+          "change_pct": 4.76,
+          "themes": [],
+          "direction": "long",
+          "reason": "정유사, 역대급 이익 지속 전망",
+          "confidence": 0.7
+        },
+        {
+          "code": "078930",
+          "name": "GS",
+          "score": 0.7,
+          "price": 117000,
+          "change_pct": 8.94,
+          "themes": [],
+          "direction": "long",
+          "reason": "정유사, 역대급 이익 지속 전망",
+          "confidence": 0.7
+        },
+        {
+          "code": "096770",
+          "name": "SK이노베이션",
+          "score": 0.7,
+          "price": 128700,
+          "change_pct": 5.75,
+          "themes": [],
+          "direction": "long",
+          "reason": "정유사, 역대급 이익 지속 전망",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
