@@ -1,0 +1,43 @@
+{
+  "date": "20260818",
+  "generated_at": "2026-08-18T08:10:26+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 1645000,
+          "change_pct": 3.26,
+          "themes": [],
+          "direction": "long",
+          "reason": "미 증시 하락 속 메모리 반도체 강세 지속",
+          "confidence": 0.7
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.7,
+          "price": 274500,
+          "change_pct": 2.43,
+          "themes": [],
+          "direction": "long",
+          "reason": "미 증시 하락 속 메모리 반도체 강세 지속",
+          "confidence": 0.7
+        },
+        {
+          "code": "402340",
+          "name": "SK스퀘어",
+          "score": 0.7,
+          "price": 1154000,
+          "change_pct": 3.31,
+          "themes": [],
+          "direction": "long",
+          "reason": "미 증시 하락 속 메모리 반도체 강세 지속",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
