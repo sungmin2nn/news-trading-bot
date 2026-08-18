@@ -1,0 +1,54 @@
+{
+  "date": "20260819",
+  "generated_at": "2026-08-19T08:10:28+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.5,
+          "price": 268500,
+          "change_pct": -2.19,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·하이닉스 주주환원 기대, 외국인 순매수",
+          "confidence": 0.5
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.5,
+          "price": 1662000,
+          "change_pct": 1.03,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·하이닉스 주주환원 기대, 외국인 순매수",
+          "confidence": 0.5
+        },
+        {
+          "code": "003230",
+          "name": "삼양식품",
+          "score": 0.7,
+          "price": 1334000,
+          "change_pct": 5.04,
+          "themes": [],
+          "direction": "long",
+          "reason": "신라면·불닭볶음면, K-라면 수출 급증",
+          "confidence": 0.7
+        },
+        {
+          "code": "004370",
+          "name": "농심",
+          "score": 0.7,
+          "price": 420000,
+          "change_pct": -4.0,
+          "themes": [],
+          "direction": "long",
+          "reason": "신라면·불닭볶음면, K-라면 수출 급증",
+          "confidence": 0.7
+        }
+      ]
+    }
+  }
+}
