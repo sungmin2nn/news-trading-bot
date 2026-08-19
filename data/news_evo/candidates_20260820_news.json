@@ -1,0 +1,32 @@
+{
+  "date": "20260820",
+  "generated_at": "2026-08-20T08:11:13+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1500000,
+          "change_pct": -9.75,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스, 40조 자사주 매입 발표",
+          "confidence": 0.6
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "score": 0.5,
+          "price": 1177000,
+          "change_pct": 2.71,
+          "themes": [],
+          "direction": "long",
+          "reason": "한화에어로, K9MH 美 10조 양산 기대",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
