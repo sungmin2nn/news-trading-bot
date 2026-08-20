@@ -1,0 +1,43 @@
+{
+  "date": "20260821",
+  "generated_at": "2026-08-21T08:13:23+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.5,
+          "price": 271000,
+          "change_pct": 9.49,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 40조 자사주, 삼성전자도 기대",
+          "confidence": 0.5
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.5,
+          "price": 1691000,
+          "change_pct": 12.73,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 40조 자사주, 삼성전자도 기대",
+          "confidence": 0.5
+        },
+        {
+          "code": "002380",
+          "name": "KCC",
+          "score": 0.3,
+          "price": 474500,
+          "change_pct": 8.46,
+          "themes": [],
+          "direction": "long",
+          "reason": "KCC, 삼성전자 특별배당으로 주주환원 강화",
+          "confidence": 0.3
+        }
+      ]
+    }
+  }
+}
