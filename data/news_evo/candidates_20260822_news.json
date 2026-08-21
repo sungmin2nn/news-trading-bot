@@ -1,0 +1,43 @@
+{
+  "date": "20260822",
+  "generated_at": "2026-08-22T08:11:23+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 281500,
+          "change_pct": 3.87,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·SK하이닉스 대규모 주주환원, 시장 영향 주목",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1730000,
+          "change_pct": 2.31,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼전·SK하이닉스 대규모 주주환원, 시장 영향 주목",
+          "confidence": 0.6
+        },
+        {
+          "code": "088350",
+          "name": "한화생명",
+          "score": 0.5,
+          "price": 5470,
+          "change_pct": -0.73,
+          "themes": [],
+          "direction": "long",
+          "reason": "한화생명, 2분기 실적 호조로 목표가 줄상향",
+          "confidence": 0.5
+        }
+      ]
+    }
+  }
+}
