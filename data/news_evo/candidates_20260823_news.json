@@ -1,0 +1,76 @@
+{
+  "date": "20260823",
+  "generated_at": "2026-08-23T08:08:25+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1730000,
+          "change_pct": 2.31,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표, AI 반도체 시장 영향",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 281500,
+          "change_pct": 3.87,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표, AI 반도체 시장 영향",
+          "confidence": 0.6
+        },
+        {
+          "code": "042700",
+          "name": "한미반도체",
+          "score": 0.6,
+          "price": 213500,
+          "change_pct": -5.32,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표, AI 반도체 시장 영향",
+          "confidence": 0.6
+        },
+        {
+          "code": "007660",
+          "name": "이수페타시스",
+          "score": 0.6,
+          "price": 99300,
+          "change_pct": -5.43,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표, AI 반도체 시장 영향",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1730000,
+          "change_pct": 2.31,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 자사주 소각, 주주환원 기대감 증폭",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 281500,
+          "change_pct": 3.87,
+          "themes": [],
+          "direction": "long",
+          "reason": "SK하이닉스 자사주 소각, 주주환원 기대감 증폭",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
