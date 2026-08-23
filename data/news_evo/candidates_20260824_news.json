@@ -1,0 +1,109 @@
+{
+  "date": "20260824",
+  "generated_at": "2026-08-24T08:09:00+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 281500,
+          "change_pct": 3.87,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표 및 AI 생태계 확장",
+          "confidence": 0.6
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.6,
+          "price": 1730000,
+          "change_pct": 2.31,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표 및 AI 생태계 확장",
+          "confidence": 0.6
+        },
+        {
+          "code": "298040",
+          "name": "효성중공업",
+          "score": 0.7,
+          "price": 2721000,
+          "change_pct": -4.76,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 데이터센터 확대로 전력 인프라 수혜",
+          "confidence": 0.7
+        },
+        {
+          "code": "010120",
+          "name": "LS ELECTRIC",
+          "score": 0.7,
+          "price": 187000,
+          "change_pct": -6.12,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 데이터센터 확대로 전력 인프라 수혜",
+          "confidence": 0.7
+        },
+        {
+          "code": "095910",
+          "name": "에스에너지",
+          "score": 0.7,
+          "price": 626,
+          "change_pct": -5.86,
+          "themes": [],
+          "direction": "long",
+          "reason": "AI 데이터센터 확대로 전력 인프라 수혜",
+          "confidence": 0.7
+        },
+        {
+          "code": "032830",
+          "name": "삼성생명",
+          "score": 0.6,
+          "price": 328500,
+          "change_pct": 10.61,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성전자 30조 배당, 삼성생명·화재 목표가↑",
+          "confidence": 0.6
+        },
+        {
+          "code": "000810",
+          "name": "삼성화재",
+          "score": 0.6,
+          "price": 661000,
+          "change_pct": 6.27,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성전자 30조 배당, 삼성생명·화재 목표가↑",
+          "confidence": 0.6
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 281500,
+          "change_pct": 3.87,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성전자 30조 배당, 삼성생명·화재 목표가↑",
+          "confidence": 0.6
+        },
+        {
+          "code": "012450",
+          "name": "한화에어로스페이스",
+          "score": 0.6,
+          "price": 1085000,
+          "change_pct": -7.03,
+          "themes": [],
+          "direction": "long",
+          "reason": "한화에어로, K9 美 진출 '단일 수주 이상 의미'",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
