@@ -1,0 +1,76 @@
+{
+  "date": "20260826",
+  "generated_at": "2026-08-26T08:14:22+09:00",
+  "strategies": {
+    "news_evo": {
+      "candidates": [
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.7,
+          "price": 257000,
+          "change_pct": 0.0,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표 임박, 반도체 방향 결정",
+          "confidence": 0.7
+        },
+        {
+          "code": "000660",
+          "name": "SK하이닉스",
+          "score": 0.7,
+          "price": 1678000,
+          "change_pct": 0.42,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표 임박, 반도체 방향 결정",
+          "confidence": 0.7
+        },
+        {
+          "code": "356860",
+          "name": "티엘비",
+          "score": 0.7,
+          "price": 38700,
+          "change_pct": 14.67,
+          "themes": [],
+          "direction": "long",
+          "reason": "엔비디아 실적 발표 임박, 반도체 방향 결정",
+          "confidence": 0.7
+        },
+        {
+          "code": "005930",
+          "name": "삼성전자",
+          "score": 0.6,
+          "price": 257000,
+          "change_pct": 0.0,
+          "themes": [],
+          "direction": "long",
+          "reason": "삼성전자 과도한 주가 조정, 상승 여력 충분",
+          "confidence": 0.6
+        },
+        {
+          "code": "278470",
+          "name": "에이피알",
+          "score": 0.5,
+          "price": 440500,
+          "change_pct": 7.57,
+          "themes": [],
+          "direction": "long",
+          "reason": "K뷰티 글로벌 인기, 화장품주 신고가 행진",
+          "confidence": 0.5
+        },
+        {
+          "code": "034020",
+          "name": "두산에너빌리티",
+          "score": 0.6,
+          "price": 80700,
+          "change_pct": 10.55,
+          "themes": [],
+          "direction": "long",
+          "reason": "두산에너빌리티 급등, 북미 원전 시장 모멘텀",
+          "confidence": 0.6
+        }
+      ]
+    }
+  }
+}
