@@ -22,7 +22,8 @@ class Settings:
     # 파라미터 (settings.yaml)
     GEMINI_MODEL: str = "gemini-2.5-flash"
     GEMINI_MAX_OUTPUT_TOKENS: int = 8192
-    GROQ_MODEL: str = "llama-3.3-70b-versatile"  # Groq 무료 티어, JSON 모드 지원
+    GROQ_MODEL: str = "openai/gpt-oss-120b"  # Groq 무료 티어, JSON 모드 지원
+    # (구 llama-3.3-70b-versatile은 2026-08 기준 폐기돼 404 — 폴백이 죽어 있었음)
     naver_main_pages: int = 3
     max_articles: int = 40
     max_topics: int = 8
